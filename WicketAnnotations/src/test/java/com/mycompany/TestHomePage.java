@@ -36,5 +36,9 @@ public class TestHomePage
 		//test JSON result
 		JSONObject jsonObject = new JSONObject(TestRestResource.createTestPerson());		
 		Assert.assertEquals(jsonObject.toString(), tester.getLastResponseAsString());
+		
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api/1");
+		
 	}
 }

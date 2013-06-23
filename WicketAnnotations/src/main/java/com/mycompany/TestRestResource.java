@@ -1,6 +1,7 @@
 package com.mycompany;
 
 import com.mycompany.annotations.HttpMethod;
+import com.mycompany.annotations.JsonBody;
 import com.mycompany.annotations.MethodMapping;
 import com.mycompany.resource.AbstractRestResource;
 
@@ -18,6 +19,13 @@ public class TestRestResource extends AbstractRestResource {
 	@MethodMapping(value = "",  httpMethod = HttpMethod.POST)
 	public Person testMethodPost(){
 		System.out.println("method with no param but POST request");
+		Person person = createTestPerson();
+		return person;
+	}
+	
+	@MethodMapping(value = "{id}",  httpMethod = HttpMethod.POST)
+	public Person testMethodPostComplex(int id, @JsonBody String message){
+		System.out.println("params : " + id + " " + message);
 		Person person = createTestPerson();
 		return person;
 	}

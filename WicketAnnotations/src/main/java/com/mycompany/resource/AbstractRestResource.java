@@ -1,14 +1,20 @@
 package com.mycompany.resource;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.ajax.json.JSONObject;
@@ -24,6 +30,7 @@ import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.util.string.StringValueConversionException;
 
 import com.mycompany.annotations.HttpMethod;
+import com.mycompany.annotations.JsonBody;
 import com.mycompany.annotations.MethodMapping;
 
 public class AbstractRestResource implements IResource {
@@ -82,31 +89,17 @@ public class AbstractRestResource implements IResource {
 		
 		Method targetMethod = mappedMethod.getMethod();
 		Class<?>[] argsClasses = targetMethod.getParameterTypes();
-		List parametersValues = new ArrayList();
-		
+		List parametersValues = new ArrayList();		
 		Iterator<StringValue> segmentsIterator = mappedMethod.getSegments().iterator();
 		
 		for (int i = 0; i < argsClasses.length; i++) {
 			Class<?> argClass = argsClasses[i];
-			try {
-				StringValue segmentValue = null;
-				
-				while(segmentsIterator.hasNext()){
-					segmentValue = segmentsIterator.next();
-					if(segmentValue instanceof VariableSegment)
-						break;
-				}
-				
-				if(segmentValue != null){
-					int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
-					StringValue actualValue = pageParameters.get(indexOf);
-					
-					parametersValues.add(toObject(argClass, actualValue.toString()));
-				}
-				
-			} catch (Exception e) {
-				throw new RuntimeException("Error retrieving a constructor with a string parameter.", e);
-			} 
+			
+			if(parameterIsJsonBody(i, targetMethod.getParameterAnnotations()))
+				parametersValues.add(extractObjectFromBody(argClass));
+			else
+				parametersValues.add(extractParameterFromUrl(mappedMethod, pageParameters,
+														 segmentsIterator, argClass)); 
 		}
 		
 		try {
@@ -114,6 +107,66 @@ public class AbstractRestResource implements IResource {
 		} catch (Exception e) {
 			throw new RuntimeException("Error invoking method '" + targetMethod.getName() + "'", e);
 		} 
+	}
+
+	private Object extractObjectFromBody(Class<?> argClass) {
+		ServletWebRequest servletRequest = (ServletWebRequest)RequestCycle.get().getRequest();
+		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
+		try {
+			ServletInputStream inputStream = httpRequest.getInputStream();
+			BufferedReader bufReader = new BufferedReader(new InputStreamReader(inputStream));
+			CharBuffer target = CharBuffer.allocate(100);
+			
+			bufReader.read(target);
+			
+			return "hallo";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+
+	private boolean parameterIsJsonBody(int i,
+			Annotation[][] parametersAnnotations) {
+		if(parametersAnnotations.length == 0)
+			return false;
+		
+		Annotation[] parameterAnnotation = parametersAnnotations[i];
+		
+		for (int j = 0; j < parameterAnnotation.length; j++) {
+			Annotation annotation = parameterAnnotation[j];
+			if(annotation instanceof JsonBody)
+				return true;
+		}
+		return false;
+	}
+
+	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod, PageParameters pageParameters, 
+											Iterator<StringValue> segmentsIterator, Class<?> argClass) {
+		try {
+			StringValue segmentValue = null;
+			
+			while(segmentsIterator.hasNext()){
+				StringValue currentSegment = segmentsIterator.next();
+				
+				if(currentSegment instanceof VariableSegment){
+					segmentValue = currentSegment;
+					break;
+				}
+			}
+			
+			if(segmentValue != null){
+				int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
+				StringValue actualValue = pageParameters.get(indexOf);
+				
+				return toObject(argClass, actualValue.toString());
+			}
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException("Error retrieving a constructor with a string parameter.", e);
+		}
 	}
 	
 	public static Object toObject( Class clazz, String value ) {
