@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.resource;
+package org.wicketstuff.rest.resource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,12 +44,12 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.util.string.StringValueConversionException;
+import org.wicketstuff.rest.annotations.HttpMethod;
+import org.wicketstuff.rest.annotations.JsonBody;
+import org.wicketstuff.rest.annotations.MethodMapping;
 
 
 import com.google.gson.Gson;
-import com.mycompany.annotations.HttpMethod;
-import com.mycompany.annotations.JsonBody;
-import com.mycompany.annotations.MethodMapping;
 
 public class AbstractRestResource implements IResource {
 	private Map<String, UrlMappingInfo> mappedMethods = new HashMap<String, UrlMappingInfo>();

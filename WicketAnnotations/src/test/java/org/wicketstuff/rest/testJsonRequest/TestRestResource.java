@@ -14,13 +14,14 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.testJsonRequest;
+package org.wicketstuff.rest.testJsonRequest;
 
-import com.mycompany.Person;
-import com.mycompany.annotations.HttpMethod;
-import com.mycompany.annotations.JsonBody;
-import com.mycompany.annotations.MethodMapping;
-import com.mycompany.resource.AbstractRestResource;
+import org.wicketstuff.rest.Person;
+import org.wicketstuff.rest.annotations.HttpMethod;
+import org.wicketstuff.rest.annotations.JsonBody;
+import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.resource.AbstractRestResource;
+
 
 public class TestRestResource extends AbstractRestResource {
 	/**

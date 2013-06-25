@@ -1,4 +1,4 @@
-package com.mycompany.testJsonRequest;
+package org.wicketstuff.rest.testJsonRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -14,21 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany;
+package org.wicketstuff.rest;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.resource.AbstractRestResource;
+import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 
-import com.mycompany.annotations.MethodMapping;
-import com.mycompany.resource.AbstractRestResource;
-import com.mycompany.testJsonRequest.TestRestResource;
 
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.
  * 
- * @see com.mycompany.Start#main(String[])
+ * @see org.wicketstuff.rest.Start#main(String[])
  */
 public class WicketApplication extends WebApplication
 {    	

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany.annotations;
+package org.wicketstuff.rest.annotations;
 
 public enum HttpMethod {
 	GET("GET"), 

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany;
+package org.wicketstuff.rest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,11 +26,12 @@ import org.apache.wicket.ajax.json.JSONObject;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
+import org.wicketstuff.rest.WicketApplication;
+import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
 
-import static com.mycompany.testJsonRequest.TestRestResource.createTestPerson;
+import static org.wicketstuff.rest.testJsonRequest.TestRestResource.createTestPerson;
 
 import com.google.gson.Gson;
-import com.mycompany.testJsonRequest.JsonMockRequest;
 
 /**
  * Simple test using the WicketTester
