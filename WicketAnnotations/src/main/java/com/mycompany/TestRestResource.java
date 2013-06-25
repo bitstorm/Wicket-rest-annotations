@@ -40,9 +40,9 @@ public class TestRestResource extends AbstractRestResource {
 	}
 	
 	@MethodMapping(value = "{id}",  httpMethod = HttpMethod.POST)
-	public Person testMethodPostComplex(int id, @JsonBody String message){
-		System.out.println("params : " + id + " " + message);
-		Person person = createTestPerson();
+	public Person testMethodPostComplex(int id, @JsonBody Person person){
+		System.out.println("params : " + id + " " + person);
+		
 		return person;
 	}
 

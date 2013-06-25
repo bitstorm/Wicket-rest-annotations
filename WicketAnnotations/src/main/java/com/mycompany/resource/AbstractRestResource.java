@@ -44,14 +44,16 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.string.StringValue;
 import org.apache.wicket.util.string.StringValueConversionException;
-import org.codehaus.jackson.map.ObjectMapper;
 
+
+import com.google.gson.Gson;
 import com.mycompany.annotations.HttpMethod;
 import com.mycompany.annotations.JsonBody;
 import com.mycompany.annotations.MethodMapping;
 
 public class AbstractRestResource implements IResource {
 	private Map<String, UrlMappingInfo> mappedMethods = new HashMap<String, UrlMappingInfo>();
+	private Gson gson = new Gson();
 	
 	public AbstractRestResource() {
 		loadAnnotatedMethods();
@@ -71,9 +73,13 @@ public class AbstractRestResource implements IResource {
 			Object result = invokeMappedMethod(mappedMethod, pageParameters);
 			
 			if(result != null){
-				JSONObject jsonObject = new JSONObject(result);
 				response.setContentType("application/json");
-				response.write(jsonObject.toString());
+				try {
+					response.write(gson.toJson(result));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -130,13 +136,11 @@ public class AbstractRestResource implements IResource {
 		ServletWebRequest servletRequest = (ServletWebRequest)RequestCycle.get().getRequest();
 		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
 		try {
-			ServletInputStream inputStream = httpRequest.getInputStream();
-			BufferedReader bufReader = new BufferedReader(new InputStreamReader(inputStream));
-			CharBuffer target = CharBuffer.allocate(100);
+			BufferedReader bufReader = httpRequest.getReader();
+			//StringBuffer target = new StringBuffer();
 			
-			bufReader.read(target);
-			ObjectMapper mapper = new ObjectMapper();
-			return mapper.readValue(target.toString(), argClass);			
+			String jsonString = bufReader.readLine();
+			return gson.fromJson(jsonString, argClass);			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

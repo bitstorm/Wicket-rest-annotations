@@ -16,12 +16,20 @@
  */
 package com.mycompany;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+
 import junit.framework.Assert;
 
 import org.apache.wicket.ajax.json.JSONObject;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
+import static com.mycompany.TestRestResource.createTestPerson;
+
+import com.google.gson.Gson;
+import com.mycompany.testJsonRequest.JsonMockRequest;
 
 /**
  * Simple test using the WicketTester
@@ -50,10 +58,15 @@ public class TestHomePage
 		tester.executeUrl("./api");
 		
 		//test JSON result
-		JSONObject jsonObject = new JSONObject(TestRestResource.createTestPerson());		
-		Assert.assertEquals(jsonObject.toString(), tester.getLastResponseAsString());
+		Gson gson = new Gson();
+		Assert.assertEquals(gson.toJson(createTestPerson()), tester.getLastResponseAsString());
 		
-		tester.getRequest().setMethod("POST");
+		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
+		jsonMockRequest.setReader(new BufferedReader(new StringReader(
+				gson.toJson(createTestPerson()))));
+		
+		tester.setRequest(jsonMockRequest);
+		
 		tester.executeUrl("./api/19");
 		
 	}
