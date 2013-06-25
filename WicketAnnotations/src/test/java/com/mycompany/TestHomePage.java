@@ -26,7 +26,8 @@ import org.apache.wicket.ajax.json.JSONObject;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
-import static com.mycompany.TestRestResource.createTestPerson;
+
+import static com.mycompany.testJsonRequest.TestRestResource.createTestPerson;
 
 import com.google.gson.Gson;
 import com.mycompany.testJsonRequest.JsonMockRequest;

@@ -23,6 +23,7 @@ import org.apache.wicket.request.resource.ResourceReference;
 
 import com.mycompany.annotations.MethodMapping;
 import com.mycompany.resource.AbstractRestResource;
+import com.mycompany.testJsonRequest.TestRestResource;
 
 /**
  * Application object for your web application. If you want to run this application without deploying, run the Start class.

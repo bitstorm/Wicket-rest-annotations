@@ -14,17 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.mycompany;
+package com.mycompany.testJsonRequest;
 
+import com.mycompany.Person;
 import com.mycompany.annotations.HttpMethod;
 import com.mycompany.annotations.JsonBody;
 import com.mycompany.annotations.MethodMapping;
 import com.mycompany.resource.AbstractRestResource;
 
 public class TestRestResource extends AbstractRestResource {
+	/**
+	 * Method invoked for GET requests and URLs like '<resource path>/5'
+	 * The id parameter is automatically extracted from URL
+	 */
 	@MethodMapping("{id}")
 	public void testMethodInt(int id){
-		System.out.println("method with id:" + id);
+	}
+	
+	/**
+	 * Method invoked for GET requests and URLs like '<resource path>/5'
+	 * The id parameter is automatically extracted from URL
+	 * The person parameter is automatically deserialized from request body (which is JSON)
+	 * The returned object is automatically serialized to JSON and written in the response
+	 */
+	@MethodMapping(value = "{id}",  httpMethod = HttpMethod.POST)
+	public Person testMethodPostComplex(int id, @JsonBody Person person){
+		return person;
 	}
 	
 	@MethodMapping("")
@@ -34,18 +49,10 @@ public class TestRestResource extends AbstractRestResource {
 	
 	@MethodMapping(value = "",  httpMethod = HttpMethod.POST)
 	public Person testMethodPost(){
-		System.out.println("method with no param but POST request");
 		Person person = createTestPerson();
 		return person;
 	}
 	
-	@MethodMapping(value = "{id}",  httpMethod = HttpMethod.POST)
-	public Person testMethodPostComplex(int id, @JsonBody Person person){
-		System.out.println("params : " + id + " " + person);
-		
-		return person;
-	}
-
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
