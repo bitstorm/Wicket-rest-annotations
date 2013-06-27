@@ -58,6 +58,8 @@ public class AbstractRestResource implements IResource {
 	public AbstractRestResource() {
 		loadAnnotatedMethods();
 	}
+	
+	protected void configureGson(final Gson gson){}
 
 	@Override
 	public void respond(Attributes attributes) {
@@ -77,8 +79,7 @@ public class AbstractRestResource implements IResource {
 				try {
 					response.write(gson.toJson(result));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException("Error dserializing object to response", e);
 				}
 			}
 		}
@@ -137,16 +138,12 @@ public class AbstractRestResource implements IResource {
 		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
 		try {
 			BufferedReader bufReader = httpRequest.getReader();
-			//StringBuffer target = new StringBuffer();
-			
 			String jsonString = bufReader.readLine();
+			
 			return gson.fromJson(jsonString, argClass);			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Error deserializing object from request", e);
 		}
-		
-		return null;
 	}
 
 	private boolean parameterIsJsonBody(int i,
