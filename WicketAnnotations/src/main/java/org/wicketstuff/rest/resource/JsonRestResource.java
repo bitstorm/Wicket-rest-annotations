@@ -51,14 +51,22 @@ import org.wicketstuff.rest.annotations.MethodMapping;
 
 import com.google.gson.Gson;
 
-public class AbstractRestResource implements IResource {
+/**
+ * 
+ * @author andrea del bene
+ *
+ */
+public class JsonRestResource implements IResource {
 	private Map<String, UrlMappingInfo> mappedMethods = new HashMap<String, UrlMappingInfo>();
 	private Gson gson = new Gson();
 	
-	public AbstractRestResource() {
+	public JsonRestResource() {
 		loadAnnotatedMethods();
 	}
 	
+	/**
+	 * Convenience method to configure the JSON serializer/deserializer object.
+	 */
 	protected void configureGson(final Gson gson){}
 
 	@Override
@@ -103,6 +111,12 @@ public class AbstractRestResource implements IResource {
 		}
 	}
 	
+	/**
+	 * Utility method to extract the request method
+	 * @param clazz
+	 * @param value
+	 * @return
+	 */
 	public static HttpMethod getHttpMethod(ServletWebRequest request){
 		HttpServletRequest httpRequest = request.getContainerRequest();
 		return HttpMethod.toHttpMethod((httpRequest.getMethod()));
@@ -146,6 +160,13 @@ public class AbstractRestResource implements IResource {
 		}
 	}
 
+	/**
+	 * Check if a parameter is annotated with JsonBody
+	 * @param i
+	 * @param parametersAnnotations
+	 * @return
+	 * @see JsonBody
+	 */
 	private boolean parameterIsJsonBody(int i,
 			Annotation[][] parametersAnnotations) {
 		if(parametersAnnotations.length == 0)
@@ -187,6 +208,12 @@ public class AbstractRestResource implements IResource {
 		}
 	}
 	
+	/**
+	 * Utility method to convert primitive data types to the corresponding wrapper objects
+	 * @param clazz
+	 * @param value
+	 * @return
+	 */
 	public static Object toObject( Class clazz, String value ) {
 	    if( boolean.class == clazz ) return Boolean.parseBoolean( value );
 	    if( byte.class == clazz ) return Byte.parseByte( value );
@@ -224,14 +251,14 @@ class UrlMappingInfo{
 			segments.add(segmentValue);
 		}
 	}
-
-	public List<StringValue> getSegments() {
-		return segments;
-	}
-
+	
 	private boolean isVariableSegment(String segment) {
 		return segment.length() >= 4 && segment.startsWith("{") 
 				&& segment.endsWith("}");
+	}
+	
+	public List<StringValue> getSegments() {
+		return segments;
 	}
 	
 	public int getSegmentsCount(){
