@@ -137,16 +137,16 @@ public class AbstractRestResource implements IResource {
 		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
 		try {
 			BufferedReader bufReader = httpRequest.getReader();
-			//StringBuffer target = new StringBuffer();
+			StringBuilder builder = new StringBuilder();
+			String jsonString;
 			
-			String jsonString = bufReader.readLine();
-			return gson.fromJson(jsonString, argClass);			
+			while((jsonString = bufReader.readLine()) != null)
+				builder.append(jsonString);
+			
+			return gson.fromJson(builder.toString(), argClass);			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("Error reading object from request body.", e);
 		}
-		
-		return null;
 	}
 
 	private boolean parameterIsJsonBody(int i,
