@@ -66,6 +66,9 @@ public class JsonRestResource implements IResource {
 	
 	/**
 	 * Convenience method to configure the JSON serializer/deserializer object.
+	 * 
+	 * @param gson
+	 * 			the gson object used for JSON serializer/deserializer
 	 */
 	protected void configureGson(final Gson gson){}
 
@@ -93,6 +96,9 @@ public class JsonRestResource implements IResource {
 		}
 	}
 	
+	/***
+	 * Internal method to load class methods annotated with {@link MethodMapping}
+	 */
 	private void loadAnnotatedMethods() {
 		Method[] methods = getClass().getDeclaredMethods();		
 		
@@ -147,6 +153,13 @@ public class JsonRestResource implements IResource {
 		} 
 	}
 
+	/**
+	 * Internal method that tries to extract an instance of the given class from the request body.
+	 * @param argClass
+	 * 			the type we want to extract from request body
+	 * @return
+	 * 			the extracted object
+	 */
 	private Object extractObjectFromBody(Class<?> argClass) {
 		ServletWebRequest servletRequest = (ServletWebRequest)RequestCycle.get().getRequest();
 		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
@@ -165,10 +178,12 @@ public class JsonRestResource implements IResource {
 	}
 
 	/**
-	 * Check if a parameter is annotated with JsonBody
-	 * @param i
+	 * Check if a parameter is annotated with {@link JsonBody}
+	 * @param i 
+	 * 			function parameter index 
 	 * @param parametersAnnotations
-	 * @return
+	 * 			bidimensional array containing the annotations for function parameters
+	 * @return true if the function parameter is annotated with JsonBody, false otherwise
 	 * @see JsonBody
 	 */
 	private boolean parameterIsJsonBody(int i,
@@ -186,6 +201,15 @@ public class JsonRestResource implements IResource {
 		return false;
 	}
 
+	/***
+	 * 
+	 * 
+	 * @param mappedMethod
+	 * @param pageParameters
+	 * @param segmentsIterator
+	 * @param argClass
+	 * @return
+	 */
 	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod, PageParameters pageParameters, 
 											Iterator<StringValue> segmentsIterator, Class<?> argClass) {
 		try {
@@ -215,8 +239,11 @@ public class JsonRestResource implements IResource {
 	/**
 	 * Utility method to convert primitive data types to the corresponding wrapper objects
 	 * @param clazz
+	 * 			the primitive class we want to convert
 	 * @param value
+	 * 			the string value we want to convert into the wrapper class
 	 * @return
+	 * 			the wrapper class for the given primitive type
 	 */
 	public static Object toObject( Class clazz, String value ) {
 	    if( boolean.class == clazz ) return Boolean.parseBoolean( value );
