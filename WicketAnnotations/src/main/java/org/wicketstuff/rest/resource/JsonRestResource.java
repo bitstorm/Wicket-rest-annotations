@@ -52,6 +52,7 @@ import org.wicketstuff.rest.annotations.MethodMapping;
 import com.google.gson.Gson;
 
 /**
+ * Base class to build a resource that serves REST requests with JSON as exchange format.
  * 
  * @author andrea del bene
  *
@@ -72,6 +73,10 @@ public class JsonRestResource implements IResource {
 	 */
 	protected void configureGson(final Gson gson){}
 
+	/***
+	 * Handles a REST request invoking one of the methods annotated with {@link MethodMapping}. If the method returns a value, 
+	 * it is automatically serialized as a JSON string and written in the response.
+	 */
 	@Override
 	public void respond(Attributes attributes) {
 		PageParameters pageParameters = attributes.getParameters();
@@ -121,13 +126,24 @@ public class JsonRestResource implements IResource {
 	 * Utility method to extract the request method
 	 * @param clazz
 	 * @param value
-	 * @return
+	 * @return the HTTP method used for this request
+	 * @see HttpMethod
 	 */
 	public static HttpMethod getHttpMethod(ServletWebRequest request){
 		HttpServletRequest httpRequest = request.getContainerRequest();
 		return HttpMethod.toHttpMethod((httpRequest.getMethod()));
 	}
 	
+	/***
+	 * This method invokes one of the resource's method annotated with {@link MethodMapping}
+	 * 
+	 * @param mappedMethod
+	 * 			mapping info of the method
+	 * @param pageParameters
+	 * 			PageParametrs object of the current request
+	 * @return
+	 * 			the value returned by the invoked method
+	 */
 	private Object invokeMappedMethod(UrlMappingInfo mappedMethod,
 			PageParameters pageParameters) {
 		
@@ -202,13 +218,18 @@ public class JsonRestResource implements IResource {
 	}
 
 	/***
-	 * 
+	 * Extract parameters values from the rest URL 
 	 * 
 	 * @param mappedMethod
+	 * 			mapping info of the method
 	 * @param pageParameters
+	 * 			PageParametrs object of the current request
 	 * @param segmentsIterator
+	 * 			iterator over the mapped segments
 	 * @param argClass
+	 * 			type of the parameter we want to extract
 	 * @return
+	 * 			the parameter's value
 	 */
 	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod, PageParameters pageParameters, 
 											Iterator<StringValue> segmentsIterator, Class<?> argClass) {
