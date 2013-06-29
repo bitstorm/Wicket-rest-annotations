@@ -20,10 +20,10 @@ import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.AbstractRestResource;
+import org.wicketstuff.rest.resource.JsonRestResource;
 
 
-public class TestRestResource extends AbstractRestResource {
+public class TestRestResource extends JsonRestResource {
 	/**
 	 * Method invoked for GET requests and URLs like '<resource path>/5'
 	 * The id parameter is automatically extracted from URL

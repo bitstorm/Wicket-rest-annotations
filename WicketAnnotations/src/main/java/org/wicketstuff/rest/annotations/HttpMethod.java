@@ -15,7 +15,12 @@
  *  limitations under the License.
  */
 package org.wicketstuff.rest.annotations;
-
+/***
+ * Enum class that represents all the possible request methods
+ * 
+ * @author andrea del bene
+ *
+ */
 public enum HttpMethod {
 	GET("GET"), 
 	POST("POST"), 

@@ -21,7 +21,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.AbstractRestResource;
+import org.wicketstuff.rest.resource.JsonRestResource;
 import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 
 
