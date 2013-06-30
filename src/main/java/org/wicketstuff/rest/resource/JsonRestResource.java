@@ -279,6 +279,7 @@ public class JsonRestResource implements IResource {
 }
 
 /**
+ * This class contains the informations of a resource's mapped method (i.e. a method annotated with {@link MethodMapping})
  * 
  * @author andrea del bene
  *
@@ -288,6 +289,16 @@ class UrlMappingInfo{
 	private List<StringValue> segments = new ArrayList<StringValue>();
 	private Method method;
 	
+	/**
+	 * Class construnctor.
+	 * 
+	 * @param urlPath
+	 * 			the URL used to map a resource's method
+	 * @param httpMethod
+	 * 			the request method that must be used to invoke the mapped method (see class {@link HttpMethod}).
+	 * @param method
+	 * 			the resource's method mapped. 
+	 */
 	public UrlMappingInfo(String urlPath, HttpMethod httpMethod, Method method){
 		this.httpMethod = httpMethod;
 		this.method = method;
