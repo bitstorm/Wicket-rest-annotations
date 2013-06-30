@@ -69,7 +69,7 @@ public class JsonRestResource implements IResource {
 	 * Convenience method to configure the JSON serializer/deserializer object.
 	 * 
 	 * @param gson
-	 * 			the gson object used for JSON serializer/deserializer
+	 * 			the gson object used for serialize/deserialize JSON 
 	 */
 	protected void configureGson(final Gson gson){}
 
@@ -278,6 +278,11 @@ public class JsonRestResource implements IResource {
 	}
 }
 
+/**
+ * 
+ * @author andrea del bene
+ *
+ */
 class UrlMappingInfo{
 	private HttpMethod httpMethod;
 	private List<StringValue> segments = new ArrayList<StringValue>();
@@ -295,7 +300,7 @@ class UrlMappingInfo{
 			
 			if(segment.isEmpty())continue;
 			
-			if(isVariableSegment(segment))
+			if(isParameterSegment(segment))
 				segmentValue = new VariableSegment(segment);
 			else
 				segmentValue = StringValue.valueOf(segment);
@@ -303,11 +308,18 @@ class UrlMappingInfo{
 			segments.add(segmentValue);
 		}
 	}
-	
-	private boolean isVariableSegment(String segment) {
+	/**
+	 * Utility method to check if a segment contains a parameter (i.e. '/{parameterName}/').
+	 * 
+	 * @param segment
+	 * @return true if the segment contains a parameter, false otherwise.
+	 */
+	private boolean isParameterSegment(String segment) {
 		return segment.length() >= 4 && segment.startsWith("{") 
 				&& segment.endsWith("}");
 	}
+	
+	//getters and setters
 	
 	public List<StringValue> getSegments() {
 		return segments;
@@ -325,7 +337,12 @@ class UrlMappingInfo{
 		return method;
 	}
 }
-
+/**
+ * {@link StringValue} subtype that contains a mounted segment with a parameter's value (for example '/{id}/'). 
+ * 
+ * @author andrea del bene 
+ *
+ */
 class VariableSegment extends StringValue{
 	protected VariableSegment(String text) {
 		super(text);
