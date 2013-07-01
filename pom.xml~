@@ -19,7 +19,7 @@
 	
 	<groupId>org.adelbene.wicket.rest</groupId>
 	<artifactId>restannotations-parent</artifactId>
-	<version>6.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 	<name>Wicket tutorial projects</name>
 	<description>The project is intended to provide code examples for the freely available Wicket tutorial</description>
@@ -29,7 +29,7 @@
 		<maven.javadoc.version>2.8.1</maven.javadoc.version>
 		<maven.surefire.version>2.12.2</maven.surefire.version>
 	</properties>
-	
+	<version>6.0-SNAPSHOT</version>
 	<modules>	
 	    <module>restannotations</module>	 
   	</modules>	
