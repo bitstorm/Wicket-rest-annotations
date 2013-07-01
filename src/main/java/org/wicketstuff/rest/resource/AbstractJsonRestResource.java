@@ -18,38 +18,26 @@ package org.wicketstuff.rest.resource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.wicket.ajax.json.JSONObject;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
-import org.apache.wicket.request.Request;
-import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.string.StringValue;
-import org.apache.wicket.util.string.StringValueConversionException;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
 
-
-import com.google.gson.Gson;
 
 /**
  * Base class to build a resource that serves REST requests with JSON as exchange format.
@@ -57,25 +45,18 @@ import com.google.gson.Gson;
  * @author andrea del bene
  *
  */
-public class JsonRestResource implements IResource {
+public abstract class AbstractJsonRestResource<T> implements IResource {
 	private Map<String, UrlMappingInfo> mappedMethods = new HashMap<String, UrlMappingInfo>();
-	private Gson gson = new Gson();
+	private final T jsonSerialDeserial;
 	
-	public JsonRestResource() {
+	public AbstractJsonRestResource(T jsonSerialDeserial) {
+		this.jsonSerialDeserial = jsonSerialDeserial;
 		loadAnnotatedMethods();
 	}
-	
-	/**
-	 * Convenience method to configure the JSON serializer/deserializer object.
-	 * 
-	 * @param gson
-	 * 			the gson object used for serialize/deserialize JSON 
-	 */
-	protected void configureGson(final Gson gson){}
 
 	/***
-	 * Handles a REST request invoking one of the methods annotated with {@link MethodMapping}. If the method returns a value, 
-	 * it is automatically serialized as a JSON string and written in the response.
+	 * Handles a REST request invoking one of the methods annotated with {@link MethodMapping}. If the annotated method returns a value, 
+	 * this latter is automatically serialized as a JSON string and written in the web response.
 	 */
 	@Override
 	public void respond(Attributes attributes) {
@@ -93,13 +74,18 @@ public class JsonRestResource implements IResource {
 			if(result != null){
 				response.setContentType("application/json");
 				try {
-					response.write(gson.toJson(result));
+					response.write(serializeToJson(result, jsonSerialDeserial));
 				} catch (Exception e) {
-					throw new RuntimeException("Error dserializing object to response", e);
+					throw new RuntimeException("Error serializing object to response", e);
 				}
 			}
 		}
 	}
+
+	protected abstract String serializeToJson(Object result, T jsonSerialDeserial);
+	/*{
+		return jsonSerialDeserial.toJson(result);
+	}*/
 	
 	/***
 	 * Internal method to load class methods annotated with {@link MethodMapping}
@@ -187,11 +173,16 @@ public class JsonRestResource implements IResource {
 			while((jsonString = bufReader.readLine()) != null)
 				builder.append(jsonString);
 			
-			return gson.fromJson(builder.toString(), argClass);				
+			return deserializeFromJson(argClass, builder.toString(), jsonSerialDeserial);				
 		} catch (IOException e) {
 			throw new RuntimeException("Error deserializing object from request", e);
 		}
 	}
+
+	protected abstract Object deserializeFromJson(Class<?> argClass, String json, T jsonSerialDeserial);
+	/*{
+		return jsonSerialDeserial.fromJson(json, argClass);
+	}*/
 
 	/**
 	 * Check if a parameter is annotated with {@link JsonBody}

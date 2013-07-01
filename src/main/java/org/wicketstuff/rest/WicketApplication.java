@@ -18,11 +18,7 @@ package org.wicketstuff.rest;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.request.resource.ResourceReference;
-import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.JsonRestResource;
-import org.wicketstuff.rest.testJsonRequest.TestRestResource;
+
 
 
 /**
@@ -48,14 +44,5 @@ public class WicketApplication extends WebApplication
 	public void init()
 	{
 		super.init();
-		mountResource("/api", new ResourceReference("restReference"){
-
-			@Override
-			public IResource getResource() {
-				return new TestRestResource();
-			}
-			
-		});
-		// add your configuration here
 	}
 }

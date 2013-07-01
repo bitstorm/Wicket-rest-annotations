@@ -20,15 +20,19 @@ import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.JsonRestResource;
+import org.wicketstuff.rest.resource.AbstractJsonRestResource;
 
 
-public class TestRestResource extends JsonRestResource {
+public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
+	public TestRestResource(TestJsonDesSer jsonSerialDeserial) {
+		super(jsonSerialDeserial);
+	}
+
 	/**
 	 * Method invoked for GET requests and URLs like '<resource path>/5'
 	 * The id parameter is automatically extracted from URL
 	 */
-	@MethodMapping("{id}")
+	@MethodMapping("/{id}")
 	public void testMethodInt(int id){
 	}
 	
@@ -38,17 +42,17 @@ public class TestRestResource extends JsonRestResource {
 	 * The person parameter is automatically deserialized from request body (which is JSON)
 	 * The returned object is automatically serialized to JSON and written in the response
 	 */
-	@MethodMapping(value = "{id}",  httpMethod = HttpMethod.POST)
+	@MethodMapping(value = "/{id}",  httpMethod = HttpMethod.POST)
 	public Person testMethodPostComplex(int id, @JsonBody Person person){
 		return person;
 	}
 	
-	@MethodMapping("")
+	@MethodMapping("/")
 	public void testMethod(){
 		System.out.println("method with no param:");
 	}
 	
-	@MethodMapping(value = "",  httpMethod = HttpMethod.POST)
+	@MethodMapping(value = "/",  httpMethod = HttpMethod.POST)
 	public Person testMethodPost(){
 		Person person = createTestPerson();
 		return person;
@@ -57,4 +61,16 @@ public class TestRestResource extends JsonRestResource {
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
+
+	@Override
+	protected String serializeToJson(Object result, TestJsonDesSer jsonSerialDeserial) {
+		return TestJsonDesSer.getJSON();
+	}
+
+	@Override
+	protected Object deserializeFromJson(Class argClass, String json,
+			TestJsonDesSer jsonSerialDeserial) {
+		return TestJsonDesSer.getObject();
+	}
+
 }

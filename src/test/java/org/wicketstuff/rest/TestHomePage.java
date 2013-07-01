@@ -17,21 +17,18 @@
 package org.wicketstuff.rest;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
 
 import junit.framework.Assert;
 
-import org.apache.wicket.ajax.json.JSONObject;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
-import org.wicketstuff.rest.WicketApplication;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
-
-import static org.wicketstuff.rest.testJsonRequest.TestRestResource.createTestPerson;
-
-import com.google.gson.Gson;
+import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
+import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 
 /**
  * Simple test using the WicketTester
@@ -43,7 +40,21 @@ public class TestHomePage
 	@Before
 	public void setUp()
 	{
-		tester = new WicketTester(new WicketApplication());
+		tester = new WicketTester(new WicketApplication(){
+			@Override
+			public void init() {
+				super.init();
+				
+				mountResource("/api", new ResourceReference("restReference"){
+
+					@Override
+					public IResource getResource() {
+						return new TestRestResource(new TestJsonDesSer());
+					}
+					
+				});
+			}
+		});
 	}
 
 	@Test
@@ -60,12 +71,10 @@ public class TestHomePage
 		tester.executeUrl("./api");
 		
 		//test JSON result
-		Gson gson = new Gson();
-		Assert.assertEquals(gson.toJson(createTestPerson()), tester.getLastResponseAsString());
+		Assert.assertEquals(TestJsonDesSer.getJSON(), tester.getLastResponseAsString());
 		
 		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
-		jsonMockRequest.setReader(new BufferedReader(new StringReader(
-				gson.toJson(createTestPerson()))));
+		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
 		
 		tester.setRequest(jsonMockRequest);
 		
