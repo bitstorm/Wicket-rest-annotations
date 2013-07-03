@@ -22,9 +22,11 @@ import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.resource.GsonRestResource;
 
+import com.google.gson.Gson;
 
-public class TestRestResource extends GsonRestResource<TestJsonDesSer>{
-	public TestRestResource(TestJsonDesSer jsonSerialDeserial) {
+
+public class TestRestResource extends GsonRestResource{
+	public TestRestResource(Gson jsonSerialDeserial) {
 		super(jsonSerialDeserial);
 	}
 
@@ -61,16 +63,4 @@ public class TestRestResource extends GsonRestResource<TestJsonDesSer>{
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
-
-	@Override
-	protected String serializeToJson(Object result, TestJsonDesSer jsonSerialDeserial) {
-		return TestJsonDesSer.getJSON();
-	}
-
-	@Override
-	protected Object deserializeFromJson(Class argClass, String json,
-			TestJsonDesSer jsonSerialDeserial) {
-		return TestJsonDesSer.getObject();
-	}
-
 }
