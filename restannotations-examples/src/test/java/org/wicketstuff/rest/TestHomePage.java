@@ -49,7 +49,7 @@ public class TestHomePage
 
 					@Override
 					public IResource getResource() {
-						return new TestRestResource(new TestJsonDesSer());
+						return null;
 					}
 					
 				});

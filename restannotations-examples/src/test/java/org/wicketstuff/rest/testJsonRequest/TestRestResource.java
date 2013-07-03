@@ -20,10 +20,10 @@ import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.AbstractJsonRestResource;
+import org.wicketstuff.rest.resource.GsonRestResource;
 
 
-public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
+public class TestRestResource extends GsonRestResource<TestJsonDesSer>{
 	public TestRestResource(TestJsonDesSer jsonSerialDeserial) {
 		super(jsonSerialDeserial);
 	}
