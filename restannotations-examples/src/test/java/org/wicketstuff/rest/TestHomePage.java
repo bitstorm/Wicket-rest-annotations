@@ -21,6 +21,7 @@ import java.io.StringReader;
 
 import junit.framework.Assert;
 
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.tester.WicketTester;
@@ -42,21 +43,7 @@ public class TestHomePage
 	@Before
 	public void setUp()
 	{
-		tester = new WicketTester(new WicketApplication(){
-			@Override
-			public void init() {
-				super.init();
-				
-				mountResource("/api", new ResourceReference("restReference"){
-
-					@Override
-					public IResource getResource() {
-						return new GsonRestResource(new Gson());
-					}
-					
-				});
-			}
-		});
+		tester = new WicketTester(new WicketApplication(new Roles()));
 	}
 
 	@Test
