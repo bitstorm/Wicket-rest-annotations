@@ -16,8 +16,14 @@
  */
 package org.wicketstuff.rest;
 
+import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.ResourceReference;
+import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
+import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 
 
 
@@ -26,8 +32,14 @@ import org.apache.wicket.protocol.http.WebApplication;
  * 
  * @see org.wicketstuff.rest.Start#main(String[])
  */
-public class WicketApplication extends WebApplication
+public class WicketApplication extends WebApplication implements IRoleCheckingStrategy
 {    	
+	private final Roles roles;
+	
+	public WicketApplication(Roles roles) {
+		this.roles = roles;
+	}
+
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
@@ -37,12 +49,22 @@ public class WicketApplication extends WebApplication
 		return HomePage.class;
 	}
 
-	/**
-	 * @see org.apache.wicket.Application#init()
-	 */
 	@Override
-	public void init()
-	{
+	public boolean hasAnyRole(Roles roles) {
+		return false;
+	}
+	
+	@Override
+	public void init() {
 		super.init();
+		
+		mountResource("/api", new ResourceReference("restReference"){
+
+			@Override
+			public IResource getResource() {
+				return new TestRestResource(new TestJsonDesSer(), WicketApplication.this);
+			}
+			
+		});
 	}
 }

@@ -16,6 +16,7 @@
  */
 package org.wicketstuff.rest.testJsonRequest;
 
+import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
@@ -26,8 +27,8 @@ import com.google.gson.Gson;
 
 
 public class TestRestResource extends GsonRestResource{
-	public TestRestResource(Gson jsonSerialDeserial) {
-		super(jsonSerialDeserial);
+	public TestRestResource(Gson jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
+		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
 
 	/**

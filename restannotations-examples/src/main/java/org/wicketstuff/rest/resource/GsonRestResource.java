@@ -28,6 +28,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -49,8 +50,8 @@ import com.google.gson.Gson;
  */
 public class GsonRestResource extends AbstractJsonRestResource<Gson>{
 
-	public GsonRestResource(Gson jsonSerialDeserial) {
-		super(jsonSerialDeserial);
+	public GsonRestResource(Gson jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
+		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
 
 	@Override
