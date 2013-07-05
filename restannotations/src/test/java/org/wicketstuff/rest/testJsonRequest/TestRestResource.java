@@ -49,6 +49,10 @@ public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
 		return person;
 	}
 	
+	@MethodMapping(value = "/monoseg",  httpMethod = HttpMethod.POST)
+	public void testMethodPostSegFixed(){
+		System.out.println("monoseg");
+	}
 	@MethodMapping("/")
 	public void testMethod(){
 		System.out.println("method with no param:");
@@ -60,7 +64,7 @@ public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
 		return person;
 	}
 	
-	@MethodMapping(value = "/business/admin",  httpMethod = HttpMethod.GET)
+	@MethodMapping(value = "/admin",  httpMethod = HttpMethod.GET)
 	@AuthorizeInvocation("ROLE_ADMIN")
 	public void testMethodAdminAuth(){
 		System.out.println("you are admin!");

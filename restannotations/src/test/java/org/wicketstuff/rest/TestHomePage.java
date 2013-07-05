@@ -78,6 +78,12 @@ public class TestHomePage
 	public void rolesAuthorizationMethod(){
 		tester.getRequest().setMethod("GET");
 		exception.expect(MethodInvocationAuthException.class);
-		tester.executeUrl("./api/business/admin");
+		tester.executeUrl("./api/admin");
+	}
+	
+	@Test
+	public void test2(){
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api/monoseg");
 	}
 }

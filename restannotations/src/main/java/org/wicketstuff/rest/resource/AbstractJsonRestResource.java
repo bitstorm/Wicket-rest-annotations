@@ -36,6 +36,7 @@ import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.util.collections.MultiMap;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
@@ -51,7 +52,7 @@ import org.wicketstuff.rest.exception.MethodInvocationAuthException;
  * 
  */
 public abstract class AbstractJsonRestResource<T> implements IResource {
-	private Map<String, UrlMappingInfo> mappedMethods = new HashMap<String, UrlMappingInfo>();
+	private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
 	private final T jsonSerialDeserial;
 
 	/** Role checking strategy. */
@@ -80,8 +81,8 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 				.get().getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
-		UrlMappingInfo mappedMethod = mappedMethods.get(indexedParamCount + "_" + loadSegmentsSum(pageParameters) + "_" 
-				+ httpMethod.getMethod());
+		UrlMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethods.get(indexedParamCount + "_" 
+				+ httpMethod.getMethod()), pageParameters);
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles()))
@@ -101,18 +102,33 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 		}
 	}
 	
-	private int loadSegmentsSum(PageParameters pageParameters) {
-		int partialSumm = 0;
+	private UrlMappingInfo selectMostSuitedMethod(List<UrlMappingInfo> mappedMethods, PageParameters pageParameters) {
+		UrlMappingInfo mappingInfo = null;
+		int highestScore = 0;
+		 
+		if(mappedMethods.size() == 1)
+			return mappedMethods.get(0);
 		
-		for(int i = 0 ; i < pageParameters.getIndexedCount(); i++){
-			StringValue segment = pageParameters.get(i);
+		for (UrlMappingInfo mappedMethod : mappedMethods) {
+			List<StringValue> segments = mappedMethod.getSegments();
+			int score = 0;
 			
-			if (UrlMappingInfo.isParameterSegment(segment.toString())) {
-				partialSumm += Math.pow(2, i);
+			for (StringValue segment : segments) {
+				int i = segments.indexOf(segment);
+				
+				if(segment instanceof VariableSegment)
+					score++;
+				else if(pageParameters.get(i).equals(segment))
+					score += 2;
+			}
+			
+			if(score > highestScore){
+				highestScore = score;
+				mappingInfo = mappedMethod;
 			}
 		}
 		
-		return partialSumm;
+		return mappingInfo;
 	}
 
 	protected abstract String serializeToJson(Object result,
@@ -140,7 +156,7 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 				UrlMappingInfo urlMappingInfo = new UrlMappingInfo(urlPath,
 						httpMethod, method);
 				
-				mappedMethods.put(urlMappingInfo.getSegmentsCount() + "_" + urlMappingInfo.getSegmentsSum() + "_"
+				mappedMethods.addValue(urlMappingInfo.getSegmentsCount() + "_"
 						+ httpMethod.getMethod(), urlMappingInfo);
 			}
 		}
@@ -349,8 +365,7 @@ class UrlMappingInfo {
 	private List<StringValue> segments = new ArrayList<StringValue>();
 	private Roles roles = new Roles();
 	private Method method;
-	private int segmentsSum;
-
+	
 	/**
 	 * Class construnctor.
 	 * 
@@ -368,7 +383,6 @@ class UrlMappingInfo {
 
 		loadSegments(urlPath);
 		loadRoles();
-		loadSegmentsSum();
 	}
 
 	private void loadSegments(String urlPath) {
@@ -411,25 +425,8 @@ class UrlMappingInfo {
 		}
 	}
 
-	private void loadSegmentsSum() {
-		int partialSumm = 0;
-		
-		for(int i = 0 ; i < segments.size(); i++){
-			StringValue segment = segments.get(i);
-			
-			if (segment  instanceof VariableSegment) {
-				partialSumm += Math.pow(2, i);
-			}
-		}
-		
-		segmentsSum = partialSumm;
-	}
 	// getters and setters
-	public int getSegmentsSum() {
-		return segmentsSum;
-	}
-
-	public List<StringValue> getSegments() {
+		public List<StringValue> getSegments() {
 		return segments;
 	}
 
