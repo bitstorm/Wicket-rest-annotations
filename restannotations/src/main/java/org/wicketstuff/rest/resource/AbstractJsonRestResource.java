@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -106,6 +107,10 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 		UrlMappingInfo mappingInfo = null;
 		int highestScore = 0;
 		 
+		if(mappedMethods == null || mappedMethods.size() == 0)
+			throw new WicketRuntimeException("No mapped method found for the current request: " + 
+												RequestCycle.get().getRequest().getOriginalUrl());
+		
 		if(mappedMethods.size() == 1)
 			return mappedMethods.get(0);
 		

@@ -57,17 +57,6 @@ public class TestHomePage
 		tester.executeUrl("./api/1");
 		
 		tester.getRequest().setMethod("POST");
-		tester.executeUrl("./api");
-		
-		//test JSON result
-		/*Assert.assertEquals(TestJsonDesSer.getJSON(), tester.getLastResponseAsString());
-		
-		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
-		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
-		
-		tester.setRequest(jsonMockRequest);*/
-		
-		tester.executeUrl("./api/19");
-		
+		tester.executeUrl("./api");	
 	}
 }

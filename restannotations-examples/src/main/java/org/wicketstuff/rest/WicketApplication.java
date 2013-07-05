@@ -41,7 +41,7 @@ public class WicketApplication extends WebApplication  implements IRoleCheckingS
 	
 	@Override
 	public boolean hasAnyRole(Roles roles) {
-		return false;
+		return this.roles.hasAnyRole(roles);
 	}
 	
 	/**

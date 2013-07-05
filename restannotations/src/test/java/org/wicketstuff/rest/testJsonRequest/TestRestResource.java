@@ -17,6 +17,7 @@
 package org.wicketstuff.rest.testJsonRequest;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
@@ -29,9 +30,8 @@ public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
 	public TestRestResource(TestJsonDesSer jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
 		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
-
 	/**
-	 * Method invoked for GET requests and URLs like '<resource path>/5'
+	 * new Roles()new Roles()new Roles()for GET requests and URLs like '<resource path>/5'
 	 * The id parameter is automatically extracted from URL
 	 */
 	@MethodMapping("/{id}")

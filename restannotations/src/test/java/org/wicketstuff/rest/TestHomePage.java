@@ -40,25 +40,31 @@ import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 public class TestHomePage
 {
 	private WicketTester tester;
-
+	private Roles roles = new Roles();
+	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	
 	@Before
 	public void setUp()
 	{
-		tester = new WicketTester(new WicketApplication(new Roles()));
+		tester = new WicketTester(new WicketApplication(roles));
 	}
 
 	@Test
 	public void homepageRendersSuccessfully()
 	{
+		roles.clear();
+		
 		//start and render the test page
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api");
 		
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/1");
+		
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api/monoseg");
 		
 		tester.getRequest().setMethod("POST");
 		tester.executeUrl("./api");
@@ -76,14 +82,14 @@ public class TestHomePage
 	
 	@Test
 	public void rolesAuthorizationMethod(){
+		roles.add("ROLE_ADMIN");
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/admin");
+		
+		roles.clear();
 		tester.getRequest().setMethod("GET");
 		exception.expect(MethodInvocationAuthException.class);
+		
 		tester.executeUrl("./api/admin");
-	}
-	
-	@Test
-	public void test2(){
-		tester.getRequest().setMethod("POST");
-		tester.executeUrl("./api/monoseg");
 	}
 }
