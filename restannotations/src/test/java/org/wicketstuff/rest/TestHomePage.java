@@ -32,7 +32,6 @@ import org.junit.rules.ExpectedException;
 import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
-import org.wicketstuff.rest.testJsonRequest.TestRestResource;
 
 /**
  * Simple test using the WicketTester
