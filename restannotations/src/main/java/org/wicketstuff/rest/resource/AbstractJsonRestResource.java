@@ -108,8 +108,7 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 		int highestScore = 0;
 		 
 		if(mappedMethods == null || mappedMethods.size() == 0)
-			throw new WicketRuntimeException("No mapped method found for the current request: " + 
-												RequestCycle.get().getRequest().getOriginalUrl());
+			return null;
 		
 		if(mappedMethods.size() == 1)
 			return mappedMethods.get(0);
