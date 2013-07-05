@@ -26,7 +26,10 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
 import org.wicketstuff.rest.testJsonRequest.TestRestResource;
@@ -38,6 +41,9 @@ public class TestHomePage
 {
 	private WicketTester tester;
 
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+	
 	@Before
 	public void setUp()
 	{
@@ -66,6 +72,12 @@ public class TestHomePage
 		tester.setRequest(jsonMockRequest);
 		
 		tester.executeUrl("./api/19");
-		
+	}
+	
+	@Test
+	public void rolesAuthorizationMethod(){
+		tester.getRequest().setMethod("GET");
+		exception.expect(MethodInvocationAuthException.class);
+		tester.executeUrl("./api/business/admin");
 	}
 }

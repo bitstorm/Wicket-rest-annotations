@@ -41,6 +41,7 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 
 /**
  * Base class to build a resource that serves REST requests with JSON as
@@ -79,12 +80,12 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 				.get().getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
-		UrlMappingInfo mappedMethod = mappedMethods.get(indexedParamCount + "_"
+		UrlMappingInfo mappedMethod = mappedMethods.get(indexedParamCount + "_" + loadSegmentsSum(pageParameters) + "_" 
 				+ httpMethod.getMethod());
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles()))
-				throw new RuntimeException("User is not allowed to invoke this method!");
+				throw new MethodInvocationAuthException("User is not allowed to invoke this method!");
 
 			Object result = invokeMappedMethod(mappedMethod, pageParameters);
 
@@ -98,6 +99,20 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 				}
 			}
 		}
+	}
+	
+	private int loadSegmentsSum(PageParameters pageParameters) {
+		int partialSumm = 0;
+		
+		for(int i = 0 ; i < pageParameters.getIndexedCount(); i++){
+			StringValue segment = pageParameters.get(i);
+			
+			if (UrlMappingInfo.isParameterSegment(segment.toString())) {
+				partialSumm += Math.pow(2, i);
+			}
+		}
+		
+		return partialSumm;
 	}
 
 	protected abstract String serializeToJson(Object result,
@@ -124,8 +139,8 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 				HttpMethod httpMethod = methodMapped.httpMethod();
 				UrlMappingInfo urlMappingInfo = new UrlMappingInfo(urlPath,
 						httpMethod, method);
-
-				mappedMethods.put(urlMappingInfo.getSegmentsCount() + "_"
+				
+				mappedMethods.put(urlMappingInfo.getSegmentsCount() + "_" + urlMappingInfo.getSegmentsSum() + "_"
 						+ httpMethod.getMethod(), urlMappingInfo);
 			}
 		}
@@ -334,6 +349,7 @@ class UrlMappingInfo {
 	private List<StringValue> segments = new ArrayList<StringValue>();
 	private Roles roles = new Roles();
 	private Method method;
+	private int segmentsSum;
 
 	/**
 	 * Class construnctor.
@@ -352,6 +368,7 @@ class UrlMappingInfo {
 
 		loadSegments(urlPath);
 		loadRoles();
+		loadSegmentsSum();
 	}
 
 	private void loadSegments(String urlPath) {
@@ -380,7 +397,7 @@ class UrlMappingInfo {
 	 * @param segment
 	 * @return true if the segment contains a parameter, false otherwise.
 	 */
-	private boolean isParameterSegment(String segment) {
+	public static boolean isParameterSegment(String segment) {
 		return segment.length() >= 4 && segment.startsWith("{")
 				&& segment.endsWith("}");
 	}
@@ -394,7 +411,23 @@ class UrlMappingInfo {
 		}
 	}
 
+	private void loadSegmentsSum() {
+		int partialSumm = 0;
+		
+		for(int i = 0 ; i < segments.size(); i++){
+			StringValue segment = segments.get(i);
+			
+			if (segment  instanceof VariableSegment) {
+				partialSumm += Math.pow(2, i);
+			}
+		}
+		
+		segmentsSum = partialSumm;
+	}
 	// getters and setters
+	public int getSegmentsSum() {
+		return segmentsSum;
+	}
 
 	public List<StringValue> getSegments() {
 		return segments;

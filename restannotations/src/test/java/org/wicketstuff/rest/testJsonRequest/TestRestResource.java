@@ -18,6 +18,7 @@ package org.wicketstuff.rest.testJsonRequest;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.wicketstuff.rest.Person;
+import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
@@ -57,6 +58,12 @@ public class TestRestResource extends AbstractJsonRestResource<TestJsonDesSer>{
 	public Person testMethodPost(){
 		Person person = createTestPerson();
 		return person;
+	}
+	
+	@MethodMapping(value = "/business/admin",  httpMethod = HttpMethod.GET)
+	@AuthorizeInvocation("ROLE_ADMIN")
+	public void testMethodAdminAuth(){
+		System.out.println("you are admin!");
 	}
 	
 	public static Person createTestPerson() {
