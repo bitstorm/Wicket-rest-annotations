@@ -61,9 +61,10 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 
     /** Role checking strategy. */
     private final IRoleCheckingStrategy roleCheckingStrategy;
-    
+
     /**
      * Constructor with no role checker
+     * 
      * @param jsonSerialDeserial
      */
     public AbstractJsonRestResource(T jsonSerialDeserial) {
