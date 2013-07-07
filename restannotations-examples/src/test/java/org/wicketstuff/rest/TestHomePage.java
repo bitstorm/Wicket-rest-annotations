@@ -16,22 +16,10 @@
  */
 package org.wicketstuff.rest;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-
-import junit.framework.Assert;
-
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
-import org.wicketstuff.rest.resource.GsonRestResource;
-import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
-import org.wicketstuff.rest.testJsonRequest.TestRestResource;
-
-import com.google.gson.Gson;
 
 /**
  * Simple test using the WicketTester

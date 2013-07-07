@@ -21,6 +21,7 @@ import java.io.StringReader;
 
 import junit.framework.Assert;
 
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
@@ -29,14 +30,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
+import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
 
 /**
  * Simple test using the WicketTester
  */
-public class TestHomePage
+public class TestResourceFullAnnotated
 {
 	private WicketTester tester;
 	private Roles roles = new Roles();
@@ -51,7 +54,7 @@ public class TestHomePage
 	}
 
 	@Test
-	public void homepageRendersSuccessfully()
+	public void testAnnotatedMethodInvocation()
 	{
 		roles.clear();
 		
@@ -64,19 +67,26 @@ public class TestHomePage
 		
 		tester.getRequest().setMethod("POST");
 		tester.executeUrl("./api/monoseg");
-		
-		tester.getRequest().setMethod("POST");
-		tester.executeUrl("./api");
-		
-		//test JSON result
-		Assert.assertEquals(TestJsonDesSer.getJSON(), tester.getLastResponseAsString());
-		
+	}
+
+	@Test
+	public void testJsonDeserializedParamRequest() {
+		//test if @JsonBody annotation
 		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
 		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
 		
 		tester.setRequest(jsonMockRequest);
 		
 		tester.executeUrl("./api/19");
+	}
+
+	@Test
+	public void testJsonSerializedResponse() {
+		//test JSON result
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api");
+		
+		Assert.assertEquals(TestJsonDesSer.getJSON(), tester.getLastResponseAsString());
 	}
 	
 	@Test
@@ -90,5 +100,13 @@ public class TestHomePage
 		exception.expect(MethodInvocationAuthException.class);
 		
 		tester.executeUrl("./api/admin");
+	}
+	
+	@Test
+	public void testRoleCheckinRequired(){
+	    //RestResourceFullAnnotated uses annotation AuthorizeInvocation
+	    //hence it needs a roleCheckingStrategy to be built
+	    exception.expect(WicketRuntimeException.class);
+	    RestResourceFullAnnotated restResourceFullAnnotated = new RestResourceFullAnnotated(new TestJsonDesSer());
 	}
 }

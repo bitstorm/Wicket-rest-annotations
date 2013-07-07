@@ -23,7 +23,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
-import org.wicketstuff.rest.testJsonRequest.TestRestResource;
+import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 
 
 
@@ -62,7 +62,7 @@ public class WicketApplication extends WebApplication implements IRoleCheckingSt
 
 			@Override
 			public IResource getResource() {
-				return new TestRestResource(new TestJsonDesSer(), WicketApplication.this);
+				return new RestResourceFullAnnotated(new TestJsonDesSer(), WicketApplication.this);
 			}
 			
 		});

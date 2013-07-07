@@ -18,7 +18,7 @@ package org.wicketstuff.rest.testJsonRequest;
 
 public class TestJsonDesSer {
 	static public Object getObject(){
-		return TestRestResource.createTestPerson();
+		return RestResourceFullAnnotated.createTestPerson();
 	}
 	
 	static public String getJSON(){
