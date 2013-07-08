@@ -24,6 +24,7 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.QueryParam;
 import org.wicketstuff.rest.resource.AbstractJsonRestResource;
 
 public class RestResourceFullAnnotated extends
@@ -81,7 +82,15 @@ public class RestResourceFullAnnotated extends
     @MethodMapping(value = "/admin", httpMethod = HttpMethod.GET)
     @AuthorizeInvocation("ROLE_ADMIN")
     public void testMethodAdminAuth() {
-	System.out.println("you are admin!");
+	
+    }
+    
+    @MethodMapping(value = "/products/{id}")
+    public String testMethodGetParameter(int productId, @QueryParam("price") float prodPrice){
+	Args.notNull(productId, "productId");
+	Args.notNull(prodPrice, "price");
+	
+	return "testMethodGetParameter";
     }
 
     public static Person createTestPerson() {

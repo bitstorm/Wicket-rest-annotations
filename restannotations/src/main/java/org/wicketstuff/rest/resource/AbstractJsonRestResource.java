@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -40,12 +41,14 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.collections.MultiMap;
+import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.QueryParam;
 import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 
 /**
@@ -163,7 +166,7 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
     private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
 	try {
 	    Object convertedObject = toObject(paramClass, segment.toString());
-	} catch (IllegalArgumentException e) {
+	} catch (Exception e) {
 	    // segment's value not compatible with paramClass
 	    return false;
 	}
@@ -229,31 +232,33 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
      *            PageParametrs object of the current request
      * @return the value returned by the invoked method
      */
-    private Object invokeMappedMethod(UrlMappingInfo mappedMethod,
-	    PageParameters pageParameters) {
+    private Object invokeMappedMethod(UrlMappingInfo mappedMethod, PageParameters pageParameters) {
 
 	Method targetMethod = mappedMethod.getMethod();
 	Class<?>[] argsClasses = targetMethod.getParameterTypes();
 	List parametersValues = new ArrayList();
-	Iterator<StringValue> segmentsIterator = mappedMethod.getSegments()
-		.iterator();
+	Iterator<StringValue> segmentsIterator = mappedMethod.getSegments().iterator();
 
 	for (int i = 0; i < argsClasses.length; i++) {
 	    Class<?> argClass = argsClasses[i];
-	    Object functionResult = null;
-
-	    if (parameterIsJsonBody(i, targetMethod.getParameterAnnotations()))
-		functionResult = extractObjectFromBody(argClass);
+	    Object paramValue = null;
+	    Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
+	    
+	    if (isParameterAnnotated(i, parametersAnnotations, JsonBody.class))
+		paramValue = extractObjectFromBody(argClass);
+	    else if(isParameterAnnotated(i, parametersAnnotations, QueryParam.class))
+		paramValue = extractParameterFromQuery(pageParameters, 
+						parametersAnnotations[i], argClass);
 	    else
-		functionResult = extractParameterFromUrl(mappedMethod,
+		paramValue = extractParameterFromUrl(mappedMethod,
 			pageParameters, segmentsIterator, argClass);
 
-	    if (functionResult == null)
+	    if (paramValue == null)
 		throw new WicketRuntimeException(
 			"Could not find a value for the " + i
 				+ "° parameter of controller's function "
 				+ targetMethod.getName());
-	    parametersValues.add(functionResult);
+	    parametersValues.add(paramValue);
 	}
 
 	try {
@@ -262,6 +267,20 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 	    throw new RuntimeException("Error invoking method '"
 		    + targetMethod.getName() + "'", e);
 	}
+    }
+
+    private Object extractParameterFromQuery(PageParameters pageParameters,
+	    Annotation[] parametersAnnotations, Class<?> argClass) {
+	String value = "";
+	
+	for (int i = 0; i < parametersAnnotations.length; i++) {
+	    Annotation annotation = parametersAnnotations[i];
+	    
+	    if(annotation instanceof QueryParam)
+		value = ((QueryParam) annotation).value();
+	}
+	
+	return toObject(argClass, pageParameters.get(value).toString());
     }
 
     /**
@@ -311,8 +330,8 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
      *         otherwise
      * @see JsonBody
      */
-    private boolean parameterIsJsonBody(int i,
-	    Annotation[][] parametersAnnotations) {
+    private boolean isParameterAnnotated(int i, Annotation[][] parametersAnnotations,
+	    Class<? extends Annotation> targetAnnotation) {
 	if (parametersAnnotations.length == 0)
 	    return false;
 
@@ -320,7 +339,7 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
 
 	for (int j = 0; j < parameterAnnotation.length; j++) {
 	    Annotation annotation = parameterAnnotation[j];
-	    if (annotation instanceof JsonBody)
+	    if (targetAnnotation.isInstance(annotation))
 		return true;
 	}
 	return false;
@@ -377,38 +396,16 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
      *            the string value we want to convert into the wrapper class
      * @return the wrapper class for the given primitive type
      */
-    public static Object toObject(Class clazz, String value)
-	    throws IllegalArgumentException {
-	// conversion for primitive types
-	if (boolean.class == clazz)
-	    return Boolean.parseBoolean(value);
-	if (byte.class == clazz)
-	    return Byte.parseByte(value);
-	if (short.class == clazz)
-	    return Short.parseShort(value);
-	if (int.class == clazz)
-	    return Integer.parseInt(value);
-	if (long.class == clazz)
-	    return Long.parseLong(value);
-	if (float.class == clazz)
-	    return Float.parseFloat(value);
-	if (double.class == clazz)
-	    return Double.parseDouble(value);
-	if (clazz == String.class)
-	    return value;
-
-	try {
-	    // try to find a constructor with a single string arg for the given
-	    // type
-	    Constructor constructor = clazz.getConstructor(String.class);
-
-	    return constructor.newInstance(value);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    throw new IllegalArgumentException(
+    protected Object toObject(Class clazz, String value) throws IllegalArgumentException {
+	IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
+	
+	if(converter != null)
+	    return converter.convertToObject(value, Session.get().getLocale());
+	
+	throw new IllegalArgumentException(
 		    "Could not find a suitable constructor for value " + value
 			    + " of class " + clazz);
-	}
+	
     }
 
     protected final boolean hasAny(Roles roles) {

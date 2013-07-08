@@ -69,6 +69,12 @@ public class TestResourceFullAnnotated {
 	tester.getRequest().setMethod("GET");
 	tester.executeUrl("./api/boolean/true");
 	testIfResponseContainsString("testMethodPostBoolean:true");
+	
+	tester.getRequest().setMethod("GET");
+	tester.getRequest().setParameter("price", "" + 12.34);
+	tester.executeUrl("./api/products/112");
+	testIfResponseContainsString("testMethodGetParameter");
+	
     }
 
     @Test
