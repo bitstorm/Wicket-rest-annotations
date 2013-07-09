@@ -21,6 +21,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
+import org.wicketstuff.rest.annotations.HeaderParam;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.QueryParam;
@@ -91,6 +92,14 @@ public class RestResourceFullAnnotated extends
 	Args.notNull(prodPrice, "price");
 	
 	return "testMethodGetParameter";
+    }
+    
+    @MethodMapping(value = "/book/{id}")
+    public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice){
+	Args.notNull(productId, "productId");
+	Args.notNull(prodPrice, "price");
+	
+	return "testMethodHeaderParameter";
     }
 
     public static Person createTestPerson() {

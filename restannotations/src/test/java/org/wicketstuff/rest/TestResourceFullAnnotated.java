@@ -75,6 +75,10 @@ public class TestResourceFullAnnotated {
 	tester.executeUrl("./api/products/112");
 	testIfResponseContainsString("testMethodGetParameter");
 	
+	tester.getRequest().setMethod("GET");
+	tester.getRequest().setHeader("price", "" + 12.34);
+	tester.executeUrl("./api/book/113");
+	testIfResponseContainsString("testMethodHeaderParameter");
     }
 
     @Test
@@ -86,7 +90,6 @@ public class TestResourceFullAnnotated {
 		TestJsonDesSer.getJSON())));
 
 	tester.setRequest(jsonMockRequest);
-
 	tester.executeUrl("./api/19");
     }
 
