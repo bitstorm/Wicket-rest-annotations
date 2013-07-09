@@ -14,26 +14,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import org.wicketstuff.rest.utils.HttpMethod;
-
-/**
- * Annotation used to map a resource's method to a given URL.
- * The specified URL can contain parameter segment (for example '{id}') and we can
- * specify also the request method that must be used.
+package org.wicketstuff.rest.utils;
+/***
+ * Enum class that represents all the possible request methods
  * 
  * @author andrea del bene
- * @see HttpMethod
+ *
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface MethodMapping {
-	String value() default "";
-	HttpMethod httpMethod() default HttpMethod.GET;
+public enum HttpMethod {
+	GET("GET"), 
+	POST("POST"), 
+	HEAD("HEAD"), 
+	OPTIONS("OPTIONS"), 
+	PUT("PUT"), 
+	PATCH("PATCH"), 
+	DELETE("DELETE"), 
+	TRACE("TRACE");
+	
+	private String method;
+
+	private HttpMethod(String method) {
+		this.method = method;
+	}
+	
+	public static HttpMethod toHttpMethod(String httpMethod){
+		HttpMethod[] values = HttpMethod.values();
+		httpMethod = httpMethod.toUpperCase();
+		
+		for (int i = 0; i < values.length; i++) {
+			if(values[i].method.equals(httpMethod))
+				return values[i];
+		}
+		
+		throw new RuntimeException("The string value '" + httpMethod + 
+				"' does not correspond to any valid HTTP request method");
+	}
+
+	public String getMethod() {
+		return method;
+	}
 }

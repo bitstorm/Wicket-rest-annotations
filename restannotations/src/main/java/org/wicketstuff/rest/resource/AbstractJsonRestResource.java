@@ -19,14 +19,10 @@ package org.wicketstuff.rest.resource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,14 +38,13 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.collections.MultiMap;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.lang.Args;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
-import org.wicketstuff.rest.annotations.HttpMethod;
 import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.QueryParam;
 import org.wicketstuff.rest.exception.MethodInvocationAuthException;
+import org.wicketstuff.rest.utils.HttpMethod;
 
 /**
  * Base class to build a resource that serves REST requests with JSON as
@@ -59,362 +54,384 @@ import org.wicketstuff.rest.exception.MethodInvocationAuthException;
  * 
  */
 public abstract class AbstractJsonRestResource<T> implements IResource {
-    private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
-    private final T jsonSerialDeserial;
+	private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
+	private final T jsonSerialDeserial;
 
-    /** Role checking strategy. */
-    private final IRoleCheckingStrategy roleCheckingStrategy;
+	/** Role checking strategy. */
+	private final IRoleCheckingStrategy roleCheckingStrategy;
 
-    /**
-     * Constructor with no role checker
-     * 
-     * @param jsonSerialDeserial
-     */
-    public AbstractJsonRestResource(T jsonSerialDeserial) {
-	this(jsonSerialDeserial, null);
-    }
+	/**
+	 * Constructor with no role checker
+	 * 
+	 * @param jsonSerialDeserial
+	 */
+	public AbstractJsonRestResource(T jsonSerialDeserial) {
+		this(jsonSerialDeserial, null);
+	}
 
-    public AbstractJsonRestResource(T jsonSerialDeserial,
-	    IRoleCheckingStrategy roleCheckingStrategy) {
-	this.jsonSerialDeserial = jsonSerialDeserial;
-	this.roleCheckingStrategy = roleCheckingStrategy;
+	public AbstractJsonRestResource(T jsonSerialDeserial,
+			IRoleCheckingStrategy roleCheckingStrategy) {
+		this.jsonSerialDeserial = jsonSerialDeserial;
+		this.roleCheckingStrategy = roleCheckingStrategy;
 
-	loadAnnotatedMethods();
-    }
+		loadAnnotatedMethods();
+	}
 
-    /***
-     * Handles a REST request invoking one of the methods annotated with
-     * {@link MethodMapping}. If the annotated method returns a value, this
-     * latter is automatically serialized as a JSON string and written in the
-     * web response.
-     */
-    @Override
-    public void respond(Attributes attributes) {
-	PageParameters pageParameters = attributes.getParameters();
-	ServletWebResponse response = (ServletWebResponse) attributes
-		.getResponse();
-	HttpMethod httpMethod = getHttpMethod((ServletWebRequest) RequestCycle
-		.get().getRequest());
-	int indexedParamCount = pageParameters.getIndexedCount();
+	/***
+	 * Handles a REST request invoking one of the methods annotated with
+	 * {@link MethodMapping}. If the annotated method returns a value, this
+	 * latter is automatically serialized as a JSON string and written in the
+	 * web response.
+	 */
+	@Override
+	public void respond(Attributes attributes) {
+		PageParameters pageParameters = attributes.getParameters();
+		ServletWebResponse response = (ServletWebResponse) attributes
+				.getResponse();
+		HttpMethod httpMethod = getHttpMethod((ServletWebRequest) RequestCycle
+				.get().getRequest());
+		int indexedParamCount = pageParameters.getIndexedCount();
 
-	List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods
-		.get(indexedParamCount + "_" + httpMethod.getMethod());
+		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods
+				.get(indexedParamCount + "_" + httpMethod.getMethod());
 
-	UrlMappingInfo mappedMethod = null;
+		UrlMappingInfo mappedMethod = null;
 
-	if (indexedParamCount == 0 && mappedMethodsCandidates != null)
-	    mappedMethod = mappedMethodsCandidates.get(0);
-	else
-	    mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates,
-		    pageParameters);
+		if (indexedParamCount == 0 && mappedMethodsCandidates != null)
+			mappedMethod = mappedMethodsCandidates.get(0);
+		else
+			mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates,
+					pageParameters);
 
-	if (mappedMethod != null) {
-	    if (!hasAny(mappedMethod.getRoles()))
-		throw new MethodInvocationAuthException(
-			"User is not allowed to invoke this method!");
+		if (mappedMethod != null) {
+			if (!hasAny(mappedMethod.getRoles()))
+				throw new MethodInvocationAuthException(
+						"User is not allowed to invoke this method!");
 
-	    Object result = invokeMappedMethod(mappedMethod, pageParameters);
+			Object result = invokeMappedMethod(mappedMethod, pageParameters);
 
-	    if (result != null) {
+			if (result != null) {
+				serializeObjectToResponse(response, result);
+			}
+		}
+	}
+
+	protected void serializeObjectToResponse(ServletWebResponse response,
+			Object result) {
 		response.setContentType("application/json");
 		try {
-		    response.write(serializeToJson(result, jsonSerialDeserial));
+			response.write(serializeToJson(result, jsonSerialDeserial));
 		} catch (Exception e) {
-		    throw new RuntimeException(
-			    "Error serializing object to response", e);
+			throw new RuntimeException("Error serializing object to response",
+					e);
 		}
-	    }
-	}
-    }
-
-    private UrlMappingInfo selectMostSuitedMethod(
-	    List<UrlMappingInfo> mappedMethods, PageParameters pageParameters) {
-	UrlMappingInfo mappingInfo = null;
-	int highestScore = 0;
-
-	if (mappedMethods == null || mappedMethods.size() == 0)
-	    return null;
-
-	for (UrlMappingInfo mappedMethod : mappedMethods) {
-	    List<StringValue> segments = mappedMethod.getSegments();
-	    Method targetMethod = mappedMethod.getMethod();
-	    Class<?>[] argsClasses = targetMethod.getParameterTypes();
-
-	    int score = 0;
-	    int functionParamsIndex = 0;
-
-	    for (StringValue segment : segments) {
-		int i = segments.indexOf(segment);
-
-		if (segment instanceof VariableSegment
-			&& isSegmentCompatible(pageParameters.get(i),
-				argsClasses[functionParamsIndex++]))
-		    score++;
-		else if (pageParameters.get(i).equals(segment))
-		    score += 2;
-	    }
-
-	    if (score > highestScore) {
-		highestScore = score;
-		mappingInfo = mappedMethod;
-	    }
 	}
 
-	return mappingInfo;
-    }
+	private UrlMappingInfo selectMostSuitedMethod(
+			List<UrlMappingInfo> mappedMethods, PageParameters pageParameters) {
+		UrlMappingInfo mappingInfo = null;
+		int highestScore = 0;
 
-    private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
-	try {
-	    Object convertedObject = toObject(paramClass, segment.toString());
-	} catch (Exception e) {
-	    // segment's value not compatible with paramClass
-	    return false;
+		if (mappedMethods == null || mappedMethods.size() == 0)
+			return null;
+
+		for (UrlMappingInfo mappedMethod : mappedMethods) {
+			List<StringValue> segments = mappedMethod.getSegments();
+			Method targetMethod = mappedMethod.getMethod();
+			Class<?>[] argsClasses = targetMethod.getParameterTypes();
+
+			int score = 0;
+			int functionParamsIndex = 0;
+
+			for (StringValue segment : segments) {
+				int i = segments.indexOf(segment);
+
+				if (segment instanceof VariableSegment
+						&& isSegmentCompatible(pageParameters.get(i),
+								argsClasses[functionParamsIndex++]))
+					score++;
+				else if (pageParameters.get(i).equals(segment))
+					score += 2;
+			}
+
+			if (score > highestScore) {
+				highestScore = score;
+				mappingInfo = mappedMethod;
+			}
+		}
+
+		return mappingInfo;
 	}
 
-	return true;
-    }
+	private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
+		try {
+			Object convertedObject = toObject(paramClass, segment.toString());
+		} catch (Exception e) {
+			// segment's value not compatible with paramClass
+			return false;
+		}
 
-    protected abstract String serializeToJson(Object result,
-	    T jsonSerialDeserial);
-
-    /***
-     * Internal method to load class methods annotated with
-     * {@link MethodMapping}
-     */
-    private void loadAnnotatedMethods() {
-	Method[] methods = getClass().getDeclaredMethods();
-	boolean isUsingAuthAnnot = false;
-
-	for (int i = 0; i < methods.length; i++) {
-	    Method method = methods[i];
-	    MethodMapping methodMapped = method
-		    .getAnnotation(MethodMapping.class);
-	    AuthorizeInvocation authorizeInvocation = method
-		    .getAnnotation(AuthorizeInvocation.class);
-	    isUsingAuthAnnot = isUsingAuthAnnot || authorizeInvocation != null;
-
-	    if (methodMapped != null) {
-		String urlPath = methodMapped.value();
-		HttpMethod httpMethod = methodMapped.httpMethod();
-		UrlMappingInfo urlMappingInfo = new UrlMappingInfo(urlPath,
-			httpMethod, method);
-
-		mappedMethods.addValue(urlMappingInfo.getSegmentsCount() + "_"
-			+ httpMethod.getMethod(), urlMappingInfo);
-	    }
-	}
-
-	if (isUsingAuthAnnot && roleCheckingStrategy == null)
-	    throw new WicketRuntimeException(
-		    "Annotation AuthorizeInvocation is used but no roleCheckingStrategy has been provided to the controller.");
-    }
-
-    /**
-     * Utility method to extract the request method
-     * 
-     * @param clazz
-     * @param value
-     * @return the HTTP method used for this request
-     * @see HttpMethod
-     */
-    public static HttpMethod getHttpMethod(ServletWebRequest request) {
-	HttpServletRequest httpRequest = request.getContainerRequest();
-	return HttpMethod.toHttpMethod((httpRequest.getMethod()));
-    }
-
-    /***
-     * This method invokes one of the resource's method annotated with
-     * {@link MethodMapping}
-     * 
-     * @param mappedMethod
-     *            mapping info of the method
-     * @param pageParameters
-     *            PageParametrs object of the current request
-     * @return the value returned by the invoked method
-     */
-    private Object invokeMappedMethod(UrlMappingInfo mappedMethod, PageParameters pageParameters) {
-
-	Method targetMethod = mappedMethod.getMethod();
-	Class<?>[] argsClasses = targetMethod.getParameterTypes();
-	List parametersValues = new ArrayList();
-	Iterator<StringValue> segmentsIterator = mappedMethod.getSegments().iterator();
-
-	for (int i = 0; i < argsClasses.length; i++) {
-	    Class<?> argClass = argsClasses[i];
-	    Object paramValue = null;
-	    Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
-	    
-	    if (isParameterAnnotated(i, parametersAnnotations, JsonBody.class))
-		paramValue = extractObjectFromBody(argClass);
-	    else if(isParameterAnnotated(i, parametersAnnotations, QueryParam.class))
-		paramValue = extractParameterFromQuery(pageParameters, 
-						parametersAnnotations[i], argClass);
-	    else
-		paramValue = extractParameterFromUrl(mappedMethod,
-			pageParameters, segmentsIterator, argClass);
-
-	    if (paramValue == null)
-		throw new WicketRuntimeException(
-			"Could not find a value for the " + i
-				+ "° parameter of controller's function "
-				+ targetMethod.getName());
-	    parametersValues.add(paramValue);
-	}
-
-	try {
-	    return targetMethod.invoke(this, parametersValues.toArray());
-	} catch (Exception e) {
-	    throw new RuntimeException("Error invoking method '"
-		    + targetMethod.getName() + "'", e);
-	}
-    }
-
-    private Object extractParameterFromQuery(PageParameters pageParameters,
-	    Annotation[] parametersAnnotations, Class<?> argClass) {
-	String value = "";
-	
-	for (int i = 0; i < parametersAnnotations.length; i++) {
-	    Annotation annotation = parametersAnnotations[i];
-	    
-	    if(annotation instanceof QueryParam)
-		value = ((QueryParam) annotation).value();
-	}
-	
-	return toObject(argClass, pageParameters.get(value).toString());
-    }
-
-    /**
-     * Internal method that tries to extract an instance of the given class from
-     * the request body.
-     * 
-     * @param argClass
-     *            the type we want to extract from request body
-     * @return the extracted object
-     */
-    private Object extractObjectFromBody(Class<?> argClass) {
-	ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle
-		.get().getRequest();
-	HttpServletRequest httpRequest = servletRequest.getContainerRequest();
-	try {
-	    BufferedReader bufReader = httpRequest.getReader();
-	    StringBuilder builder = new StringBuilder();
-	    String jsonString;
-
-	    while ((jsonString = bufReader.readLine()) != null)
-		builder.append(jsonString);
-
-	    return deserializeFromJson(argClass, builder.toString(),
-		    jsonSerialDeserial);
-	} catch (IOException e) {
-	    throw new RuntimeException(
-		    "Error deserializing object from request", e);
-	}
-    }
-
-    protected abstract Object deserializeFromJson(Class<?> argClass,
-	    String json, T jsonSerialDeserial);
-
-    /*
-     * { return jsonSerialDeserial.fromJson(json, argClass); }
-     */
-
-    /**
-     * Check if a parameter is annotated with {@link JsonBody}
-     * 
-     * @param i
-     *            function parameter index
-     * @param parametersAnnotations
-     *            bidimensional array containing the annotations for function
-     *            parameters
-     * @return true if the function parameter is annotated with JsonBody, false
-     *         otherwise
-     * @see JsonBody
-     */
-    private boolean isParameterAnnotated(int i, Annotation[][] parametersAnnotations,
-	    Class<? extends Annotation> targetAnnotation) {
-	if (parametersAnnotations.length == 0)
-	    return false;
-
-	Annotation[] parameterAnnotation = parametersAnnotations[i];
-
-	for (int j = 0; j < parameterAnnotation.length; j++) {
-	    Annotation annotation = parameterAnnotation[j];
-	    if (targetAnnotation.isInstance(annotation))
 		return true;
 	}
-	return false;
-    }
 
-    /***
-     * Extract parameters values from the rest URL
-     * 
-     * @param mappedMethod
-     *            mapping info of the method
-     * @param pageParameters
-     *            PageParametrs object of the current request
-     * @param segmentsIterator
-     *            iterator over the mapped segments
-     * @param argClass
-     *            type of the parameter we want to extract
-     * @return the parameter's value
-     */
-    private Object extractParameterFromUrl(UrlMappingInfo mappedMethod,
-	    PageParameters pageParameters,
-	    Iterator<StringValue> segmentsIterator, Class<?> argClass) {
-	try {
-	    StringValue segmentValue = null;
+	protected abstract String serializeToJson(Object result,
+			T jsonSerialDeserial);
 
-	    while (segmentsIterator.hasNext()) {
-		StringValue currentSegment = segmentsIterator.next();
+	/***
+	 * Internal method to load class methods annotated with
+	 * {@link MethodMapping}
+	 */
+	private void loadAnnotatedMethods() {
+		Method[] methods = getClass().getDeclaredMethods();
+		boolean isUsingAuthAnnot = false;
 
-		if (currentSegment instanceof VariableSegment) {
-		    segmentValue = currentSegment;
-		    break;
+		for (int i = 0; i < methods.length; i++) {
+			Method method = methods[i];
+			MethodMapping methodMapped = method
+					.getAnnotation(MethodMapping.class);
+			AuthorizeInvocation authorizeInvocation = method
+					.getAnnotation(AuthorizeInvocation.class);
+			isUsingAuthAnnot = isUsingAuthAnnot || authorizeInvocation != null;
+
+			if (methodMapped != null) {
+				String urlPath = methodMapped.value();
+				HttpMethod httpMethod = methodMapped.httpMethod();
+				UrlMappingInfo urlMappingInfo = new UrlMappingInfo(urlPath,
+						httpMethod, method);
+
+				mappedMethods.addValue(urlMappingInfo.getSegmentsCount() + "_"
+						+ httpMethod.getMethod(), urlMappingInfo);
+			}
 		}
-	    }
 
-	    if (segmentValue != null) {
-		int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
-		StringValue actualValue = pageParameters.get(indexOf);
-
-		return toObject(argClass, actualValue.toString());
-	    }
-	    return null;
-	} catch (Exception e) {
-	    throw new RuntimeException(
-		    "Error retrieving a constructor with a string parameter.",
-		    e);
+		if (isUsingAuthAnnot && roleCheckingStrategy == null)
+			throw new WicketRuntimeException(
+					"Annotation AuthorizeInvocation is used but no roleCheckingStrategy has been provided to the controller.");
 	}
-    }
 
-    /**
-     * Utility method to convert string values to the corresponding objects
-     * 
-     * @param clazz
-     *            the primitive class we want to convert
-     * @param value
-     *            the string value we want to convert into the wrapper class
-     * @return the wrapper class for the given primitive type
-     */
-    protected Object toObject(Class clazz, String value) throws IllegalArgumentException {
-	IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
-	
-	if(converter != null)
-	    return converter.convertToObject(value, Session.get().getLocale());
-	
-	throw new IllegalArgumentException(
-		    "Could not find a suitable constructor for value " + value
-			    + " of class " + clazz);
-	
-    }
-
-    protected final boolean hasAny(Roles roles) {
-	if (roles.isEmpty()) {
-	    return true;
-	} else {
-	    return roleCheckingStrategy.hasAnyRole(roles);
+	/**
+	 * Utility method to extract the request method
+	 * 
+	 * @param clazz
+	 * @param value
+	 * @return the HTTP method used for this request
+	 * @see HttpMethod
+	 */
+	public static HttpMethod getHttpMethod(ServletWebRequest request) {
+		HttpServletRequest httpRequest = request.getContainerRequest();
+		return HttpMethod.toHttpMethod((httpRequest.getMethod()));
 	}
-    }
+
+	/***
+	 * This method invokes one of the resource's method annotated with
+	 * {@link MethodMapping}
+	 * 
+	 * @param mappedMethod
+	 *            mapping info of the method
+	 * @param pageParameters
+	 *            PageParametrs object of the current request
+	 * @return the value returned by the invoked method
+	 */
+	private Object invokeMappedMethod(UrlMappingInfo mappedMethod,
+			PageParameters pageParameters) {
+
+		Method targetMethod = mappedMethod.getMethod();
+		Class<?>[] argsClasses = targetMethod.getParameterTypes();
+		List parametersValues = new ArrayList();
+		Iterator<StringValue> segmentsIterator = mappedMethod.getSegments()
+				.iterator();
+
+		for (int i = 0; i < argsClasses.length; i++) {
+			Class<?> argClass = argsClasses[i];
+			Object paramValue = null;
+			Annotation[][] parametersAnnotations = targetMethod
+					.getParameterAnnotations();
+
+			if (isParameterAnnotatedWith(i, parametersAnnotations, JsonBody.class))
+				paramValue = extractObjectFromBody(argClass);
+			else if (isParameterAnnotatedWith(i, parametersAnnotations,
+					QueryParam.class))
+				paramValue = extractParameterFromQuery(pageParameters,
+						parametersAnnotations[i], argClass);
+			else
+				paramValue = extractParameterFromUrl(mappedMethod,
+						pageParameters, segmentsIterator, argClass);
+
+			if (paramValue == null)
+				throw new WicketRuntimeException(
+						"Could not find a value for the " + i
+								+ "° parameter of controller's function "
+								+ targetMethod.getName());
+			parametersValues.add(paramValue);
+		}
+
+		try {
+			return targetMethod.invoke(this, parametersValues.toArray());
+		} catch (Exception e) {
+			throw new RuntimeException("Error invoking method '"
+					+ targetMethod.getName() + "'", e);
+		}
+	}
+
+	private Object extractParameterFromQuery(PageParameters pageParameters,
+			Annotation[] parametersAnnotations, Class<?> argClass) {
+		String value = "";
+
+		for (int i = 0; i < parametersAnnotations.length; i++) {
+			Annotation annotation = parametersAnnotations[i];
+
+			if (annotation instanceof QueryParam)
+				value = ((QueryParam) annotation).value();
+		}
+
+		return toObject(argClass, pageParameters.get(value).toString());
+	}
+
+	/**
+	 * Internal method that tries to extract an instance of the given class from
+	 * the request body.
+	 * 
+	 * @param argClass
+	 *            the type we want to extract from request body
+	 * @return the extracted object
+	 */
+	private Object extractObjectFromBody(Class<?> argClass) {
+		ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle
+				.get().getRequest();
+		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
+		try {
+			BufferedReader bufReader = httpRequest.getReader();
+			StringBuilder builder = new StringBuilder();
+			String jsonString;
+
+			while ((jsonString = bufReader.readLine()) != null)
+				builder.append(jsonString);
+
+			return deserializeFromJson(argClass, builder.toString(),
+					jsonSerialDeserial);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"Error deserializing object from request", e);
+		}
+	}
+
+	protected abstract Object deserializeFromJson(Class<?> argClass,
+			String json, T jsonSerialDeserial);
+
+	/**
+	 * Check if a parameter is annotated with {@link JsonBody}
+	 * 
+	 * @param i
+	 *            function parameter index
+	 * @param parametersAnnotations
+	 *            bidimensional array containing the annotations for function
+	 *            parameters
+	 * @return true if the function parameter is annotated with JsonBody, false
+	 *         otherwise
+	 * @see JsonBody
+	 */
+	private boolean isParameterAnnotatedWith(int i,
+			Annotation[][] parametersAnnotations,
+			Class<? extends Annotation> targetAnnotation) {
+
+		if (parametersAnnotations.length == 0)
+			return false;
+
+		Annotation[] parameterAnnotations = parametersAnnotations[i];
+
+		for (int j = 0; j < parameterAnnotations.length; j++) {
+			Annotation annotation = parameterAnnotations[j];
+			if (targetAnnotation.isInstance(annotation))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isParameterNotAnnotated(int i,
+			Annotation[][] parametersAnnotations) {
+		if (parametersAnnotations.length == 0)
+			return true;
+
+		Annotation[] parameterAnnotations = parametersAnnotations[i];
+
+		if (parameterAnnotations.length == 0)
+			return true;
+
+		return false;
+	}
+
+	/***
+	 * Extract parameters values from the rest URL
+	 * 
+	 * @param mappedMethod
+	 *            mapping info of the method
+	 * @param pageParameters
+	 *            PageParametrs object of the current request
+	 * @param segmentsIterator
+	 *            iterator over the mapped segments
+	 * @param argClass
+	 *            type of the parameter we want to extract
+	 * @return the parameter's value
+	 */
+	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod,
+			PageParameters pageParameters,
+			Iterator<StringValue> segmentsIterator, Class<?> argClass) {
+		try {
+			StringValue segmentValue = null;
+
+			while (segmentsIterator.hasNext()) {
+				StringValue currentSegment = segmentsIterator.next();
+
+				if (currentSegment instanceof VariableSegment) {
+					segmentValue = currentSegment;
+					break;
+				}
+			}
+
+			if (segmentValue != null) {
+				int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
+				StringValue actualValue = pageParameters.get(indexOf);
+
+				return toObject(argClass, actualValue.toString());
+			}
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"Error retrieving a constructor with a string parameter.",
+					e);
+		}
+	}
+
+	/**
+	 * Utility method to convert string values to the corresponding objects
+	 * 
+	 * @param clazz
+	 *            the primitive class we want to convert
+	 * @param value
+	 *            the string value we want to convert into the wrapper class
+	 * @return the wrapper class for the given primitive type
+	 */
+	protected Object toObject(Class clazz, String value)
+			throws IllegalArgumentException {
+		IConverter converter = Application.get().getConverterLocator()
+				.getConverter(clazz);
+
+		if (converter != null)
+			return converter.convertToObject(value, Session.get().getLocale());
+
+		throw new IllegalArgumentException(
+				"Could not find a suitable constructor for value " + value
+						+ " of class " + clazz);
+
+	}
+
+	protected final boolean hasAny(Roles roles) {
+		if (roles.isEmpty()) {
+			return true;
+		} else {
+			return roleCheckingStrategy.hasAnyRole(roles);
+		}
+	}
 }
 
 /**
@@ -425,101 +442,107 @@ public abstract class AbstractJsonRestResource<T> implements IResource {
  * 
  */
 class UrlMappingInfo {
-    private HttpMethod httpMethod;
-    private List<StringValue> segments = new ArrayList<StringValue>();
-    private Roles roles = new Roles();
-    private Method method;
+	//
+	private HttpMethod httpMethod;
+	//
+	private List<StringValue> segments = new ArrayList<StringValue>();
+	//
+	private Roles roles = new Roles();
+	//
+	private Method method;
+	//
+	private Class<?>[] notAnnotatedParams;
 
-    /**
-     * Class construnctor.
-     * 
-     * @param urlPath
-     *            the URL used to map a resource's method
-     * @param httpMethod
-     *            the request method that must be used to invoke the mapped
-     *            method (see class {@link HttpMethod}).
-     * @param method
-     *            the resource's method mapped.
-     */
-    public UrlMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
-	this.httpMethod = httpMethod;
-	this.method = method;
+	/**
+	 * Class construnctor.
+	 * 
+	 * @param urlPath
+	 *            the URL used to map a resource's method
+	 * @param httpMethod
+	 *            the request method that must be used to invoke the mapped
+	 *            method (see class {@link HttpMethod}).
+	 * @param method
+	 *            the resource's method mapped.
+	 */
+	public UrlMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
+		this.httpMethod = httpMethod;
+		this.method = method;
 
-	loadSegments(urlPath);
-	loadRoles();
-    }
-
-    private void loadSegments(String urlPath) {
-	String[] segArray = urlPath.split("/");
-
-	for (int i = 0; i < segArray.length; i++) {
-	    String segment = segArray[i];
-	    StringValue segmentValue;
-
-	    if (segment.isEmpty())
-		continue;
-
-	    if (isParameterSegment(segment))
-		segmentValue = new VariableSegment(segment);
-	    else
-		segmentValue = StringValue.valueOf(segment);
-
-	    segments.add(segmentValue);
+		loadSegments(urlPath);
+		loadRoles();
 	}
-    }
 
-    /**
-     * Utility method to check if a segment contains a parameter (i.e.
-     * '/{parameterName}/').
-     * 
-     * @param segment
-     * @return true if the segment contains a parameter, false otherwise.
-     */
-    public static boolean isParameterSegment(String segment) {
-	return segment.length() >= 4 && segment.startsWith("{")
-		&& segment.endsWith("}");
-    }
+	private void loadSegments(String urlPath) {
+		String[] segArray = urlPath.split("/");
 
-    private void loadRoles() {
-	AuthorizeInvocation authorizeInvocation = method
-		.getAnnotation(AuthorizeInvocation.class);
+		for (int i = 0; i < segArray.length; i++) {
+			String segment = segArray[i];
+			StringValue segmentValue;
 
-	if (authorizeInvocation != null) {
-	    roles = new Roles(authorizeInvocation.value());
+			if (segment.isEmpty())
+				continue;
+
+			if (isParameterSegment(segment))
+				segmentValue = new VariableSegment(segment);
+			else
+				segmentValue = StringValue.valueOf(segment);
+
+			segments.add(segmentValue);
+		}
 	}
-    }
 
-    // getters and setters
-    public List<StringValue> getSegments() {
-	return segments;
-    }
+	/**
+	 * Utility method to check if a segment contains a parameter (i.e.
+	 * '/{parameterName}/').
+	 * 
+	 * @param segment
+	 * @return true if the segment contains a parameter, false otherwise.
+	 */
+	public static boolean isParameterSegment(String segment) {
+		return segment.length() >= 4 && segment.startsWith("{")
+				&& segment.endsWith("}");
+	}
 
-    public int getSegmentsCount() {
-	return segments.size();
-    }
+	private void loadRoles() {
+		AuthorizeInvocation authorizeInvocation = method
+				.getAnnotation(AuthorizeInvocation.class);
 
-    public HttpMethod getHttpMethod() {
-	return httpMethod;
-    }
+		if (authorizeInvocation != null) {
+			roles = new Roles(authorizeInvocation.value());
+		}
+	}
 
-    public Method getMethod() {
-	return method;
-    }
+	// getters and setters
+	public List<StringValue> getSegments() {
+		return segments;
+	}
 
-    public Roles getRoles() {
-	return roles;
-    }
+	public int getSegmentsCount() {
+		return segments.size();
+	}
+
+	public HttpMethod getHttpMethod() {
+		return httpMethod;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public Roles getRoles() {
+		return roles;
+	}
 }
 
 /**
- * {@link StringValue} subtype that contains a mounted segment with a
+ * {@link StringValue} subtype that contains a mounted segment containing a
  * parameter's value (for example '/{id}/').
  * 
  * @author andrea del bene
  * 
  */
 class VariableSegment extends StringValue {
-    protected VariableSegment(String text) {
-	super(text);
-    }
+	protected VariableSegment(String text) {
+		super(text);
+	}
 }

@@ -21,6 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.wicketstuff.rest.utils.HttpMethod;
+
 /**
  * Annotation used to map a resource's method to a given URL.
  * The specified URL can contain parameter segment (for example '{id}') and we can

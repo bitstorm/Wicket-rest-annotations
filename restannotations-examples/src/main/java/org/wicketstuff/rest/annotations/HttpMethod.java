@@ -15,6 +15,8 @@
  *  limitations under the License.
  */
 package org.wicketstuff.rest.annotations;
+
+
 /***
  * Enum class that represents all the possible request methods
  * 

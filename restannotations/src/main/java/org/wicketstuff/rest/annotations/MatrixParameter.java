@@ -21,19 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.wicketstuff.rest.utils.HttpMethod;
-
-/**
- * Annotation used to map a resource's method to a given URL.
- * The specified URL can contain parameter segment (for example '{id}') and we can
- * specify also the request method that must be used.
- * 
- * @author andrea del bene
- * @see HttpMethod
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface MethodMapping {
+public @interface MatrixParameter {
 	String value() default "";
-	HttpMethod httpMethod() default HttpMethod.GET;
 }
