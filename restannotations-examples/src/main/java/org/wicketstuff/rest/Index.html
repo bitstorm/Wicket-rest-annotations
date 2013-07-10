@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript">
+function loadData(){
+	var day = JSON.stringify(new Date());
+	$.getJSON(location.href + 'weather/forecast/' + day + '/3', function(data) {
+		alert(data);
+	});
+}
+</script>
+</head>
+<body>
+	<button onclick="loadData()">Click here</button>
+</body>
+</html>

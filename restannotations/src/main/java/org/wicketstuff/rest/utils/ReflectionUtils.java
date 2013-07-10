@@ -23,59 +23,59 @@ import org.wicketstuff.rest.annotations.parameters.JsonBody;
 import org.wicketstuff.rest.annotations.parameters.QueryParam;
 
 public class ReflectionUtils {
-    /**
-     * Check if a parameter is annotated with {@link JsonBody}
-     * 
-     * @param i
-     *            function parameter index
-     * @param parametersAnnotations
-     *            bidimensional array containing the annotations for function
-     *            parameters
-     * @return true if the function parameter is annotated with JsonBody, false
-     *         otherwise
-     * @see JsonBody
-     */
-    static public boolean isParameterAnnotatedWith(int i, Method method,
-	    Class<? extends Annotation> targetAnnotation) {
-	Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+	/**
+	 * Check if a parameter is annotated with {@link JsonBody}
+	 * 
+	 * @param i
+	 *            function parameter index
+	 * @param parametersAnnotations
+	 *            bidimensional array containing the annotations for function
+	 *            parameters
+	 * @return true if the function parameter is annotated with JsonBody, false
+	 *         otherwise
+	 * @see JsonBody
+	 */
+	static public boolean isParameterAnnotatedWith(int i, Method method,
+			Class<? extends Annotation> targetAnnotation) {
+		Annotation[][] parametersAnnotations = method.getParameterAnnotations();
 
-	if (parametersAnnotations.length == 0)
-	    return false;
+		if (parametersAnnotations.length == 0)
+			return false;
 
-	Annotation[] parameterAnnotations = parametersAnnotations[i];
+		Annotation[] parameterAnnotations = parametersAnnotations[i];
 
-	for (int j = 0; j < parameterAnnotations.length; j++) {
-	    Annotation annotation = parameterAnnotations[j];
-	    if (targetAnnotation.isInstance(annotation))
-		return true;
+		for (int j = 0; j < parameterAnnotations.length; j++) {
+			Annotation annotation = parameterAnnotations[j];
+			if (targetAnnotation.isInstance(annotation))
+				return true;
+		}
+		return false;
 	}
-	return false;
-    }
 
-    static public boolean isParameterNotAnnotated(int i, Method method) {
-	Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+	static public boolean isParameterNotAnnotated(int i, Method method) {
+		Annotation[][] parametersAnnotations = method.getParameterAnnotations();
 
-	if (parametersAnnotations.length == 0)
-	    return true;
+		if (parametersAnnotations.length == 0)
+			return true;
 
-	Annotation[] parameterAnnotations = parametersAnnotations[i];
+		Annotation[] parameterAnnotations = parametersAnnotations[i];
 
-	if (parameterAnnotations.length == 0)
-	    return true;
+		if (parameterAnnotations.length == 0)
+			return true;
 
-	return false;
-    }
-    
-    static public <T extends Annotation> T findAnnotation(Annotation[] parameterAnnotations, 
-	    					Class<T> targetAnnotation){
-
-	for (int i = 0; i < parameterAnnotations.length; i++) {
-	    Annotation annotation = parameterAnnotations[i];
-
-	    if (targetAnnotation.isInstance(annotation))
-		return targetAnnotation.cast(annotation);
+		return false;
 	}
-	
-	return null;
-    }
+
+	static public <T extends Annotation> T findAnnotation(Annotation[] parameterAnnotations,
+			Class<T> targetAnnotation) {
+
+		for (int i = 0; i < parameterAnnotations.length; i++) {
+			Annotation annotation = parameterAnnotations[i];
+
+			if (targetAnnotation.isInstance(annotation))
+				return targetAnnotation.cast(annotation);
+		}
+
+		return null;
+	}
 }

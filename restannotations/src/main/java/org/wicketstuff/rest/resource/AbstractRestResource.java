@@ -31,9 +31,10 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
-import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
+import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.collections.MultiMap;
@@ -86,8 +87,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	@Override
 	public final void respond(Attributes attributes) {
 		PageParameters pageParameters = attributes.getParameters();
-		ServletWebResponse response = (ServletWebResponse) attributes.getResponse();
-		HttpMethod httpMethod = getHttpMethod((ServletWebRequest) RequestCycle.get().getRequest());
+		WebResponse response = (WebResponse) attributes.getResponse();
+		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
 		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
@@ -116,7 +117,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
-	protected void serializeObjectToResponse(ServletWebResponse response, Object result) {
+	protected void serializeObjectToResponse(WebResponse response, Object result) {
 		try {
 			response.write(serializeObjToString(result, objSerialDeserial));
 		} catch (Exception e) {
@@ -216,8 +217,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @return the HTTP method used for this request
 	 * @see HttpMethod
 	 */
-	public static HttpMethod getHttpMethod(ServletWebRequest request) {
-		HttpServletRequest httpRequest = request.getContainerRequest();
+	public static HttpMethod getHttpMethod(WebRequest request) {
+		HttpServletRequest httpRequest = (HttpServletRequest) request.getContainerRequest();
 		return HttpMethod.toHttpMethod((httpRequest.getMethod()));
 	}
 
@@ -285,7 +286,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		HeaderParam headerParam = ReflectionUtils.findAnnotation(parameterAnnotations,
 				HeaderParam.class);
 		String value = headerParam.value();
-		ServletWebRequest webRequest = (ServletWebRequest) RequestCycle.get().getRequest();
+		WebRequest webRequest = (WebRequest) RequestCycle.get().getRequest();
 
 		return toObject(argClass, webRequest.getHeader(value));
 	}
@@ -305,7 +306,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		CookieParam cookieParam = ReflectionUtils.findAnnotation(parameterAnnotations,
 				CookieParam.class);
 		String value = cookieParam.value();
-		ServletWebRequest webRequest = (ServletWebRequest) RequestCycle.get().getRequest();
+		WebRequest webRequest = (WebRequest) RequestCycle.get().getRequest();
 
 		return toObject(argClass, webRequest.getCookie(value).getValue());
 	}
@@ -319,8 +320,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @return the extracted object
 	 */
 	private Object extractObjectFromBody(Class<?> argClass) {
-		ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
-		HttpServletRequest httpRequest = servletRequest.getContainerRequest();
+		WebRequest servletRequest = (WebRequest) RequestCycle.get().getRequest();
+		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest.getContainerRequest();
 		try {
 			BufferedReader bufReader = httpRequest.getReader();
 			StringBuilder builder = new StringBuilder();

@@ -18,6 +18,7 @@ package org.wicketstuff.rest.gson;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
+import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.resource.AbstractRestResource;
 
 import com.google.gson.Gson;
@@ -30,9 +31,13 @@ import com.google.gson.Gson;
  *
  */
 public class GsonRestResource extends AbstractRestResource<Gson>{
+	
+	public GsonRestResource() {
+		super(new Gson());
+	}
 
-	public GsonRestResource(Gson jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
-		super(jsonSerialDeserial, roleCheckingStrategy);
+	public GsonRestResource(IRoleCheckingStrategy roleCheckingStrategy) {
+		super(new Gson(), roleCheckingStrategy);
 	}
 
 	@Override
@@ -47,7 +52,7 @@ public class GsonRestResource extends AbstractRestResource<Gson>{
 	}
 	
 	@Override
-	protected void serializeObjectToResponse(ServletWebResponse response, Object result) {
+	protected void serializeObjectToResponse(WebResponse response, Object result) {
 		response.setContentType("application/json;charset=utf-8");
 		super.serializeObjectToResponse(response, result);
 	}

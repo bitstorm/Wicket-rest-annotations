@@ -23,6 +23,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.wicketstuff.rest.gson.GsonRestResource;
+import org.wicketstuff.rest.resource.WeatherForecastRestResource;
 
 import com.google.gson.Gson;
 
@@ -32,35 +33,24 @@ import com.google.gson.Gson;
  * 
  * @see org.wicketstuff.rest.Start#main(String[])
  */
-public class WicketApplication extends WebApplication  implements IRoleCheckingStrategy{
-	private final Roles roles;
-
-	public WicketApplication(Roles roles) {
-		this.roles = roles;
-	}
-	
-	@Override
-	public boolean hasAnyRole(Roles roles) {
-		return this.roles.hasAnyRole(roles);
-	}
-	
+public class WicketApplication extends WebApplication{
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
 	@Override
 	public Class<? extends WebPage> getHomePage() {
-		return HomePage.class;
+		return Index.class;
 	}
 
 	@Override
 	public void init() {
 		super.init();
 
-		mountResource("/api", new ResourceReference("restReference") {
+		mountResource("/weather", new ResourceReference("restReference") {
 
 			@Override
 			public IResource getResource() {
-				return new GsonRestResource(new Gson(), WicketApplication.this);
+				return new WeatherForecastRestResource();
 			}
 
 		});
