@@ -14,22 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.annotations;
+package org.wicketstuff.rest.annotations.parameters;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- * Annotation used to indicate that a function parameter must be extracted from the request body.
- * This implies a deserialization from the request body (which contains a JSON value) to the parameter's type. 
- * 
- * @author andrea del bene
- *
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface JsonBody {
-
+public @interface HeaderParam {
+	String value() default "";
 }

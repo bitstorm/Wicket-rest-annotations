@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.annotations;
+package org.wicketstuff.rest.annotations.parameters;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,6 +23,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface QueryParam {
-    String value();
+public @interface MatrixParam {
+	String value() default "";
 }

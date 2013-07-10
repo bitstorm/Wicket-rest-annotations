@@ -16,28 +16,7 @@
  */
 package org.wicketstuff.rest.resource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
-import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
-import org.apache.wicket.request.cycle.RequestCycle;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.string.StringValue;
-import org.wicketstuff.rest.annotations.JsonBody;
-import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.utils.HttpMethod;
 
 import com.google.gson.Gson;
 
@@ -48,19 +27,19 @@ import com.google.gson.Gson;
  * @author andrea del bene
  *
  */
-public class GsonRestResource extends AbstractJsonRestResource<Gson>{
+public class GsonRestResource extends AbstractRestResource<Gson>{
 
 	public GsonRestResource(Gson jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
 		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
 
 	@Override
-	protected String serializeToJson(Object result, Gson jsonSerialDeserial) {
+	protected String serializeObjToString(Object result, Gson jsonSerialDeserial) {
 		return jsonSerialDeserial.toJson(result);
 	}
 
 	@Override
-	protected Object deserializeFromJson(Class<?> argClass, String json,
+	protected Object deserializeObjFromString(Class<?> argClass, String json,
 			Gson jsonSerialDeserial) {
 		return jsonSerialDeserial.fromJson(json, argClass);
 	}

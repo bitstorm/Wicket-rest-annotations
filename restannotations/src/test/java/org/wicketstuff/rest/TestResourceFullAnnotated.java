@@ -23,14 +23,11 @@ import junit.framework.Assert;
 
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
@@ -40,92 +37,89 @@ import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
  * Simple test using the WicketTester
  */
 public class TestResourceFullAnnotated {
-    private WicketTester tester;
-    private Roles roles = new Roles();
+	private WicketTester tester;
+	private Roles roles = new Roles();
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-	tester = new WicketTester(new WicketApplication(roles));
-    }
+	@Before
+	public void setUp() {
+		tester = new WicketTester(new WicketApplication(roles));
+	}
 
-    @Test
-    public void testMethodParametersTypeResolving() {
-	// start and render the test page
-	tester.getRequest().setMethod("GET");
-	tester.executeUrl("./api");
-	testIfResponseContainsString("testMethodNoArgs");
+	@Test
+	public void testMethodParametersTypeResolving() {
+		// start and render the test page
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api");
+		testIfResponseContainsString("testMethodNoArgs");
 
-	tester.getRequest().setMethod("GET");
-	tester.executeUrl("./api/12345");
-	testIfResponseContainsString("12345");
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/12345");
+		testIfResponseContainsString("12345");
 
-	tester.getRequest().setMethod("POST");
-	tester.executeUrl("./api/monoseg");
-	testIfResponseContainsString("testMethodPostSegFixed");
-	
-	tester.getRequest().setMethod("GET");
-	tester.executeUrl("./api/boolean/true");
-	testIfResponseContainsString("testMethodPostBoolean:true");
-	
-	tester.getRequest().setMethod("GET");
-	tester.getRequest().setParameter("price", "" + 12.34);
-	tester.executeUrl("./api/products/112");
-	testIfResponseContainsString("testMethodGetParameter");
-	
-	tester.getRequest().setMethod("GET");
-	tester.getRequest().setHeader("price", "" + 12.34);
-	tester.executeUrl("./api/book/113");
-	testIfResponseContainsString("testMethodHeaderParameter");
-    }
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api/monoseg");
+		testIfResponseContainsString("testMethodPostSegFixed");
 
-    @Test
-    public void testJsonDeserializedParamRequest() {
-	// test if @JsonBody annotation
-	JsonMockRequest jsonMockRequest = new JsonMockRequest(
-		tester.getRequest(), "POST");
-	jsonMockRequest.setReader(new BufferedReader(new StringReader(
-		TestJsonDesSer.getJSON())));
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/boolean/true");
+		testIfResponseContainsString("testMethodPostBoolean:true");
 
-	tester.setRequest(jsonMockRequest);
-	tester.executeUrl("./api/19");
-    }
+		tester.getRequest().setMethod("GET");
+		tester.getRequest().setParameter("price", "" + 12.34);
+		tester.executeUrl("./api/products/112");
+		testIfResponseContainsString("testMethodGetParameter");
 
-    @Test
-    public void testJsonSerializedResponse() {
-	// test JSON response
-	tester.getRequest().setMethod("POST");
-	tester.executeUrl("./api");
+		tester.getRequest().setMethod("GET");
+		tester.getRequest().setHeader("price", "" + 12.34);
+		tester.executeUrl("./api/book/113");
+		testIfResponseContainsString("testMethodHeaderParameter");
+	}
 
-	Assert.assertEquals(TestJsonDesSer.getJSON(),
-		tester.getLastResponseAsString());
-    }
+	@Test
+	public void testJsonDeserializedParamRequest() {
+		// test if @JsonBody annotation
+		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
+		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
 
-    @Test
-    public void rolesAuthorizationMethod() {
-	roles.add("ROLE_ADMIN");
-	tester.getRequest().setMethod("GET");
-	tester.executeUrl("./api/admin");
+		tester.setRequest(jsonMockRequest);
+		tester.executeUrl("./api/19");
+	}
 
-	roles.clear();
-	tester.getRequest().setMethod("GET");
-	exception.expect(MethodInvocationAuthException.class);
+	@Test
+	public void testJsonSerializedResponse() {
+		// test JSON response
+		tester.getRequest().setMethod("POST");
+		tester.executeUrl("./api");
 
-	tester.executeUrl("./api/admin");
-    }
+		Assert.assertEquals(TestJsonDesSer.getJSON(), tester.getLastResponseAsString());
+	}
 
-    @Test
-    public void testRoleCheckinRequired() {
-	// RestResourceFullAnnotated uses annotation AuthorizeInvocation
-	// hence it needs a roleCheckingStrategy to be built
-	exception.expect(WicketRuntimeException.class);
-	RestResourceFullAnnotated restResourceFullAnnotated = new RestResourceFullAnnotated(
-		new TestJsonDesSer());
-    }
+	@Test
+	public void rolesAuthorizationMethod() {
+		roles.add("ROLE_ADMIN");
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/admin");
 
-    protected void testIfResponseContainsString(String value) {
-	Assert.assertEquals(value, tester.getLastResponseAsString());
-    }
+		roles.clear();
+		tester.getRequest().setMethod("GET");
+		exception.expect(MethodInvocationAuthException.class);
+
+		tester.executeUrl("./api/admin");
+	}
+
+	@Test
+	public void testRoleCheckinRequired() {
+		// RestResourceFullAnnotated uses annotation AuthorizeInvocation
+		// hence it needs a roleCheckingStrategy to be built
+		exception.expect(WicketRuntimeException.class);
+		RestResourceFullAnnotated restResourceFullAnnotated = new RestResourceFullAnnotated(
+				new TestJsonDesSer());
+	}
+
+	protected void testIfResponseContainsString(String value) {
+		Assert.assertEquals(value, tester.getLastResponseAsString());
+	}
 }

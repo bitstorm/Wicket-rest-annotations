@@ -19,8 +19,8 @@ package org.wicketstuff.rest.utils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.wicketstuff.rest.annotations.JsonBody;
-import org.wicketstuff.rest.annotations.QueryParam;
+import org.wicketstuff.rest.annotations.parameters.JsonBody;
+import org.wicketstuff.rest.annotations.parameters.QueryParam;
 
 public class ReflectionUtils {
     /**

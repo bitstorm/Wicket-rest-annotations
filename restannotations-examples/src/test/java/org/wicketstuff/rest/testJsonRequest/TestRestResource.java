@@ -18,8 +18,8 @@ package org.wicketstuff.rest.testJsonRequest;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.wicketstuff.rest.Person;
-import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.parameters.JsonBody;
 import org.wicketstuff.rest.resource.GsonRestResource;
 import org.wicketstuff.rest.utils.HttpMethod;
 

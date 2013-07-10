@@ -17,107 +17,104 @@
 package org.wicketstuff.rest.testJsonRequest;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
-import org.wicketstuff.rest.annotations.HeaderParam;
-import org.wicketstuff.rest.annotations.JsonBody;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.annotations.QueryParam;
-import org.wicketstuff.rest.resource.AbstractJsonRestResource;
+import org.wicketstuff.rest.annotations.parameters.HeaderParam;
+import org.wicketstuff.rest.annotations.parameters.JsonBody;
+import org.wicketstuff.rest.annotations.parameters.QueryParam;
+import org.wicketstuff.rest.resource.AbstractRestResource;
 import org.wicketstuff.rest.utils.HttpMethod;
 
-public class RestResourceFullAnnotated extends
-	AbstractJsonRestResource<TestJsonDesSer> {
-    public RestResourceFullAnnotated(TestJsonDesSer jsonSerialDeserial,
-	    IRoleCheckingStrategy roleCheckingStrategy) {
-	super(jsonSerialDeserial, roleCheckingStrategy);
-    }
+public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesSer> {
+	public RestResourceFullAnnotated(TestJsonDesSer jsonSerialDeserial,
+			IRoleCheckingStrategy roleCheckingStrategy) {
+		super(jsonSerialDeserial, roleCheckingStrategy);
+	}
 
-    public RestResourceFullAnnotated(TestJsonDesSer jsonSerialDeserial) {
-	super(jsonSerialDeserial);
-    }
+	public RestResourceFullAnnotated(TestJsonDesSer jsonSerialDeserial) {
+		super(jsonSerialDeserial);
+	}
 
-    /**
-     * new Roles()new Roles()new Roles()for GET requests and URLs like
-     * '<resource path>/5' The id parameter is automatically extracted from URL
-     */
-    @MethodMapping("/{id}")
-    public int testMethodInt(int id) {
-	return id;
-    }
+	/**
+	 * new Roles()new Roles()new Roles()for GET requests and URLs like
+	 * '<resource path>/5' The id parameter is automatically extracted from URL
+	 */
+	@MethodMapping("/{id}")
+	public int testMethodInt(int id) {
+		return id;
+	}
 
-    /**
-     * Method invoked for GET requests and URLs like '<resource path>/5' The id
-     * parameter is automatically extracted from URL The person parameter is
-     * automatically deserialized from request body (which is JSON) The returned
-     * object is automatically serialized to JSON and written in the response
-     */
-    @MethodMapping(value = "/{id}", httpMethod = HttpMethod.POST)
-    public Person testMethodPostComplex(int id, @JsonBody Person person) {
-	return person;
-    }
+	/**
+	 * Method invoked for GET requests and URLs like '<resource path>/5' The id
+	 * parameter is automatically extracted from URL The person parameter is
+	 * automatically deserialized from request body (which is JSON) The returned
+	 * object is automatically serialized to JSON and written in the response
+	 */
+	@MethodMapping(value = "/{id}", httpMethod = HttpMethod.POST)
+	public Person testMethodPostComplex(int id, @JsonBody Person person) {
+		return person;
+	}
 
-    @MethodMapping(value = "/boolean/{boolean}", httpMethod = HttpMethod.GET)
-    public String testMethodPostBoolean(boolean value) {
-	return "testMethodPostBoolean:" + value;
-    }
+	@MethodMapping(value = "/boolean/{boolean}", httpMethod = HttpMethod.GET)
+	public String testMethodPostBoolean(boolean value) {
+		return "testMethodPostBoolean:" + value;
+	}
 
-    @MethodMapping(value = "/monoseg", httpMethod = HttpMethod.POST)
-    public String testMethodPostSegFixed() {
-	return "testMethodPostSegFixed";
-    }
+	@MethodMapping(value = "/monoseg", httpMethod = HttpMethod.POST)
+	public String testMethodPostSegFixed() {
+		return "testMethodPostSegFixed";
+	}
 
-    @MethodMapping("/")
-    public String testMethodNoArgs() {
-	return "testMethodNoArgs";
-    }
+	@MethodMapping("/")
+	public String testMethodNoArgs() {
+		return "testMethodNoArgs";
+	}
 
-    @MethodMapping(value = "/", httpMethod = HttpMethod.POST)
-    public Person testMethodPost() {
-	Person person = createTestPerson();
-	return person;
-    }
+	@MethodMapping(value = "/", httpMethod = HttpMethod.POST)
+	public Person testMethodPost() {
+		Person person = createTestPerson();
+		return person;
+	}
 
-    @MethodMapping(value = "/admin", httpMethod = HttpMethod.GET)
-    @AuthorizeInvocation("ROLE_ADMIN")
-    public void testMethodAdminAuth() {
-	
-    }
-    
-    @MethodMapping(value = "/products/{id}")
-    public String testMethodGetParameter(int productId, @QueryParam("price") float prodPrice){
-	Args.notNull(productId, "productId");
-	Args.notNull(prodPrice, "price");
-	
-	return "testMethodGetParameter";
-    }
-    
-    @MethodMapping(value = "/book/{id}")
-    public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice){
-	Args.notNull(productId, "productId");
-	Args.notNull(prodPrice, "price");
-	
-	return "testMethodHeaderParameter";
-    }
+	@MethodMapping(value = "/admin", httpMethod = HttpMethod.GET)
+	@AuthorizeInvocation("ROLE_ADMIN")
+	public void testMethodAdminAuth() {
 
-    public static Person createTestPerson() {
-	return new Person("Mary", "Smith", "m.smith@gmail.com");
-    }
+	}
 
-    @Override
-    protected String serializeToJson(Object result,
-	    TestJsonDesSer jsonSerialDeserial) {
-	if (Person.class.isInstance(result))
-	    return TestJsonDesSer.getJSON();
-	return result.toString();
-    }
+	@MethodMapping(value = "/products/{id}")
+	public String testMethodGetParameter(int productId, @QueryParam("price") float prodPrice) {
+		Args.notNull(productId, "productId");
+		Args.notNull(prodPrice, "price");
 
-    @Override
-    protected Object deserializeFromJson(Class argClass, String json,
-	    TestJsonDesSer jsonSerialDeserial) {
-	return TestJsonDesSer.getObject();
-    }
+		return "testMethodGetParameter";
+	}
+
+	@MethodMapping(value = "/book/{id}")
+	public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice) {
+		Args.notNull(productId, "productId");
+		Args.notNull(prodPrice, "price");
+
+		return "testMethodHeaderParameter";
+	}
+
+	public static Person createTestPerson() {
+		return new Person("Mary", "Smith", "m.smith@gmail.com");
+	}
+
+	@Override
+	protected String serializeObjToString(Object result, TestJsonDesSer jsonSerialDeserial) {
+		if (Person.class.isInstance(result))
+			return TestJsonDesSer.getJSON();
+		return result.toString();
+	}
+
+	@Override
+	protected Object deserializeObjFromString(Class argClass, String json,
+			TestJsonDesSer jsonSerialDeserial) {
+		return TestJsonDesSer.getObject();
+	}
 
 }
