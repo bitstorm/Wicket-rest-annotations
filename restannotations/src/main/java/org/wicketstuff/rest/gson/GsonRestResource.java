@@ -14,9 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.resource;
+package org.wicketstuff.rest.gson;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.protocol.http.servlet.ServletWebResponse;
+import org.wicketstuff.rest.resource.AbstractRestResource;
 
 import com.google.gson.Gson;
 
@@ -44,4 +46,9 @@ public class GsonRestResource extends AbstractRestResource<Gson>{
 		return jsonSerialDeserial.fromJson(json, argClass);
 	}
 	
+	@Override
+	protected void serializeObjectToResponse(ServletWebResponse response, Object result) {
+		response.setContentType("application/json;charset=utf-8");
+		super.serializeObjectToResponse(response, result);
+	}
 }

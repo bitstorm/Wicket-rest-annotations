@@ -19,6 +19,8 @@ package org.wicketstuff.rest;
 import java.io.BufferedReader;
 import java.io.StringReader;
 
+import javax.servlet.http.Cookie;
+
 import junit.framework.Assert;
 
 import org.apache.wicket.WicketRuntimeException;
@@ -72,10 +74,10 @@ public class TestResourceFullAnnotated {
 		tester.executeUrl("./api/products/112");
 		testIfResponseContainsString("testMethodGetParameter");
 
-		tester.getRequest().setMethod("GET");
-		tester.getRequest().setHeader("price", "" + 12.34);
-		tester.executeUrl("./api/book/113");
-		testIfResponseContainsString("testMethodHeaderParameter");
+		tester.getRequest().setMethod("POST");
+		tester.getRequest().setCookies( new Cookie[]{new Cookie("name", "bob")});
+		tester.executeUrl("./api/person/113");
+		testIfResponseContainsString("testMethodCookieParameter:113bob");
 	}
 
 	@Test

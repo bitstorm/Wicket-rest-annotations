@@ -21,6 +21,7 @@ import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.JsonBody;
 import org.wicketstuff.rest.annotations.parameters.QueryParam;
@@ -98,6 +99,14 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		Args.notNull(prodPrice, "price");
 
 		return "testMethodHeaderParameter";
+	}
+	
+	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST)
+	public String testMethodCookieParameter(@CookieParam("name") String name, int id) {
+		Args.notNull(id, "id");
+		Args.notNull(name, "name");
+
+		return "testMethodCookieParameter:" + id + name;
 	}
 
 	public static Person createTestPerson() {

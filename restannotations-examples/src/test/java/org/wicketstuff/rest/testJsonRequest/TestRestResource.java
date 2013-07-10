@@ -20,7 +20,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingSt
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.JsonBody;
-import org.wicketstuff.rest.resource.GsonRestResource;
+import org.wicketstuff.rest.gson.GsonRestResource;
 import org.wicketstuff.rest.utils.HttpMethod;
 
 import com.google.gson.Gson;

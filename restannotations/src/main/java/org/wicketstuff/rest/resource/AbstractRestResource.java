@@ -84,7 +84,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * web response.
 	 */
 	@Override
-	public void respond(Attributes attributes) {
+	public final void respond(Attributes attributes) {
 		PageParameters pageParameters = attributes.getParameters();
 		ServletWebResponse response = (ServletWebResponse) attributes.getResponse();
 		HttpMethod httpMethod = getHttpMethod((ServletWebRequest) RequestCycle.get().getRequest());
@@ -110,11 +110,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 			if (result != null) {
 				serializeObjectToResponse(response, result);
 			}
+		} else {
+			throw new WicketRuntimeException("No suitable method found for URL '"
+					+ RequestCycle.get().getRequest().getClientUrl() + "' and method " + httpMethod);
 		}
 	}
 
 	protected void serializeObjectToResponse(ServletWebResponse response, Object result) {
-		response.setContentType("application/json");
 		try {
 			response.write(serializeObjToString(result, objSerialDeserial));
 		} catch (Exception e) {
@@ -143,10 +145,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 				if (segment instanceof VariableSegment
 						&& isSegmentCompatible(pageParameters.get(i),
-								argsClasses[functionParamsIndex++]))
+								argsClasses[functionParamsIndex++])) {
 					score++;
-				else if (pageParameters.get(i).equals(segment))
+				} else if (pageParameters.get(i).equals(segment)) {
 					score += 2;
+				} else {
+					score = 0;
+					break;
+				}
 			}
 
 			if (score > highestScore) {
@@ -270,7 +276,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			paramValue = extractParameterFromHeader(parametersAnnotations[i], argClass);
 		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, CookieParam.class))
 			paramValue = extractParameterFromCookies(parametersAnnotations[i], argClass);
-		
+
 		return paramValue;
 	}
 
@@ -303,7 +309,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		return toObject(argClass, webRequest.getCookie(value).getValue());
 	}
-	
+
 	/**
 	 * Internal method that tries to extract an instance of the given class from
 	 * the request body.
@@ -442,22 +448,22 @@ class UrlMappingInfo {
 	private void loadNotAnnotatedParameters() {
 		Class<?>[] parameters = method.getParameterTypes();
 		Annotation[][] paramsAnnotations = method.getParameterAnnotations();
-		
-		//no annotated parameters in this method
-		if(paramsAnnotations.length == 0){
+
+		// no annotated parameters in this method
+		if (paramsAnnotations.length == 0) {
 			notAnnotatedParams = parameters;
 			return;
 		}
-		
+
 		List<Class<?>> notAnnotParams = new ArrayList<Class<?>>();
-		
+
 		for (int i = 0; i < parameters.length; i++) {
 			Class<?> param = parameters[i];
-			
-			if(paramsAnnotations[i].length == 0)
+
+			if (paramsAnnotations[i].length == 0)
 				notAnnotParams.add(param);
 		}
-		
+
 		notAnnotatedParams = notAnnotParams.toArray(parameters);
 	}
 
