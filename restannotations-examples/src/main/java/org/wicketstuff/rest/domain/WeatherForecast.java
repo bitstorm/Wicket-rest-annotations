@@ -16,17 +16,20 @@
  */
 package org.wicketstuff.rest.domain;
 
+import java.util.Date;
+
 public class WeatherForecast {
 	private float umidity;
 	private float temperature;
 	private int status;
 	private int partOfTheDay;
+	private Date date;
 	
-	public WeatherForecast(float umidity, float temperature, 
-							int status, int partOfTheDay) {
+	public WeatherForecast(float umidity, float temperature, int status, int partOfTheDay, Date date) {
 		this.umidity = umidity;
 		this.temperature = temperature;
 		this.status = status;
 		this.partOfTheDay = partOfTheDay;
+		this.date = date;
 	}
 }

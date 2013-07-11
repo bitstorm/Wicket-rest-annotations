@@ -16,14 +16,36 @@
  */
 package org.wicketstuff.rest.resource;
 
+import java.util.Date;
+
+import javax.xml.ws.RequestWrapper;
+
+import org.apache.wicket.MetaDataKey;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.parameters.QueryParam;
 import org.wicketstuff.rest.domain.WeatherForecast;
 import org.wicketstuff.rest.resource.gson.GsonRestResource;
 
+import com.google.gson.Gson;
+
 public class WeatherForecastRestResource extends GsonRestResource {
+	private MetaDataKey<String> callbackName = new MetaDataKey<String>(){};
 	
 	@MethodMapping("/forecast/{date}/{partday}")
-	public WeatherForecast getForecast(long day, int partOfTheDay){
-		return new WeatherForecast(67.8f, 24.2f, 3, 2);
+	public WeatherForecast getForecast(long day, int partOfTheDay, @QueryParam("callback") String callback){
+		Date dayDate = new Date(day);
+		RequestCycle.get().setMetaData(callbackName, callback);
+		
+		return new WeatherForecast(67.8f, 24.2f, 3, 
+				partOfTheDay, dayDate);
+	}
+	
+	@Override
+	protected String serializeObjToString(Object result, Gson jsonSerialDeserial) {
+		String jsonStr = super.serializeObjToString(result, jsonSerialDeserial);
+		String callbackFunction = RequestCycle.get().getMetaData(callbackName);
+		
+		return callbackFunction + "(" + jsonStr + ");";
 	}
 }

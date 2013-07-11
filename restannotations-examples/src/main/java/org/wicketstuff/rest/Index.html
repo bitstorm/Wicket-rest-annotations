@@ -21,22 +21,42 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<script type="text/javascript">
-function loadData(){
-	var day = new Date();
-	$.getJSON(location.href + 'weather/forecast/' + day.getTime() + '/3', function(data) {
-		alert(data);
-	});
-}
-</script>
 <wicket:link>
 	<script src="resource/web/kendo.core.min.js"></script>
 	<script src="resource/web/kendo.data.min.js"></script>
-	<link  type="text/css" rel="stylesheet" href="resource/web/kendo.default.min.css"></link>
+	<link type="text/css" rel="stylesheet"
+		href="resource/web/kendo.default.min.css"></link>
 </wicket:link>
 
 </head>
 <body>
 	<button onclick="loadData()">Click here</button>
+	<div id="forecast"></div>
+	
+	<script type="text/javascript">
+	$(document).ready(function() {
+		// create a template using the above definition
+		var template = kendo.template($("#template").html());
+		var day = new Date();
+		var sample = [{"date": day, "umidity": 4, "temperature":7.8}];
+		
+		var dataSource = new kendo.data.DataSource({
+			data : sample ,
+			change : function() { // subscribe to the CHANGE event of the data source
+				$("#forecast").html(kendo.render(template, this.view()));
+			}
+		});
+		
+		dataSource.read();
+	});
+
+</script>
+<script id="template" type="text/x-kendo-template">
+	<div>
+		<div>a #= date #</div>
+		<div>b #= umidity #</div>	
+		<div>c #= temperature #</div>
+	</div>                
+</script>
 </body>
 </html>
