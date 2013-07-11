@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.testJsonRequest.JsonMockRequest;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
@@ -104,12 +103,12 @@ public class TestResourceFullAnnotated {
 		roles.add("ROLE_ADMIN");
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/admin");
+		Assert.assertEquals(200, tester.getLastResponse().getStatus());
 
 		roles.clear();
 		tester.getRequest().setMethod("GET");
-		exception.expect(MethodInvocationAuthException.class);
-
 		tester.executeUrl("./api/admin");
+		Assert.assertEquals(401, tester.getLastResponse().getStatus());
 	}
 
 	@Test

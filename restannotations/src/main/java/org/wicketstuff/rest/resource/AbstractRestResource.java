@@ -31,7 +31,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -46,7 +45,6 @@ import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.JsonBody;
 import org.wicketstuff.rest.annotations.parameters.QueryParam;
-import org.wicketstuff.rest.exception.MethodInvocationAuthException;
 import org.wicketstuff.rest.utils.HttpMethod;
 import org.wicketstuff.rest.utils.ReflectionUtils;
 
@@ -57,9 +55,10 @@ import org.wicketstuff.rest.utils.ReflectionUtils;
  * 
  */
 public abstract class AbstractRestResource<T> implements IResource {
+	/**  */
 	private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
+	/**  */
 	private final T objSerialDeserial;
-
 	/** Role checking strategy. */
 	private final IRoleCheckingStrategy roleCheckingStrategy;
 
@@ -71,10 +70,16 @@ public abstract class AbstractRestResource<T> implements IResource {
 		this(jsonSerialDeserial, null);
 	}
 
+	/**
+	 * 
+	 * @param jsonSerialDeserial
+	 * @param roleCheckingStrategy
+	 */
 	public AbstractRestResource(T jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
 		this.objSerialDeserial = jsonSerialDeserial;
 		this.roleCheckingStrategy = roleCheckingStrategy;
 
+		configureObjSerialDeserial(jsonSerialDeserial);
 		loadAnnotatedMethods();
 	}
 
@@ -102,9 +107,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 			mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
 
 		if (mappedMethod != null) {
-			if (!hasAny(mappedMethod.getRoles()))
-				throw new MethodInvocationAuthException(
-						"User is not allowed to invoke this method!");
+			if (!hasAny(mappedMethod.getRoles())){
+				response.sendError(401, "User is not allowed to invoke method on server.");
+				return;
+			}
 
 			Object result = invokeMappedMethod(mappedMethod, pageParameters);
 
@@ -112,7 +118,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 				serializeObjectToResponse(response, result);
 			}
 		} else {
-			throw new WicketRuntimeException("No suitable method found for URL '"
+			response.sendError(400, "No suitable method found for URL '"
 					+ RequestCycle.get().getRequest().getClientUrl() + "' and method " + httpMethod);
 		}
 	}
@@ -175,8 +181,30 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		return true;
 	}
-
+	
+	/**
+	 * 
+	 * @param objSerialDeserial
+	 */
+	protected void configureObjSerialDeserial(T objSerialDeserial){};
+	
+	/**
+	 * 
+	 * @param result
+	 * @param objSerialDeserial
+	 * @return
+	 */
 	protected abstract String serializeObjToString(Object result, T objSerialDeserial);
+	
+	/**
+	 * 
+	 * @param argClass
+	 * @param strValue
+	 * @param objSerialDeserial
+	 * @return
+	 */
+	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
+			T objSerialDeserial);
 
 	/***
 	 * Internal method to load class methods annotated with
@@ -335,9 +363,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 			throw new RuntimeException("Error deserializing object from request", e);
 		}
 	}
-
-	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
-			T objSerialDeserial);
 
 	/***
 	 * Extract parameters values from the rest URL

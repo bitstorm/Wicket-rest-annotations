@@ -22,8 +22,8 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.wicketstuff.rest.gson.GsonRestResource;
 import org.wicketstuff.rest.resource.WeatherForecastRestResource;
+import org.wicketstuff.rest.resource.gson.GsonRestResource;
 
 import com.google.gson.Gson;
 

@@ -180,6 +180,7 @@
 						<exclude>**/src/test/resources/**</exclude>
 						<exclude>**/src/test/data/**</exclude>
 						<exclude>**/jquery*</exclude>
+						<exclude>**/kendo*</exclude>
 						<exclude>**/*.csv</exclude>
 					</excludes>
 				</configuration>
