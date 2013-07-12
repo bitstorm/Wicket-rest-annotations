@@ -77,6 +77,11 @@ public class TestResourceFullAnnotated {
 		tester.getRequest().setCookies( new Cookie[]{new Cookie("name", "bob")});
 		tester.executeUrl("./api/person/113");
 		testIfResponseContainsString("testMethodCookieParameter:113bob");
+		
+		tester.getRequest().setMethod("POST");
+		tester.getRequest().setParameter("title", "The divine comedy.");
+		tester.executeUrl("./api/book/113");
+		testIfResponseContainsString("testPostRequestParameter");
 	}
 
 	@Test

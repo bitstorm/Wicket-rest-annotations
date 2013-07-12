@@ -43,8 +43,8 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
-import org.wicketstuff.rest.annotations.parameters.JsonBody;
-import org.wicketstuff.rest.annotations.parameters.QueryParam;
+import org.wicketstuff.rest.annotations.parameters.RequestBody;
+import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.utils.HttpMethod;
 import org.wicketstuff.rest.utils.ReflectionUtils;
 
@@ -296,9 +296,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 		Object paramValue = null;
 		Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
 
-		if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, JsonBody.class))
+		if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, RequestBody.class))
 			paramValue = extractObjectFromBody(argClass);
-		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, QueryParam.class))
+		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, RequestParam.class))
 			paramValue = extractParameterFromQuery(pageParameters, parametersAnnotations[i],
 					argClass);
 		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, HeaderParam.class))
@@ -322,8 +322,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	private Object extractParameterFromQuery(PageParameters pageParameters,
 			Annotation[] parameterAnnotations, Class<?> argClass) {
 
-		QueryParam queryParam = ReflectionUtils.findAnnotation(parameterAnnotations,
-				QueryParam.class);
+		RequestParam queryParam = ReflectionUtils.findAnnotation(parameterAnnotations,
+				RequestParam.class);
 		String value = queryParam.value();
 
 		return toObject(argClass, pageParameters.get(value).toString());

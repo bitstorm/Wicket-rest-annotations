@@ -23,8 +23,8 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
-import org.wicketstuff.rest.annotations.parameters.JsonBody;
-import org.wicketstuff.rest.annotations.parameters.QueryParam;
+import org.wicketstuff.rest.annotations.parameters.RequestBody;
+import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.resource.AbstractRestResource;
 import org.wicketstuff.rest.utils.HttpMethod;
 
@@ -54,7 +54,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 	 * object is automatically serialized to JSON and written in the response
 	 */
 	@MethodMapping(value = "/{id}", httpMethod = HttpMethod.POST)
-	public Person testMethodPostComplex(int id, @JsonBody Person person) {
+	public Person testMethodPostComplex(int id, @RequestBody Person person) {
 		return person;
 	}
 
@@ -86,7 +86,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 	}
 
 	@MethodMapping(value = "/products/{id}")
-	public String testMethodGetParameter(int productId, @QueryParam("price") float prodPrice) {
+	public String testMethodGetParameter(int productId, @RequestParam("price") float prodPrice) {
 		Args.notNull(productId, "productId");
 		Args.notNull(prodPrice, "price");
 
@@ -108,7 +108,16 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 
 		return "testMethodCookieParameter:" + id + name;
 	}
-
+	
+	
+	@MethodMapping(value = "/book/{id}", httpMethod = HttpMethod.POST)
+	public String testPostRequestParameter(int productId, @RequestParam("title") String title) {
+		Args.notNull(productId, "productId");
+		Args.notNull(title, "title");
+		
+		return "testPostRequestParameter";
+	}
+	
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}

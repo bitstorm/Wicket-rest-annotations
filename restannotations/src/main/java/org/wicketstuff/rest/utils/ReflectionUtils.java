@@ -19,12 +19,12 @@ package org.wicketstuff.rest.utils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.wicketstuff.rest.annotations.parameters.JsonBody;
-import org.wicketstuff.rest.annotations.parameters.QueryParam;
+import org.wicketstuff.rest.annotations.parameters.RequestBody;
+import org.wicketstuff.rest.annotations.parameters.RequestParam;
 
 public class ReflectionUtils {
 	/**
-	 * Check if a parameter is annotated with {@link JsonBody}
+	 * Check if a parameter is annotated with {@link RequestBody}
 	 * 
 	 * @param i
 	 *            function parameter index
@@ -33,7 +33,7 @@ public class ReflectionUtils {
 	 *            parameters
 	 * @return true if the function parameter is annotated with JsonBody, false
 	 *         otherwise
-	 * @see JsonBody
+	 * @see RequestBody
 	 */
 	static public boolean isParameterAnnotatedWith(int i, Method method,
 			Class<? extends Annotation> targetAnnotation) {
