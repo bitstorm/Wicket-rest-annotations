@@ -55,25 +55,38 @@ import org.wicketstuff.rest.utils.ReflectionUtils;
  * 
  */
 public abstract class AbstractRestResource<T> implements IResource {
-	/**  */
+	/** Multimap that stores every mapped method of the class */
 	private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
-	/**  */
+
+	/**
+	 * General class that is used to serialize/desiarilze objects to string (for
+	 * example to a Json string)
+	 */
 	private final T objSerialDeserial;
-	/** Role checking strategy. */
+
+	/** Role-checking strategy. */
 	private final IRoleCheckingStrategy roleCheckingStrategy;
 
 	/**
-	 * Constructor with no role-checker
+	 * Constructor with no role-checker. If don't use
+	 * {@link AuthorizeInvocation} we don't need such a checker.
 	 * 
+	 * @param roleCheckingStrategy
+	 *            Role checking strategy.
 	 */
 	public AbstractRestResource(T jsonSerialDeserial) {
 		this(jsonSerialDeserial, null);
 	}
 
 	/**
+	 * Main constructor that takes in input the object serializer/deserializer
+	 * and the role-checking strategy to use.
 	 * 
 	 * @param jsonSerialDeserial
+	 *            General class that is used to serialize/desiarilze objects to
+	 *            string
 	 * @param roleCheckingStrategy
+	 *            Role-checking strategy.
 	 */
 	public AbstractRestResource(T jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
 		this.objSerialDeserial = jsonSerialDeserial;
@@ -87,7 +100,11 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * Handles a REST request invoking one of the methods annotated with
 	 * {@link MethodMapping}. If the annotated method returns a value, this
 	 * latter is automatically serialized as a JSON string and written in the
-	 * web response.
+	 * web response.<br/>
+	 * If no method is found to serve the current request, a 400 HTTP code is
+	 * returned to the client. Similarly, a 401 HTTP code is return if the user
+	 * doesn't own one of the roles required to execute an annotated method (See
+	 * {@link AuthorizeInvocation}).
 	 */
 	@Override
 	public final void respond(Attributes attributes) {
@@ -96,24 +113,27 @@ public abstract class AbstractRestResource<T> implements IResource {
 		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
+		// mapped method are stored concatenating the number of the segments of
+		// their URL
+		// and their HTTP method (see annotation MethodMapping)
 		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
 				+ httpMethod.getMethod());
 
 		UrlMappingInfo mappedMethod = null;
-
+		// if we have no segments return the first candidate method (if any)
 		if (indexedParamCount == 0 && mappedMethodsCandidates != null)
 			mappedMethod = mappedMethodsCandidates.get(0);
 		else
 			mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
 
 		if (mappedMethod != null) {
-			if (!hasAny(mappedMethod.getRoles())){
+			if (!hasAny(mappedMethod.getRoles())) {
 				response.sendError(401, "User is not allowed to invoke method on server.");
 				return;
 			}
 
 			Object result = invokeMappedMethod(mappedMethod, pageParameters);
-
+			// if the invoked method returns a value, it is written to response
 			if (result != null) {
 				serializeObjectToResponse(response, result);
 			}
@@ -123,6 +143,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
+	/**
+	 * Method invoked to serialize an object and write it as response.
+	 * 
+	 * @param response
+	 *            The current response object.
+	 * @param result
+	 *            The object to write as response.
+	 */
 	protected void serializeObjectToResponse(WebResponse response, Object result) {
 		try {
 			response.write(serializeObjToString(result, objSerialDeserial));
@@ -131,14 +159,36 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
+	/**
+	 * Method invoked to select the most suited method to serve the current
+	 * request.
+	 * 
+	 * @param mappedMethods
+	 *            List of {@link UrlMappingInfo} containing the informations of
+	 *            mapped methods.
+	 * @param pageParameters
+	 *            The PageParameters of the current request.
+	 * @return The "best" method found to serve the request.
+	 */
 	private UrlMappingInfo selectMostSuitedMethod(List<UrlMappingInfo> mappedMethods,
 			PageParameters pageParameters) {
 		UrlMappingInfo mappingInfo = null;
 		int highestScore = 0;
-
+		// no method mapped
 		if (mappedMethods == null || mappedMethods.size() == 0)
 			return null;
 
+		/**
+		 * To select the "best" method, a score is assigned to every mapped
+		 * method. The score is computed comparing each segment of the current
+		 * URL with the corresponding segment of the mounted method. If these
+		 * two segment are equal, the score is increased of 2 points. If the
+		 * mounted segment contains a parameter's value (for example '/{id}/'),
+		 * the value of the URL's segment is checked to see if its value is
+		 * compatible with the corresponding method parameter. If so, the score
+		 * is increased by one point. In any other case the total score for a
+		 * method is set to 0.
+		 */
 		for (UrlMappingInfo mappedMethod : mappedMethods) {
 			List<StringValue> segments = mappedMethod.getSegments();
 			Method targetMethod = mappedMethod.getMethod();
@@ -171,6 +221,15 @@ public abstract class AbstractRestResource<T> implements IResource {
 		return mappingInfo;
 	}
 
+	/**
+	 * This method checks if a string value can be converted to a target type.
+	 * 
+	 * @param segment
+	 *            the string value we want to convert.
+	 * @param paramClass
+	 *            the target type.
+	 * @return
+	 */
 	private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
 		try {
 			Object convertedObject = toObject(paramClass, segment.toString());
@@ -181,27 +240,38 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		return true;
 	}
-	
+
 	/**
+	 * Method called by the constructor to configure the deserializer/serializer
+	 * object.
 	 * 
 	 * @param objSerialDeserial
 	 */
-	protected void configureObjSerialDeserial(T objSerialDeserial){};
-	
+	protected void configureObjSerialDeserial(T objSerialDeserial) {
+	};
+
 	/**
+	 * Method invoked to serialize the value returned by the mapped method
+	 * invoked to serve the request.
 	 * 
 	 * @param result
+	 *            the value returned by the method invoked to serve the request.
 	 * @param objSerialDeserial
+	 *            the object used to serialize/deserialize an object.
 	 * @return
 	 */
 	protected abstract String serializeObjToString(Object result, T objSerialDeserial);
-	
+
 	/**
+	 * Method invoked to deserialize an object from a string.
 	 * 
 	 * @param argClass
+	 *            the type used to deserialize the object.
 	 * @param strValue
+	 *            the string value containing our object.
 	 * @param objSerialDeserial
-	 * @return
+	 *            the serializer/deserializer.
+	 * @return the deserialized object
 	 */
 	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
 			T objSerialDeserial);
@@ -291,6 +361,20 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
+	/**
+	 * Extract the value for a method parameter.
+	 * 
+	 * @param i
+	 *            the index of the method parameter in the parameters list.
+	 * @param targetMethod
+	 *            the target method.
+	 * @param argClass
+	 *            the type of the current parameter.
+	 * @param pageParameters
+	 *            PageParameters for the current request.
+	 * @return 
+	 * 			  the extracted value.
+	 */
 	private Object extractParameterValue(int i, Method targetMethod, Class<?> argClass,
 			PageParameters pageParameters) {
 		Object paramValue = null;
@@ -423,6 +507,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 	}
 
+	/**
+	 * Utility method to check that the user owns one of the roles provided in
+	 * input.
+	 * 
+	 * @param roles
+	 *            checked roles.
+	 * @return
+	 */
 	protected final boolean hasAny(Roles roles) {
 		if (roles.isEmpty()) {
 			return true;
