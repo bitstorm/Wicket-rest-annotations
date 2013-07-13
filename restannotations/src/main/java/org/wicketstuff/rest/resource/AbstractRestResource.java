@@ -31,6 +31,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -114,17 +115,20 @@ public abstract class AbstractRestResource<T> implements IResource {
 		int indexedParamCount = pageParameters.getIndexedCount();
 
 		// mapped method are stored concatenating the number of the segments of
-		// their URL
-		// and their HTTP method (see annotation MethodMapping)
+		// their URL and their HTTP method (see annotation MethodMapping)
 		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
 				+ httpMethod.getMethod());
 
 		UrlMappingInfo mappedMethod = null;
 		// if we have no segments return the first candidate method (if any)
-		if (indexedParamCount == 0 && mappedMethodsCandidates != null)
+		if (indexedParamCount == 0 && mappedMethodsCandidates != null) {
+			if (mappedMethodsCandidates.size() > 1)
+				throwAmbiguousMethodsException(mappedMethodsCandidates);
+
 			mappedMethod = mappedMethodsCandidates.get(0);
-		else
+		} else {
 			mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
+		}
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles())) {
@@ -172,9 +176,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 */
 	private UrlMappingInfo selectMostSuitedMethod(List<UrlMappingInfo> mappedMethods,
 			PageParameters pageParameters) {
-		UrlMappingInfo mappingInfo = null;
 		int highestScore = 0;
 		// no method mapped
+		MultiMap<Integer, UrlMappingInfo> mappedMethodByScore = new MultiMap<Integer, UrlMappingInfo>();
+
 		if (mappedMethods == null || mappedMethods.size() == 0)
 			return null;
 
@@ -191,7 +196,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 		 */
 		for (UrlMappingInfo mappedMethod : mappedMethods) {
 			List<StringValue> segments = mappedMethod.getSegments();
-			Method targetMethod = mappedMethod.getMethod();
 			Class<?>[] argsClasses = mappedMethod.getNotAnnotatedParams();
 
 			int score = 0;
@@ -214,11 +218,36 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 			if (score > highestScore) {
 				highestScore = score;
-				mappingInfo = mappedMethod;
+				mappedMethodByScore.addValue(score, mappedMethod);
 			}
 		}
 
-		return mappingInfo;
+		if (mappedMethodByScore.get(highestScore) != null
+				&& mappedMethodByScore.get(highestScore).size() > 1)
+			throwAmbiguousMethodsException(mappedMethodByScore.get(highestScore));
+
+		return mappedMethodByScore.getFirstValue(highestScore);
+	}
+	
+	/**
+	 * Throw an exception if two o more methods are suited for the current request.
+	 * 
+	 * @param list the list of ambiguous methods.
+	 */
+	private void throwAmbiguousMethodsException(List<UrlMappingInfo> list) {
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		String methodsNames = "";
+		
+		for (UrlMappingInfo urlMappingInfo : list) {
+			if(!methodsNames.isEmpty())
+				methodsNames += ", ";
+			
+			methodsNames += urlMappingInfo.getMethod().getName();
+		}
+		
+		throw new WicketRuntimeException("Ambiguous methods mapped for the current request: URL '"
+				+ request.getClientUrl() + "', HTTP method " + getHttpMethod(request) + ". "
+				+ "Mapped methods: " + methodsNames);
 	}
 
 	/**
@@ -228,7 +257,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the string value we want to convert.
 	 * @param paramClass
 	 *            the target type.
-	 * @return
+	 * @return true if the segment value is compatible, false otherwise
 	 */
 	private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
 		try {
@@ -338,7 +367,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 		Class<?>[] argsClasses = targetMethod.getParameterTypes();
 		List parametersValues = new ArrayList();
 		Iterator<StringValue> segmentsIterator = mappedMethod.getSegments().iterator();
-		Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
 
 		for (int i = 0; i < argsClasses.length; i++) {
 			Class<?> argClass = argsClasses[i];
