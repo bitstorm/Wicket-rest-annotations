@@ -21,16 +21,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/***
- * Annotation used to indicate that a method parameter must be extracted from the request body.
- * This implies a deserialization from the request body (from example from JSON format) to the parameter's type. 
+/**
+ * This annotation indicates that the target annotation is meant for extracting the
+ * value of a method parameter from a specific source (like a request parameter,
+ * a cookie, etc...).
  * 
  * @author andrea del bene
- *
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-@AnnotatedParam
-public @interface RequestBody {
-
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface AnnotatedParam {
 }

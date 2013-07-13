@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface CookieParam {
+@AnnotatedParam
+public @interface CookieParam{
 	String value() default "";
 }

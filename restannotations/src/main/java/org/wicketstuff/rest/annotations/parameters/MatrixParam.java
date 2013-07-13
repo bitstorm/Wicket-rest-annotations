@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
+@AnnotatedParam
 public @interface MatrixParam {
 	String value() default "";
 }

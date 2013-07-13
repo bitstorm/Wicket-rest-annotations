@@ -19,6 +19,7 @@ package org.wicketstuff.rest.utils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import org.wicketstuff.rest.annotations.parameters.AnnotatedParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 
@@ -60,10 +61,16 @@ public class ReflectionUtils {
 
 		Annotation[] parameterAnnotations = parametersAnnotations[i];
 
-		if (parameterAnnotations.length == 0)
-			return true;
+		for (int j = 0; j < parameterAnnotations.length; j++) {
+			Annotation annotation = parameterAnnotations[j];
+			AnnotatedParam isAnnotatedParam = annotation.annotationType().getAnnotation(
+					AnnotatedParam.class);
 
-		return false;
+			if (isAnnotatedParam != null)
+				return false;
+		}
+
+		return true;
 	}
 
 	static public <T extends Annotation> T findAnnotation(Annotation[] parameterAnnotations,

@@ -242,10 +242,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Method called by the constructor to configure the deserializer/serializer
-	 * object.
+	 * Method called by the constructor to configure the object
+	 * serializer/deserializer.
+	 * 
 	 * 
 	 * @param objSerialDeserial
+	 *            the object serializer/deserializer
 	 */
 	protected void configureObjSerialDeserial(T objSerialDeserial) {
 	};
@@ -258,7 +260,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the value returned by the method invoked to serve the request.
 	 * @param objSerialDeserial
 	 *            the object used to serialize/deserialize an object.
-	 * @return
+	 * @return the object serialized as string.
 	 */
 	protected abstract String serializeObjToString(Object result, T objSerialDeserial);
 
@@ -270,7 +272,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @param strValue
 	 *            the string value containing our object.
 	 * @param objSerialDeserial
-	 *            the serializer/deserializer.
+	 *            the object serializer/deserializer.
 	 * @return the deserialized object
 	 */
 	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
@@ -310,8 +312,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	/**
 	 * Utility method to extract the request method
 	 * 
-	 * @param clazz
-	 * @param value
+	 * @param request
+	 *            the current request object
 	 * @return the HTTP method used for this request
 	 * @see HttpMethod
 	 */
@@ -321,8 +323,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/***
-	 * This method invokes one of the resource's method annotated with
-	 * {@link MethodMapping}
+	 * This method invokes one of the resource methods annotated with
+	 * {@link MethodMapping}.
 	 * 
 	 * @param mappedMethod
 	 *            mapping info of the method
@@ -372,8 +374,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the type of the current parameter.
 	 * @param pageParameters
 	 *            PageParameters for the current request.
-	 * @return 
-	 * 			  the extracted value.
+	 * @return the extracted value.
 	 */
 	private Object extractParameterValue(int i, Method targetMethod, Class<?> argClass,
 			PageParameters pageParameters) {
@@ -393,6 +394,16 @@ public abstract class AbstractRestResource<T> implements IResource {
 		return paramValue;
 	}
 
+	/**
+	 * Extract method parameter's value from request header.
+	 * 
+	 * @param parameterAnnotations
+	 *            an array containing the annotations for the current method
+	 *            parameter.
+	 * @param argClass
+	 *            the type of the current method parameter.
+	 * @return the extracted value.
+	 */
 	private Object extractParameterFromHeader(Annotation[] parameterAnnotations, Class<?> argClass) {
 
 		HeaderParam headerParam = ReflectionUtils.findAnnotation(parameterAnnotations,
@@ -403,6 +414,18 @@ public abstract class AbstractRestResource<T> implements IResource {
 		return toObject(argClass, webRequest.getHeader(value));
 	}
 
+	/**
+	 * Extract method parameter's value from query string parameters.
+	 * 
+	 * @param pageParameters
+	 *            the PageParameters of the current request.
+	 * @param parameterAnnotations
+	 *            an array containing the annotations for the current method
+	 *            parameter.
+	 * @param argClass
+	 *            the type of the current method parameter.
+	 * @return the extracted value.
+	 */
 	private Object extractParameterFromQuery(PageParameters pageParameters,
 			Annotation[] parameterAnnotations, Class<?> argClass) {
 
@@ -413,6 +436,16 @@ public abstract class AbstractRestResource<T> implements IResource {
 		return toObject(argClass, pageParameters.get(value).toString());
 	}
 
+	/**
+	 * Extract method parameter's value from cookies.
+	 * 
+	 * @param parameterAnnotations
+	 *            an array containing the annotations for the current method
+	 *            parameter.
+	 * @param argClass
+	 *            the type of the current method parameter.
+	 * @return the extracted value.
+	 */
 	private Object extractParameterFromCookies(Annotation[] parameterAnnotations, Class<?> argClass) {
 
 		CookieParam cookieParam = ReflectionUtils.findAnnotation(parameterAnnotations,
@@ -428,8 +461,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * the request body.
 	 * 
 	 * @param argClass
-	 *            the type we want to extract from request body
-	 * @return the extracted object
+	 *            the type we want to extract from request body.
+	 * @return the extracted object.
 	 */
 	private Object extractObjectFromBody(Class<?> argClass) {
 		WebRequest servletRequest = (WebRequest) RequestCycle.get().getRequest();
@@ -449,17 +482,17 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/***
-	 * Extract parameters values from the rest URL
+	 * Extract parameters values from the rest URL.
 	 * 
 	 * @param mappedMethod
-	 *            mapping info of the method
+	 *            mapping info of the method.
 	 * @param pageParameters
-	 *            PageParametrs object of the current request
+	 *            PageParametrs object of the current request.
 	 * @param segmentsIterator
-	 *            iterator over the mapped segments
+	 *            iterator over the mapped segments.
 	 * @param argClass
-	 *            type of the parameter we want to extract
-	 * @return the parameter's value
+	 *            type of the parameter we want to extract.
+	 * @return the parameter value.
 	 */
 	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod,
 			PageParameters pageParameters, Iterator<StringValue> segmentsIterator, Class<?> argClass) {
@@ -513,7 +546,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * 
 	 * @param roles
 	 *            checked roles.
-	 * @return
+	 * @return true if the user owns one of roles in input, false otherwise.
 	 */
 	protected final boolean hasAny(Roles roles) {
 		if (roles.isEmpty()) {
@@ -521,131 +554,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 		} else {
 			return roleCheckingStrategy.hasAnyRole(roles);
 		}
-	}
-}
-
-/**
- * This class contains the informations of a resource's mapped method (i.e. a
- * method annotated with {@link MethodMapping})
- * 
- * @author andrea del bene
- * 
- */
-class UrlMappingInfo {
-	/**  */
-	private final HttpMethod httpMethod;
-	/**  */
-	private final List<StringValue> segments = new ArrayList<StringValue>();
-	/**  */
-	private Roles roles = new Roles();
-	/**  */
-	private final Method method;
-	/**  */
-	private Class<?>[] notAnnotatedParams;
-
-	/**
-	 * Class construnctor.
-	 * 
-	 * @param urlPath
-	 *            the URL used to map a resource's method
-	 * @param httpMethod
-	 *            the request method that must be used to invoke the mapped
-	 *            method (see class {@link HttpMethod}).
-	 * @param method
-	 *            the resource's method mapped.
-	 */
-	public UrlMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
-		this.httpMethod = httpMethod;
-		this.method = method;
-
-		loadSegments(urlPath);
-		loadRoles();
-		loadNotAnnotatedParameters();
-	}
-
-	private void loadNotAnnotatedParameters() {
-		Class<?>[] parameters = method.getParameterTypes();
-		Annotation[][] paramsAnnotations = method.getParameterAnnotations();
-
-		// no annotated parameters in this method
-		if (paramsAnnotations.length == 0) {
-			notAnnotatedParams = parameters;
-			return;
-		}
-
-		List<Class<?>> notAnnotParams = new ArrayList<Class<?>>();
-
-		for (int i = 0; i < parameters.length; i++) {
-			Class<?> param = parameters[i];
-
-			if (paramsAnnotations[i].length == 0)
-				notAnnotParams.add(param);
-		}
-
-		notAnnotatedParams = notAnnotParams.toArray(parameters);
-	}
-
-	private void loadSegments(String urlPath) {
-		String[] segArray = urlPath.split("/");
-
-		for (int i = 0; i < segArray.length; i++) {
-			String segment = segArray[i];
-			StringValue segmentValue;
-
-			if (segment.isEmpty())
-				continue;
-
-			if (isParameterSegment(segment))
-				segmentValue = new VariableSegment(segment);
-			else
-				segmentValue = StringValue.valueOf(segment);
-
-			segments.add(segmentValue);
-		}
-	}
-
-	/**
-	 * Utility method to check if a segment contains a parameter (i.e.
-	 * '/{parameterName}/').
-	 * 
-	 * @param segment
-	 * @return true if the segment contains a parameter, false otherwise.
-	 */
-	public static boolean isParameterSegment(String segment) {
-		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
-	}
-
-	private void loadRoles() {
-		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
-
-		if (authorizeInvocation != null) {
-			roles = new Roles(authorizeInvocation.value());
-		}
-	}
-
-	// getters and setters
-	public List<StringValue> getSegments() {
-		return segments;
-	}
-
-	public int getSegmentsCount() {
-		return segments.size();
-	}
-
-	public HttpMethod getHttpMethod() {
-		return httpMethod;
-	}
-
-	public Method getMethod() {
-		return method;
-	}
-
-	public Roles getRoles() {
-		return roles;
-	}
-
-	public Class<?>[] getNotAnnotatedParams() {
-		return notAnnotatedParams;
 	}
 }
 
