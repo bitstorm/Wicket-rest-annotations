@@ -344,7 +344,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			Class<?> argClass = argsClasses[i];
 			Object paramValue = null;
 
-			if (ReflectionUtils.isParameterNotAnnotated(i, targetMethod))
+			if (!ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, targetMethod))
 				paramValue = extractParameterFromUrl(mappedMethod, pageParameters,
 						segmentsIterator, argClass);
 			else

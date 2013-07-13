@@ -53,11 +53,11 @@ public class ReflectionUtils {
 		return false;
 	}
 
-	static public boolean isParameterNotAnnotated(int i, Method method) {
+	static public boolean isParameterAnnotatedWithAnnotatedParam(int i, Method method) {
 		Annotation[][] parametersAnnotations = method.getParameterAnnotations();
 
 		if (parametersAnnotations.length == 0)
-			return true;
+			return false;
 
 		Annotation[] parameterAnnotations = parametersAnnotations[i];
 
@@ -67,10 +67,10 @@ public class ReflectionUtils {
 					AnnotatedParam.class);
 
 			if (isAnnotatedParam != null)
-				return false;
+				return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	static public <T extends Annotation> T findAnnotation(Annotation[] parameterAnnotations,

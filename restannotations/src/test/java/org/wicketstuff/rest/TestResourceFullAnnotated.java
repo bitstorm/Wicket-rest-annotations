@@ -54,34 +54,34 @@ public class TestResourceFullAnnotated {
 		// start and render the test page
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api");
-		testIfResponseContainsString("testMethodNoArgs");
+		testIfResponseStringIsEqual("testMethodNoArgs");
 
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/12345");
-		testIfResponseContainsString("12345");
+		testIfResponseStringIsEqual("12345");
 
 		tester.getRequest().setMethod("POST");
 		tester.executeUrl("./api/monoseg");
-		testIfResponseContainsString("testMethodPostSegFixed");
+		testIfResponseStringIsEqual("testMethodPostSegFixed");
 
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/boolean/true");
-		testIfResponseContainsString("testMethodPostBoolean:true");
+		testIfResponseStringIsEqual("testMethodPostBoolean:true");
 
 		tester.getRequest().setMethod("GET");
 		tester.getRequest().setParameter("price", "" + 12.34);
 		tester.executeUrl("./api/products/112");
-		testIfResponseContainsString("testMethodGetParameter");
+		testIfResponseStringIsEqual("testMethodGetParameter");
 
 		tester.getRequest().setMethod("POST");
-		tester.getRequest().setCookies( new Cookie[]{new Cookie("name", "bob")});
+		tester.getRequest().setCookies(new Cookie[] { new Cookie("name", "bob") });
 		tester.executeUrl("./api/person/113");
-		testIfResponseContainsString("testMethodCookieParameter:113bob");
-		
+		testIfResponseStringIsEqual("testMethodCookieParameter:113bob");
+
 		tester.getRequest().setMethod("POST");
 		tester.getRequest().setParameter("title", "The divine comedy.");
 		tester.executeUrl("./api/book/113");
-		testIfResponseContainsString("testPostRequestParameter");
+		testIfResponseStringIsEqual("testPostRequestParameter");
 	}
 
 	@Test
@@ -125,7 +125,18 @@ public class TestResourceFullAnnotated {
 				new TestJsonDesSer());
 	}
 
-	protected void testIfResponseContainsString(String value) {
+	@Test
+	public void testMethodParamWithOtherAnnotations() {
+		// method resolving must not be misguided by other annotations (for
+		// example @Valid)
+		tester.getRequest().setMethod("POST");
+		tester.getRequest().setParameter("title", "The divine comedy.");
+		tester.executeUrl("./api/param/31/annotated/james");
+
+		testIfResponseStringIsEqual("testAnnotatedParameters");
+	}
+
+	protected void testIfResponseStringIsEqual(String value) {
 		Assert.assertEquals(value, tester.getLastResponseAsString());
 	}
 }

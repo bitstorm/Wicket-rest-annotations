@@ -16,6 +16,11 @@
  */
 package org.wicketstuff.rest.testJsonRequest;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
@@ -118,6 +123,15 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testPostRequestParameter";
 	}
 	
+	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST)
+	public String testAnnotatedParameters(int id, @TestAnnotation String name, @TestAnnotation @RequestParam("title") String title) {
+		Args.notNull(id, "id");
+		Args.notNull(name, "name");
+		Args.notNull(title, "title");
+		
+		return "testAnnotatedParameters";
+	}
+	
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
@@ -135,4 +149,9 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return TestJsonDesSer.getObject();
 	}
 
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@interface TestAnnotation {
 }

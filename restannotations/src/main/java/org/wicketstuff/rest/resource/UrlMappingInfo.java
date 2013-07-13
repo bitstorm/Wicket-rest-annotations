@@ -26,6 +26,7 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.utils.HttpMethod;
+import org.wicketstuff.rest.utils.ReflectionUtils;
 
 /**
  * This class contains the informations of a resource's mapped method (i.e. a
@@ -66,28 +67,27 @@ class UrlMappingInfo {
 		loadNotAnnotatedParameters();
 	}
 
+	/**
+	 * 
+	 */
 	private void loadNotAnnotatedParameters() {
 		Class<?>[] parameters = method.getParameterTypes();
-		Annotation[][] paramsAnnotations = method.getParameterAnnotations();
-
-		// no annotated parameters in this method
-		if (paramsAnnotations.length == 0) {
-			notAnnotatedParams = parameters;
-			return;
-		}
-
 		List<Class<?>> notAnnotParams = new ArrayList<Class<?>>();
 
 		for (int i = 0; i < parameters.length; i++) {
 			Class<?> param = parameters[i];
 
-			if (paramsAnnotations[i].length == 0)
+			if (!ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
 				notAnnotParams.add(param);
 		}
 
 		notAnnotatedParams = notAnnotParams.toArray(parameters);
 	}
 
+	/**
+	 * 
+	 * @param urlPath
+	 */
 	private void loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
 
@@ -118,6 +118,9 @@ class UrlMappingInfo {
 		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
 	}
 
+	/**
+	 * 
+	 */
 	private void loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
 
