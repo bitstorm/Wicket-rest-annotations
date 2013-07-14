@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD})
-@Documented
 @Inherited
 public @interface AuthorizeInvocation {
 	

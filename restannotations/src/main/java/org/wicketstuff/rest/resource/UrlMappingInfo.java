@@ -16,7 +16,6 @@
  */
 package org.wicketstuff.rest.resource;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,21 +29,29 @@ import org.wicketstuff.rest.utils.ReflectionUtils;
 
 /**
  * This class contains the informations of a resource's mapped method (i.e. a
- * method annotated with {@link MethodMapping})
+ * method annotated with {@link MethodMapping}). These informations are used at
+ * runtime to select the most suited method to serve the current request.
  * 
  * @author andrea del bene
  * 
  */
 class UrlMappingInfo {
-	/**  */
+	/** The HTTP method used to invoke this mapped method. */
 	private final HttpMethod httpMethod;
-	/**  */
+	/** Segments that compose the URL we mapped the method on. */
 	private final List<StringValue> segments = new ArrayList<StringValue>();
-	/**  */
+	/**
+	 * Optional roles we used to annotate the method (see annotation
+	 * AuthorizeInvocation).
+	 */
 	private Roles roles = new Roles();
-	/**  */
+	/** The resource method we have mapped. */
 	private final Method method;
-	/**  */
+	/**
+	 * Store method parameters that are NOT annotated with an AnnotatedParam
+	 * annotation (i.e. their value must be extracted from URL). See annotations
+	 * in package org.wicketstuff.rest.annotations.parameters .
+	 */
 	private Class<?>[] notAnnotatedParams;
 
 	/**
@@ -68,7 +75,9 @@ class UrlMappingInfo {
 	}
 
 	/**
-	 * 
+	 * Loads the method parameters that are NOT annotated with an AnnotatedParam
+	 * annotation (i.e. their value must be extracted from URL). See annotations
+	 * in package org.wicketstuff.rest.annotations.parameters .
 	 */
 	private void loadNotAnnotatedParameters() {
 		Class<?>[] parameters = method.getParameterTypes();
@@ -85,6 +94,9 @@ class UrlMappingInfo {
 	}
 
 	/**
+	 * Loads the segment that compose the URL used to map the method. Segments are instances
+	 * of class {@link StringValue}. Segments that contains a parameter value (for example '/{id}/') 
+	 * are stored with class {@link VariableSegment}.
 	 * 
 	 * @param urlPath
 	 */
@@ -119,7 +131,7 @@ class UrlMappingInfo {
 	}
 
 	/**
-	 * 
+	 * Load the optionals roles used to annotate the method with {@link AuthorizeInvocation}
 	 */
 	private void loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
