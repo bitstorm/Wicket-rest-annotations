@@ -111,7 +111,7 @@ class UrlMappingInfo {
 				continue;
 
 			if (isParameterSegment(segment))
-				segmentValue = new VariableSegment(segment);
+				segmentValue = VariableSegment.createVariableSegment(segment);
 			else
 				segmentValue = StringValue.valueOf(segment);
 

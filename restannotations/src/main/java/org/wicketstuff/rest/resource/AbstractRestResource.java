@@ -593,7 +593,25 @@ public abstract class AbstractRestResource<T> implements IResource {
  * 
  */
 class VariableSegment extends StringValue {
+	
+	final private String name;
+	
 	protected VariableSegment(String text) {
+		super(text);
+		this.name = loadSegmentVarName();
+	}
+	 
+	protected String loadSegmentVarName() {
+		return null;
+	}
+
+	static public VariableSegment createVariableSegment(String text){
+		return new VariableSegment(text);
+	} 
+}
+
+class MatrixVarSegment extends VariableSegment{
+	private MatrixVarSegment(String text) {
 		super(text);
 	}
 }
