@@ -228,23 +228,25 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		return mappedMethodByScore.getFirstValue(highestScore);
 	}
-	
+
 	/**
-	 * Throw an exception if two o more methods are suited for the current request.
+	 * Throw an exception if two o more methods are suited for the current
+	 * request.
 	 * 
-	 * @param list the list of ambiguous methods.
+	 * @param list
+	 *            the list of ambiguous methods.
 	 */
 	private void throwAmbiguousMethodsException(List<UrlMappingInfo> list) {
 		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
 		String methodsNames = "";
-		
+
 		for (UrlMappingInfo urlMappingInfo : list) {
-			if(!methodsNames.isEmpty())
+			if (!methodsNames.isEmpty())
 				methodsNames += ", ";
-			
+
 			methodsNames += urlMappingInfo.getMethod().getName();
 		}
-		
+
 		throw new WicketRuntimeException("Ambiguous methods mapped for the current request: URL '"
 				+ request.getClientUrl() + "', HTTP method " + getHttpMethod(request) + ". "
 				+ "Mapped methods: " + methodsNames);
@@ -582,36 +584,5 @@ public abstract class AbstractRestResource<T> implements IResource {
 		} else {
 			return roleCheckingStrategy.hasAnyRole(roles);
 		}
-	}
-}
-
-/**
- * {@link StringValue} subtype that contains a mounted segment containing a
- * parameter's value (for example '/{id}/').
- * 
- * @author andrea del bene
- * 
- */
-class VariableSegment extends StringValue {
-	
-	final private String name;
-	
-	protected VariableSegment(String text) {
-		super(text);
-		this.name = loadSegmentVarName();
-	}
-	 
-	protected String loadSegmentVarName() {
-		return null;
-	}
-
-	static public VariableSegment createVariableSegment(String text){
-		return new VariableSegment(text);
-	} 
-}
-
-class MatrixVarSegment extends VariableSegment{
-	private MatrixVarSegment(String text) {
-		super(text);
 	}
 }
