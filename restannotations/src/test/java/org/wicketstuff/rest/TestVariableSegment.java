@@ -16,55 +16,86 @@
  */
 package org.wicketstuff.rest;
 
-import static org.junit.Assert.*;
-
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
+import org.wicketstuff.rest.resource.GeneralURLSegment;
 import org.wicketstuff.rest.resource.VariableSegment;
 
-public class TestVariableSegment extends Assert{
+public class TestVariableSegment extends Assert {
 
 	@Test
 	public void testStandardUrlSegment() {
 		MetaPattern pattern = new MetaPattern(VariableSegment.STANDARD_URL_SEGMENT);
-		
+
 		Matcher matcher = pattern.matcher("");
 		assertTrue(!matcher.matches());
-		
+
 		matcher = pattern.matcher("seg&ment");
 		assertTrue(!matcher.matches());
-		
+
 		matcher = pattern.matcher("segment:");
 		assertTrue(!matcher.matches());
+
+		matcher = pattern.matcher("*");
+		assertTrue(matcher.matches());
 		
 		matcher = pattern.matcher("segment");
 		assertTrue(matcher.matches());
-		
+
 		matcher = pattern.matcher("117");
 		assertTrue(matcher.matches());
 	}
-	
+
 	@Test
 	public void testVarSegmentPattern() {
 		MetaPattern pattern = VariableSegment.VAR_SEGMENT_PATTERN;
-		
-		Matcher matcher = pattern.matcher("segment;");		
+
+		Matcher matcher = pattern.matcher("segment;");
 		assertTrue(!matcher.matches());
-		
+
 		matcher = pattern.matcher("segment");
 		assertTrue(matcher.matches());
-		
+
 		matcher = pattern.matcher("segment;param=");
 		assertTrue(!matcher.matches());
-		
-		matcher = pattern.matcher("segment;param=value");		
+
+		matcher = pattern.matcher("segment;param=value");
 		assertTrue(matcher.matches());
-		
-		matcher = pattern.matcher("segment;param=value;param1=value1");		
+
+		matcher = pattern.matcher("segment;param=value;param1=value1");
 		assertTrue(matcher.matches());
+	}
+
+	@Test
+	public void testGetActualSegmentValue() {
+		String segment = "segment";
+		String segmentMatrixParam = segment + ";param=value";
+
+		String segmentValue = GeneralURLSegment.getActualSegment(segment);
+		assertEquals(segment, segmentValue);
+
+		segmentValue = GeneralURLSegment.getActualSegment(segmentMatrixParam);
+		assertEquals(segment, segmentValue);
+
+		Map<String, String> matrixParams = GeneralURLSegment
+				.getSegmentMatrixParameters(segmentMatrixParam);
+				
+		assertEquals(1, matrixParams.size());
+		
+		assertNotNull(matrixParams.get("param"));
+		
+		String segmentMatrixParamsQuotes = segment + ";param=value;param1='hello world'";
+		matrixParams = GeneralURLSegment
+				.getSegmentMatrixParameters(segmentMatrixParamsQuotes);
+		
+		
+		assertEquals(2, matrixParams.size());
+		assertEquals("value", matrixParams.get("param"));
+		assertEquals("'hello world'", matrixParams.get("param1"));
 	}
 
 }

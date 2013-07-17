@@ -16,12 +16,6 @@
  */
 package org.wicketstuff.rest.resource;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.wicket.util.parse.metapattern.Group;
-import org.apache.wicket.util.parse.metapattern.MetaPattern;
-import org.apache.wicket.util.parse.metapattern.OptionalMetaPattern;
 import org.apache.wicket.util.string.StringValue;
 
 /**
@@ -33,28 +27,8 @@ import org.apache.wicket.util.string.StringValue;
  */
 public class VariableSegment extends GeneralURLSegment {
 
-	public static final MetaPattern VAR_SEGMENT_PATTERN = initVarSegmentPattern();
-
 	protected VariableSegment(String text) {
 		super(text);
-	}
-
-	protected static MetaPattern initVarSegmentPattern() {
-		List<MetaPattern> patterns = new ArrayList<MetaPattern>();
-		MetaPattern segmentName = new MetaPattern(STANDARD_URL_SEGMENT);
-		MetaPattern parameter = new MetaPattern(MetaPattern.VARIABLE_NAME, MetaPattern.EQUALS,
-				MetaPattern.STRING);
-				
-		MetaPattern matrixParameter = new MetaPattern(MetaPattern.SEMICOLON, parameter);
-		Group matrixParamGroup = new Group(matrixParameter);
-		MetaPattern multiGroup = new MetaPattern(matrixParamGroup.toString() + "*");
-		
-		return new MetaPattern(segmentName, multiGroup);
-	}
-
-	@Override
-	protected String loadSegmentVarName() {
-		return null;
 	}
 
 	static public VariableSegment createVariableSegment(String text) {

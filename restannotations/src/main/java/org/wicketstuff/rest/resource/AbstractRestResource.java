@@ -31,7 +31,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.request.Request;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -203,12 +202,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 			for (StringValue segment : segments) {
 				int i = segments.indexOf(segment);
+				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters.get(i)
+						.toString());
 
 				if (segment instanceof VariableSegment
-						&& isSegmentCompatible(pageParameters.get(i),
-								argsClasses[functionParamsIndex++])) {
+						&& isSegmentCompatible(currentActualSegment, argsClasses[functionParamsIndex++])) {
 					score++;
-				} else if (pageParameters.get(i).equals(segment)) {
+				} else if (currentActualSegment.equals(segment.toString())) {
 					score += 2;
 				} else {
 					score = 0;
@@ -261,7 +261,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the target type.
 	 * @return true if the segment value is compatible, false otherwise
 	 */
-	private boolean isSegmentCompatible(StringValue segment, Class<?> paramClass) {
+	private boolean isSegmentCompatible(String segment, Class<?> paramClass) {
 		try {
 			Object convertedObject = toObject(paramClass, segment.toString());
 		} catch (Exception e) {

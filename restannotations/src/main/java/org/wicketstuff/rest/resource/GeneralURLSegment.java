@@ -16,13 +16,23 @@
  */
 package org.wicketstuff.rest.resource;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.wicket.util.parse.metapattern.Group;
+import org.apache.wicket.util.parse.metapattern.MetaPattern;
+import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser;
 import org.apache.wicket.util.string.StringValue;
 
 public class GeneralURLSegment extends StringValue {
 
 	final private String name;
 
-	public static final String STANDARD_URL_SEGMENT = "[A-Za-z0-9_]+";
+	public static final String STANDARD_URL_SEGMENT = "([A-Za-z0-9_]+|\\*)";
+
+	public static final MetaPattern VAR_SEGMENT_PATTERN = initVarSegmentPattern();
 
 	protected GeneralURLSegment(String text) {
 		super(text);
@@ -33,8 +43,46 @@ public class GeneralURLSegment extends StringValue {
 		return this.toString();
 	}
 
+	protected static MetaPattern initVarSegmentPattern() {
+		List<MetaPattern> patterns = new ArrayList<MetaPattern>();
+		MetaPattern segmentName = new MetaPattern(STANDARD_URL_SEGMENT);
+		MetaPattern parameter = new MetaPattern(MetaPattern.VARIABLE_NAME, MetaPattern.EQUALS,
+				MetaPattern.STRING);
+
+		MetaPattern matrixParameter = new MetaPattern(MetaPattern.SEMICOLON, parameter);
+		Group matrixParamGroup = new Group(matrixParameter);
+		MetaPattern multiGroup = new MetaPattern(matrixParamGroup.toString() + "*");
+
+		return new MetaPattern(segmentName, multiGroup);
+	}
+
 	static public VariableSegment createVariableSegment(String text) {
 		return new VariableSegment(text);
+	}
+
+	static public String getActualSegment(String fullSegment) {
+		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
+
+		return segmentParts[0];
+	}
+
+	static public Map<String, String> getSegmentMatrixParameters(String fullSegment) {
+		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
+		HashMap<String, String> matrixParameters = new HashMap<String, String>();
+
+		if(segmentParts.length < 2)
+			return matrixParameters;
+		
+		for (int i = 1; i < segmentParts.length; i++) {
+			String parameterDeclar = segmentParts[i];
+			VariableAssignmentParser parser = new VariableAssignmentParser(
+					parameterDeclar);
+			
+			parser.matcher().find();
+			matrixParameters.put(parser.getKey(), parser.getValue());
+		}
+
+		return matrixParameters;
 	}
 
 	public String getName() {
