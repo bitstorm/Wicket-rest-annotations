@@ -19,9 +19,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+
 <title>Insert title here</title>
 <script type="text/javascript" src="http://knockoutjs.com/downloads/knockout-2.2.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" href="http://knockoutjs.com/css/styles.css"/>
 <link rel="stylesheet" type="text/css" href="http://knockoutjs.com/css/tripoli.simple.css"/>
 
@@ -46,19 +48,45 @@
 					model.temperature(data.temperature);
 				});	
 			});
+			$( "#dialog-form" ).dialog({
+				 autoOpen: false,
+				 height: 300,
+				 width: 350,
+				 modal: true,
+				 cancel: function() {
+					 $( this ).dialog( "close" );
+				 },
+			});
+			$('#openNewUser').click(function(event){
+				$( "#dialog-form" ).dialog( "open" );
+			});
 		});
 	})
 </script>
 </head>
 <body style="padding: 1.25em 1.45em 1.25em 1.55em">
 
-<div class="content sticker">
-	<button id="loadData">Click here</button>
-	<br/><br/>
-	<div id="forecast" class="liveExample">
-		<h3>Date: <span data-bind="text: date"></span></h3>
-		<p>Temperature: <span data-bind="text: temperature"></span></p>
+	<div class="content sticker">
+		<button id="loadData">Click here</button>  <button id="openNewUser">Click here</button>
+		<br/><br/>
+		<div id="forecast" class="liveExample">
+			<h3>Date: <span data-bind="text: date"></span></h3>
+			<p>Temperature: <span data-bind="text: temperature"></span></p>
+		</div>
 	</div>
-</div>
+
+	<div id="dialog-form" title="Create new user">
+		<form>
+			<fieldset>
+				<label for="name">Name</label> <input type="text" name="name"
+					id="name" class="text ui-widget-content ui-corner-all" /><br/>
+				<label for="email">Email</label> <input type="text" name="email"
+					id="email" value="" class="text ui-widget-content ui-corner-all" /><br/>
+				<label for="password">Password</label> <input type="password"
+					name="password" id="password" value=""
+					class="text ui-widget-content ui-corner-all" />
+			</fieldset>
+		</form>
+	</div>
 </body>
 </html>

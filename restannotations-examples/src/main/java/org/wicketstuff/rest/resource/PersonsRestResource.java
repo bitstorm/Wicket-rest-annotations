@@ -16,15 +16,19 @@
  */
 package org.wicketstuff.rest.resource;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import org.apache.wicket.MetaDataKey;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.annotations.parameters.RequestBody;
+import org.wicketstuff.rest.domain.PersonPojo;
 import org.wicketstuff.rest.domain.WeatherForecast;
 import org.wicketstuff.rest.resource.gson.GsonRestResource;
+import org.wicketstuff.rest.utils.HttpMethod;
 
-public class WeatherForecastRestResource extends GsonRestResource {
-	private MetaDataKey<String> callbackName = new MetaDataKey<String>(){};
+public class PersonsRestResource extends GsonRestResource {
+	private final List<PersonPojo> persons = new ArrayList<PersonPojo>();
 	
 	@MethodMapping("/forecast/{date}/{partday}")
 	public WeatherForecast getForecast(long day, int partOfTheDay){
@@ -32,5 +36,20 @@ public class WeatherForecastRestResource extends GsonRestResource {
 		
 		return new WeatherForecast(67.8f, 24.2f, 3, 
 				partOfTheDay, dayDate);
+	}
+
+	@MethodMapping("/persons")
+	public List<PersonPojo> getAllPersons() {
+		return persons;
+	}
+	
+	@MethodMapping(value = "/persons/{personIndex}", httpMethod = HttpMethod.DELETE)
+	public void deletePerson(int personIndex) {
+		persons.remove(personIndex);
+	}
+	
+	@MethodMapping(value = "/persons", httpMethod = HttpMethod.POST)
+	public void createPerson(@RequestBody PersonPojo personPojo) {
+		persons.add(personPojo);
 	}
 }

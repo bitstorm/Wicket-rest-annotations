@@ -14,17 +14,18 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.annotations.parameters;
+package org.wicketstuff.rest.domain;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.PARAMETER)
-@AnnotatedParam
-public @interface MatrixParam {
-	String variableName() default "";
-	int segmentIndex();
+public class PersonPojo {
+	private String name;
+	private String email;
+	private String password;
+	
+	public PersonPojo(String name, String email, String password) {
+		this.name = name;
+		this.email = email;
+		this.password = password;
+	}
+	
+	
 }

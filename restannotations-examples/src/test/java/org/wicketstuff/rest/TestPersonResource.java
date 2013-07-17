@@ -16,17 +16,24 @@
  */
 package org.wicketstuff.rest;
 
-import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import java.io.BufferedReader;
+import java.io.StringReader;
+
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;
+import org.wicketstuff.rest.domain.PersonPojo;
+import org.wicketstuff.rest.utils.JsonMockRequest;
+
+import com.google.gson.Gson;
 
 /**
  * Simple test using the WicketTester
  */
-public class TestHomePage
+public class TestPersonResource
 {
 	private WicketTester tester;
+	final private Gson gson = new Gson();
 
 	@Before
 	public void setUp()
@@ -35,16 +42,19 @@ public class TestHomePage
 	}
 
 	@Test
-	public void homepageRendersSuccessfully()
+	public void testCreatePerson()
 	{
-		//start and render the test page
-	/*	tester.getRequest().setMethod("GET");
-		tester.executeUrl("./api");
+		JsonMockRequest mockRequest =new JsonMockRequest(tester.getRequest(), "POST");
+		String jsonObj = gson.toJson(new PersonPojo("James", "Smith", "changeit"));
+		
+		mockRequest.setReader(new BufferedReader(new StringReader(jsonObj)));
+		
+		tester.setRequest(mockRequest);
+		tester.executeUrl("./weather/persons");
 		
 		tester.getRequest().setMethod("GET");
-		tester.executeUrl("./api/1");
+		tester.executeUrl("./weather/persons");
 		
-		tester.getRequest().setMethod("POST");
-		tester.executeUrl("./api");	*/
+		System.out.println(tester.getLastResponseAsString());
 	}
 }

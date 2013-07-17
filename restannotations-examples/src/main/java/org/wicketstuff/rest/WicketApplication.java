@@ -16,16 +16,11 @@
  */
 package org.wicketstuff.rest;
 
-import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.wicketstuff.rest.resource.WeatherForecastRestResource;
-import org.wicketstuff.rest.resource.gson.GsonRestResource;
-
-import com.google.gson.Gson;
+import org.wicketstuff.rest.resource.PersonsRestResource;
 
 /**
  * Application object for your web application. If you want to run this
@@ -47,10 +42,10 @@ public class WicketApplication extends WebApplication{
 		super.init();
 
 		mountResource("/weather", new ResourceReference("restReference") {
-
+			PersonsRestResource resource = new PersonsRestResource();
 			@Override
 			public IResource getResource() {
-				return new WeatherForecastRestResource();
+				return resource;
 			}
 
 		});
