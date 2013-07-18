@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,6 +44,7 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
+import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.utils.HttpMethod;
@@ -202,11 +204,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 			for (StringValue segment : segments) {
 				int i = segments.indexOf(segment);
-				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters.get(i)
-						.toString());
+				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters
+						.get(i).toString());
 
 				if (segment instanceof VariableSegment
-						&& isSegmentCompatible(currentActualSegment, argsClasses[functionParamsIndex++])) {
+						&& isSegmentCompatible(currentActualSegment,
+								argsClasses[functionParamsIndex++])) {
 					score++;
 				} else if (currentActualSegment.equals(segment.toString())) {
 					score += 2;
@@ -394,7 +397,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Extract the value for a method parameter.
+	 * Extract the value for a annotated method parameter (see package
+	 * {@link org.wicketstuff.rest.annotations.parameters}).
 	 * 
 	 * @param i
 	 *            the index of the method parameter in the parameters list.
@@ -420,8 +424,25 @@ public abstract class AbstractRestResource<T> implements IResource {
 			paramValue = extractParameterFromHeader(parametersAnnotations[i], argClass);
 		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, CookieParam.class))
 			paramValue = extractParameterFromCookies(parametersAnnotations[i], argClass);
+		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, MatrixParam.class))
+			paramValue = extractParameterFromMatrixParams(pageParameters, parametersAnnotations[i],
+					argClass);
 
 		return paramValue;
+	}
+
+	private Object extractParameterFromMatrixParams(PageParameters pageParameters,
+			Annotation[] parameterAnnotations, Class<?> argClass) {
+		MatrixParam matrixParam = ReflectionUtils.findAnnotation(parameterAnnotations,
+				MatrixParam.class);
+
+		int segmentIndex = matrixParam.segmentIndex();
+		String variableName = matrixParam.variableName();
+		String rawsSegment = pageParameters.get(segmentIndex).toString();
+		Map<String, String> matrixParameters = GeneralURLSegment
+				.getSegmentMatrixParameters(rawsSegment);
+
+		return toObject(argClass, matrixParameters.get(variableName));
 	}
 
 	/**
@@ -541,12 +562,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 			if (segmentValue != null) {
 				int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
 				StringValue actualValue = pageParameters.get(indexOf);
+				String currentActualSegment = GeneralURLSegment.getActualSegment(actualValue
+						.toString());
 
-				return toObject(argClass, actualValue.toString());
+				return toObject(argClass, currentActualSegment);
 			}
 			return null;
 		} catch (Exception e) {
-			throw new RuntimeException("Error retrieving a constructor with a string parameter.", e);
+			throw new RuntimeException("Error retrieving a constructor with a string parameter for class " + argClass, e);
 		}
 	}
 
@@ -560,14 +583,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @return the wrapper class for the given primitive type
 	 */
 	protected Object toObject(Class clazz, String value) throws IllegalArgumentException {
-		IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
+		try {
+			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 
-		if (converter != null)
 			return converter.convertToObject(value, Session.get().getLocale());
-
-		throw new IllegalArgumentException("Could not find a suitable constructor for value "
-				+ value + " of class " + clazz);
-
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not find a suitable constructor for value "
+					+ value + " of class " + clazz, e);
+		}
 	}
 
 	/**

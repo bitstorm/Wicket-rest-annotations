@@ -42,7 +42,7 @@ public class TestVariableSegment extends Assert {
 
 		matcher = pattern.matcher("*");
 		assertTrue(matcher.matches());
-		
+
 		matcher = pattern.matcher("segment");
 		assertTrue(matcher.matches());
 
@@ -78,21 +78,21 @@ public class TestVariableSegment extends Assert {
 		String segmentValue = GeneralURLSegment.getActualSegment(segment);
 		assertEquals(segment, segmentValue);
 
+		Map<String, String> matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segment);
+		assertTrue(matrixParams.size() == 0);
+
 		segmentValue = GeneralURLSegment.getActualSegment(segmentMatrixParam);
 		assertEquals(segment, segmentValue);
 
-		Map<String, String> matrixParams = GeneralURLSegment
-				.getSegmentMatrixParameters(segmentMatrixParam);
-				
+		matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segmentMatrixParam);
+
 		assertEquals(1, matrixParams.size());
-		
+
 		assertNotNull(matrixParams.get("param"));
-		
+
 		String segmentMatrixParamsQuotes = segment + ";param=value;param1='hello world'";
-		matrixParams = GeneralURLSegment
-				.getSegmentMatrixParameters(segmentMatrixParamsQuotes);
-		
-		
+		matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segmentMatrixParamsQuotes);
+
 		assertEquals(2, matrixParams.size());
 		assertEquals("value", matrixParams.get("param"));
 		assertEquals("'hello world'", matrixParams.get("param1"));

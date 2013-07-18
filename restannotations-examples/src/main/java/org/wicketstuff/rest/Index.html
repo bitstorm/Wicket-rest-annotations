@@ -28,38 +28,39 @@
 <link rel="stylesheet" type="text/css" href="http://knockoutjs.com/css/tripoli.simple.css"/>
 
 <script type="text/javascript">
+	
 	$(document).ready(function() {
-		$(document).ready(function() {
-			
-			function AppViewModel() {
-				this.date = ko.observable();
-				this.temperature = ko.observable();
-			};
+		
+		function AppViewModel() {
+			this.date = ko.observable();
+			this.temperature = ko.observable();
+		};
 
-			var model = new AppViewModel();
+		var model = new AppViewModel();
+		
+		ko.applyBindings(model);
+		
+		$('#loadData').click(function(event){
+			var day = new Date();
 			
-			ko.applyBindings(model);
-			
-			$('#loadData').click(function(event){
-				var day = new Date();
-				
-				$.getJSON(location.href + 'weather/forecast/' + day.getTime() + '/3', function(data) {
-					model.date(data.date);
-					model.temperature(data.temperature);
-				});	
-			});
-			$( "#dialog-form" ).dialog({
-				 autoOpen: false,
-				 height: 300,
-				 width: 350,
-				 modal: true,
-				 cancel: function() {
-					 $( this ).dialog( "close" );
-				 },
-			});
-			$('#openNewUser').click(function(event){
-				$( "#dialog-form" ).dialog( "open" );
-			});
+			$.getJSON(location.href + 'weather/forecast/' + day.getTime() + '/3', function(data) {
+				model.date(data.date);
+				model.temperature(data.temperature);
+			});	
+		});
+		
+		$( "#dialog-form" ).dialog({
+			 autoOpen: false,
+			 height: 300,
+			 width: 350,
+			 modal: true,
+			 cancel: function() {
+				 $( this ).dialog( "close" );
+			 },
+		});
+		
+		$('#openNewUser').click(function(event){
+			$( "#dialog-form" ).dialog( "open" );
 		});
 	})
 </script>

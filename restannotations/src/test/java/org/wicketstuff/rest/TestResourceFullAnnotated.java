@@ -75,7 +75,7 @@ public class TestResourceFullAnnotated {
 
 		tester.getRequest().setMethod("POST");
 		tester.getRequest().setCookies(new Cookie[] { new Cookie("name", "bob") });
-		tester.executeUrl("./api/person/113");
+		tester.executeUrl("./api/person/113;height=170");
 		testIfResponseStringIsEqual("testMethodCookieParameter:113bob");
 
 		tester.getRequest().setMethod("POST");

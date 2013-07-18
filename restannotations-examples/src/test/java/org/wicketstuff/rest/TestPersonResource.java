@@ -16,10 +16,8 @@
  */
 package org.wicketstuff.rest;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-
 import org.apache.wicket.util.tester.WicketTester;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wicketstuff.rest.domain.PersonPojo;
@@ -30,7 +28,7 @@ import com.google.gson.Gson;
 /**
  * Simple test using the WicketTester
  */
-public class TestPersonResource
+public class TestPersonResource extends Assert
 {
 	private WicketTester tester;
 	final private Gson gson = new Gson();
@@ -47,7 +45,7 @@ public class TestPersonResource
 		JsonMockRequest mockRequest =new JsonMockRequest(tester.getRequest(), "POST");
 		String jsonObj = gson.toJson(new PersonPojo("James", "Smith", "changeit"));
 		
-		mockRequest.setReader(new BufferedReader(new StringReader(jsonObj)));
+		mockRequest.setTextAsRequestBody(jsonObj);
 		
 		tester.setRequest(mockRequest);
 		tester.executeUrl("./weather/persons");
@@ -55,6 +53,6 @@ public class TestPersonResource
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./weather/persons");
 		
-		System.out.println(tester.getLastResponseAsString());
+		assertTrue(tester.getLastResponseAsString().contains(jsonObj));
 	}
 }

@@ -25,6 +25,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @AnnotatedParam
 public @interface MatrixParam {
-	String variableName() default "";
+	String variableName();
 	int segmentIndex();
 }

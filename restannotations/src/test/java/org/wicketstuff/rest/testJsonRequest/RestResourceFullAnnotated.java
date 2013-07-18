@@ -28,6 +28,7 @@ import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
+import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.resource.AbstractRestResource;
@@ -105,33 +106,35 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 
 		return "testMethodHeaderParameter";
 	}
-	
+
 	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST)
-	public String testMethodCookieParameter(@CookieParam("name") String name, int id) {
+	public String testMethodCookieParameter(@CookieParam("name") String name, int id,
+			@MatrixParam(segmentIndex = 1, variableName = "height") float height) {
 		Args.notNull(id, "id");
 		Args.notNull(name, "name");
+		Args.notNull(height, "name");
 
 		return "testMethodCookieParameter:" + id + name;
 	}
-	
-	
+
 	@MethodMapping(value = "/book/{id}", httpMethod = HttpMethod.POST)
 	public String testPostRequestParameter(int productId, @RequestParam("title") String title) {
 		Args.notNull(productId, "productId");
 		Args.notNull(title, "title");
-		
+
 		return "testPostRequestParameter";
 	}
-	
+
 	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST)
-	public String testAnnotatedParameters(int id, @TestAnnotation String name, @TestAnnotation @RequestParam("title") String title) {
+	public String testAnnotatedParameters(int id, @TestAnnotation String name,
+			@TestAnnotation @RequestParam("title") String title) {
 		Args.notNull(id, "id");
 		Args.notNull(name, "name");
 		Args.notNull(title, "title");
-		
+
 		return "testAnnotatedParameters";
 	}
-	
+
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
