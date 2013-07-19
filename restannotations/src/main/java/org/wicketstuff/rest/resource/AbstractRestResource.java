@@ -120,16 +120,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
 				+ httpMethod.getMethod());
 
-		UrlMappingInfo mappedMethod = null;
-		// if we have no segments return the first candidate method (if any)
-		if (indexedParamCount == 0 && mappedMethodsCandidates != null) {
-			if (mappedMethodsCandidates.size() > 1)
-				throwAmbiguousMethodsException(mappedMethodsCandidates);
-
-			mappedMethod = mappedMethodsCandidates.get(0);
-		} else {
-			mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
-		}
+		UrlMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles())) {
@@ -144,7 +135,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			}
 		} else {
 			response.sendError(400, "No suitable method found for URL '"
-					+ RequestCycle.get().getRequest().getClientUrl() + "' and method " + httpMethod);
+					+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method " + httpMethod);
 		}
 	}
 
@@ -214,12 +205,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 				} else if (currentActualSegment.equals(segment.toString())) {
 					score += 2;
 				} else {
-					score = 0;
+					score = -1;
 					break;
 				}
 			}
 
-			if (score > highestScore) {
+			if (score >= highestScore) {
 				highestScore = score;
 				mappedMethodByScore.addValue(score, mappedMethod);
 			}
@@ -340,7 +331,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		if (isUsingAuthAnnot && roleCheckingStrategy == null)
 			throw new WicketRuntimeException(
-					"Annotation AuthorizeInvocation is used but no roleCheckingStrategy has been provided to the controller.");
+					"Annotation AuthorizeInvocation is used but no roleCheckingStrategy has been set for the controller!");
 	}
 
 	/**
@@ -377,11 +368,11 @@ public abstract class AbstractRestResource<T> implements IResource {
 			Class<?> argClass = argsClasses[i];
 			Object paramValue = null;
 
-			if (!ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, targetMethod))
+			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, targetMethod))
+				paramValue = extractParameterValue(i, targetMethod, argClass, pageParameters);
+			else
 				paramValue = extractParameterFromUrl(mappedMethod, pageParameters,
 						segmentsIterator, argClass);
-			else
-				paramValue = extractParameterValue(i, targetMethod, argClass, pageParameters);
 
 			if (paramValue == null)
 				throw new WicketRuntimeException("Could not find a value for the " + (i + 1)
@@ -397,7 +388,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Extract the value for a annotated method parameter (see package
+	 * Extract the value for an annotated method parameter (see package
 	 * {@link org.wicketstuff.rest.annotations.parameters}).
 	 * 
 	 * @param i

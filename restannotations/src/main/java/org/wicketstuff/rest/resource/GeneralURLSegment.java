@@ -65,7 +65,14 @@ public class GeneralURLSegment extends StringValue {
 			
 		return new GeneralURLSegment(segment);
 	}
-
+	
+	/**
+	 * Get the segment value without optional matrix parameters. For example given the 
+	 * following value as segment 'segment;parm=value', the function returns 'segment'.
+	 * 
+	 * @param fullSegment
+	 * @return
+	 */
 	static public String getActualSegment(String fullSegment) {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
 		return segmentParts[0];
