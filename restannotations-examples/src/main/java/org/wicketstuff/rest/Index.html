@@ -34,6 +34,11 @@
 		function AppViewModel() {
 			this.date = ko.observable();
 			this.temperature = ko.observable();
+			this.people = [
+			            { firstName: 'Bert', lastName: 'Bertington' },
+			            { firstName: 'Charles', lastName: 'Charlesforth' },
+			            { firstName: 'Denise', lastName: 'Dentiste' }
+			        ];
 		};
 
 		var model = new AppViewModel();
@@ -74,8 +79,20 @@
 			<h3>Date: <span data-bind="text: date"></span></h3>
 			<p>Temperature: <span data-bind="text: temperature"></span></p>
 		</div>
+		
+		<table>
+		    <thead>
+		        <tr><th>First name</th><th>Last name</th></tr>
+		    </thead>
+			<tbody data-bind="foreach: people">
+		        <tr>
+		            <td data-bind="text: firstName"></td>
+		            <td data-bind="text: lastName"></td>
+		        </tr>
+		    </tbody>
+		</table>    
 	</div>
-
+	
 	<div id="dialog-form" title="Create new user">
 		<form>
 			<fieldset>

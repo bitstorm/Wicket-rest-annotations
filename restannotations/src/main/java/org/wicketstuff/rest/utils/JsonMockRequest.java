@@ -25,6 +25,7 @@ import org.apache.wicket.protocol.http.mock.MockHttpServletRequest;
 
 public class JsonMockRequest extends MockHttpServletRequest {
 	BufferedReader reader;
+	
 	public JsonMockRequest(MockHttpServletRequest mockHttpServletRequest, String method) {
 		super(Application.get(), mockHttpServletRequest.getSession(), mockHttpServletRequest.getServletContext());
 		setMethod(method);
@@ -32,7 +33,10 @@ public class JsonMockRequest extends MockHttpServletRequest {
 	
 	@Override
 	public BufferedReader getReader() throws IOException {
-		return reader;
+		if(reader != null)
+			return reader;
+		
+		return super.getReader();
 	}
 
 	public void setReader(BufferedReader reader) {

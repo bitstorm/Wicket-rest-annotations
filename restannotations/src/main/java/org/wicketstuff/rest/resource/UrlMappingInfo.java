@@ -110,24 +110,9 @@ class UrlMappingInfo {
 			if (segment.isEmpty())
 				continue;
 
-			if (isParameterSegment(segment))
-				segmentValue = VariableSegment.createVariableSegment(segment);
-			else
-				segmentValue = StringValue.valueOf(segment);
-
+			segmentValue = VariableSegment.createVariableSegment(segment);
 			segments.add(segmentValue);
 		}
-	}
-
-	/**
-	 * Utility method to check if a segment contains a parameter (i.e.
-	 * '/{parameterName}/').
-	 * 
-	 * @param segment
-	 * @return true if the segment contains a parameter, false otherwise.
-	 */
-	public static boolean isParameterSegment(String segment) {
-		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
 	}
 
 	/**

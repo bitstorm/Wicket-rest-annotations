@@ -431,6 +431,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 		return paramValue;
 	}
 
+	/**
+	 * 
+	 * @param pageParameters
+	 * @param parameterAnnotations
+	 * @param argClass
+	 * @return
+	 */
 	private Object extractParameterFromMatrixParams(PageParameters pageParameters,
 			Annotation[] parameterAnnotations, Class<?> argClass) {
 		MatrixParam matrixParam = ReflectionUtils.findAnnotation(parameterAnnotations,

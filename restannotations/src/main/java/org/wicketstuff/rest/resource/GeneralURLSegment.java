@@ -28,15 +28,15 @@ import org.apache.wicket.util.string.StringValue;
 
 public class GeneralURLSegment extends StringValue {
 
-	final private String name;
+	final private String segmentName;
 
 	public static final String STANDARD_URL_SEGMENT = "([A-Za-z0-9_]+|\\*)";
 
 	public static final MetaPattern VAR_SEGMENT_PATTERN = initVarSegmentPattern();
 
-	protected GeneralURLSegment(String text) {
+	GeneralURLSegment(String text) {
 		super(text);
-		this.name = loadSegmentVarName();
+		this.segmentName = loadSegmentVarName();
 	}
 
 	protected String loadSegmentVarName() {
@@ -56,13 +56,18 @@ public class GeneralURLSegment extends StringValue {
 		return new MetaPattern(segmentName, multiGroup);
 	}
 
-	static public VariableSegment createVariableSegment(String text) {
-		return new VariableSegment(text);
+	static public GeneralURLSegment createVariableSegment(String segment) {
+		if(isParameterSegment(segment))
+			return new VariableSegment(segment);
+		
+		if(segment.equals("*"))
+			return new StarSegment(segment);
+			
+		return new GeneralURLSegment(segment);
 	}
 
 	static public String getActualSegment(String fullSegment) {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
-
 		return segmentParts[0];
 	}
 
@@ -84,8 +89,19 @@ public class GeneralURLSegment extends StringValue {
 
 		return matrixParameters;
 	}
+	
+	/**
+	 * Utility method to check if a segment contains a parameter (i.e.
+	 * '/{parameterName}/').
+	 * 
+	 * @param segment
+	 * @return true if the segment contains a parameter, false otherwise.
+	 */
+	public static boolean isParameterSegment(String segment) {
+		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
+	}
 
-	public String getName() {
-		return name;
+	public String getSegmentName() {
+		return segmentName;
 	}
 }

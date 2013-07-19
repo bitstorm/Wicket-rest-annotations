@@ -27,11 +27,13 @@ import org.apache.wicket.util.string.StringValue;
  */
 public class VariableSegment extends GeneralURLSegment {
 
-	protected VariableSegment(String text) {
+	VariableSegment(String text) {
 		super(text);
 	}
 
-	static public VariableSegment createVariableSegment(String text) {
-		return new VariableSegment(text);
+	@Override
+	protected String loadSegmentVarName() {
+		String segValue = toString();
+		return segValue.substring(1, segValue.length() - 2);
 	}
 }
