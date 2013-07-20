@@ -83,4 +83,12 @@ public class ParamSegment extends GeneralURLSegment {
 		String segValue = toString();
 		return segValue.substring(1, segValue.length() - 2);
 	}
+
+	public Class<?> getParamClass() {
+		return paramClass;
+	}
+
+	public void setParamClass(Class<?> paramClass) {
+		this.paramClass = paramClass;
+	}
 }

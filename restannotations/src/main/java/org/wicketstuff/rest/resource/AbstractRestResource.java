@@ -32,6 +32,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -120,7 +121,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 		List<MethodMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
 				+ httpMethod.getMethod());
 
-		MethodMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
+		MethodMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates,
+				pageParameters);
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles())) {
@@ -128,14 +130,15 @@ public abstract class AbstractRestResource<T> implements IResource {
 				return;
 			}
 
-			Object result = invokeMappedMethod(mappedMethod, pageParameters);
+			Object result = invokeMappedMethod(mappedMethod, attributes);
 			// if the invoked method returns a value, it is written to response
 			if (result != null) {
 				serializeObjectToResponse(response, result);
 			}
 		} else {
 			response.sendError(400, "No suitable method found for URL '"
-					+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method " + httpMethod);
+					+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method "
+					+ httpMethod);
 		}
 	}
 
@@ -151,7 +154,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		try {
 			response.write(serializeObjToString(result, objSerialDeserial));
 		} catch (Exception e) {
-			throw new RuntimeException("Error serializing object to response", e);
+			throw new RuntimeException("Error serializing object to response.", e);
 		}
 	}
 
@@ -160,8 +163,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * request.
 	 * 
 	 * @param mappedMethods
-	 *            List of {@link MethodMappingInfo} containing the informations of
-	 *            mapped methods.
+	 *            List of {@link MethodMappingInfo} containing the informations
+	 *            of mapped methods.
 	 * @param pageParameters
 	 *            The PageParameters of the current request.
 	 * @return The "best" method found to serve the request.
@@ -189,19 +192,19 @@ public abstract class AbstractRestResource<T> implements IResource {
 		for (MethodMappingInfo mappedMethod : mappedMethods) {
 			List<GeneralURLSegment> segments = mappedMethod.getSegments();
 			int score = 0;
-			
+
 			for (GeneralURLSegment segment : segments) {
 				int i = segments.indexOf(segment);
 				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters
 						.get(i).toString());
-				
-				int partialScore  = segment.calculateScore(currentActualSegment);
-				
-				if(partialScore == 0) {
+
+				int partialScore = segment.calculateScore(currentActualSegment);
+
+				if (partialScore == 0) {
 					score = -1;
 					break;
 				}
-				
+
 				score += partialScore;
 			}
 
@@ -210,7 +213,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 				mappedMethodByScore.addValue(score, mappedMethod);
 			}
 		}
-		//if we have more than one method with the highest score, throw ambiguous exception.
+		// if we have more than one method with the highest score, throw
+		// ambiguous exception.
 		if (mappedMethodByScore.get(highestScore) != null
 				&& mappedMethodByScore.get(highestScore).size() > 1)
 			throwAmbiguousMethodsException(mappedMethodByScore.get(highestScore));
@@ -262,8 +266,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Method called by the constructor to configure the object
-	 * serializer/deserializer.
+	 * Method called by the constructor to configure the serializer/deserializer
+	 * object.
 	 * 
 	 * 
 	 * @param objSerialDeserial
@@ -316,7 +320,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 			if (methodMapped != null) {
 				String urlPath = methodMapped.value();
 				HttpMethod httpMethod = methodMapped.httpMethod();
-				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(urlPath, httpMethod, method);
+				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(urlPath, httpMethod,
+						method);
 
 				mappedMethods.addValue(
 						urlMappingInfo.getSegmentsCount() + "_" + httpMethod.getMethod(),
@@ -326,7 +331,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		if (isUsingAuthAnnot && roleCheckingStrategy == null)
 			throw new WicketRuntimeException(
-					"Annotation AuthorizeInvocation is used but no roleCheckingStrategy has been set for the controller!");
+					"Annotation AuthorizeInvocation is used but no role-checking strategy has been set for the controller!");
 	}
 
 	/**
@@ -352,33 +357,38 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            PageParametrs object of the current request
 	 * @return the value returned by the invoked method
 	 */
-	private Object invokeMappedMethod(MethodMappingInfo mappedMethod, PageParameters pageParameters) {
+	private Object invokeMappedMethod(MethodMappingInfo mappedMethod, Attributes attributes) {
 
-		Method targetMethod = mappedMethod.getMethod();
-		Class<?>[] argsClasses = targetMethod.getParameterTypes();
+		Method method = mappedMethod.getMethod();
 		List parametersValues = new ArrayList();
 		Iterator<GeneralURLSegment> segmentsIterator = mappedMethod.getSegments().iterator();
+		// Attributes objects
+		PageParameters pageParameters = attributes.getParameters();
+		WebResponse response = (WebResponse) attributes.getResponse();
+		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
-		for (int i = 0; i < argsClasses.length; i++) {
-			Class<?> argClass = argsClasses[i];
+		for (int i = 0; i < method.getParameterTypes().length; i++) {
 			Object paramValue = null;
 
-			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, targetMethod))
-				paramValue = extractParameterValue(i, targetMethod, argClass, pageParameters);
+			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
+				paramValue = extractParameterValue(i, method, pageParameters);
 			else
-				paramValue = extractParameterFromUrl(mappedMethod, pageParameters,
-						segmentsIterator, argClass);
+				paramValue = extractParameterFromUrl(mappedMethod, pageParameters, segmentsIterator);
 
-			if (paramValue == null)
-				throw new WicketRuntimeException("Could not find a value for the " + (i + 1)
-						+ "° parameter of controller's function " + targetMethod.getName());
+			if (paramValue == null) {
+				response.sendError(400, "No suitable method found for URL '"
+						+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method "
+						+ httpMethod);
+				return null;
+			}
+
 			parametersValues.add(paramValue);
 		}
 
 		try {
-			return targetMethod.invoke(this, parametersValues.toArray());
+			return method.invoke(this, parametersValues.toArray());
 		} catch (Exception e) {
-			throw new RuntimeException("Error invoking method '" + targetMethod.getName() + "'", e);
+			throw new RuntimeException("Error invoking method '" + method.getName() + "'", e);
 		}
 	}
 
@@ -396,10 +406,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            PageParameters for the current request.
 	 * @return the extracted value.
 	 */
-	private Object extractParameterValue(int i, Method targetMethod, Class<?> argClass,
-			PageParameters pageParameters) {
+	private Object extractParameterValue(int i, Method targetMethod, PageParameters pageParameters) {
 		Object paramValue = null;
 		Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
+		Class<?> argClass = targetMethod.getParameterTypes()[i];
 
 		if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, RequestBody.class))
 			paramValue = extractObjectFromBody(argClass);
@@ -539,31 +549,27 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @return the parameter value.
 	 */
 	private Object extractParameterFromUrl(MethodMappingInfo mappedMethod,
-			PageParameters pageParameters, Iterator<GeneralURLSegment> segmentsIterator, Class<?> argClass) {
-		try {
-			StringValue segmentValue = null;
+			PageParameters pageParameters, Iterator<GeneralURLSegment> segmentsIterator) {
+		ParamSegment segmentValue = null;
 
-			while (segmentsIterator.hasNext()) {
-				StringValue currentSegment = segmentsIterator.next();
+		while (segmentsIterator.hasNext()) {
+			GeneralURLSegment currentSegment = segmentsIterator.next();
 
-				if (currentSegment instanceof ParamSegment) {
-					segmentValue = currentSegment;
-					break;
-				}
+			if (currentSegment instanceof ParamSegment) {
+				segmentValue = (ParamSegment) currentSegment;
+				break;
 			}
-
-			if (segmentValue != null) {
-				int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
-				StringValue actualValue = pageParameters.get(indexOf);
-				String currentActualSegment = GeneralURLSegment.getActualSegment(actualValue
-						.toString());
-
-				return toObject(argClass, currentActualSegment);
-			}
-			return null;
-		} catch (Exception e) {
-			throw new RuntimeException("Error retrieving a constructor with a string parameter for class " + argClass, e);
 		}
+
+		if (segmentValue != null) {
+			int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
+			StringValue actualValue = pageParameters.get(indexOf);
+			String currentActualSegment = GeneralURLSegment
+					.getActualSegment(actualValue.toString());
+
+			return toObject(segmentValue.getParamClass(), currentActualSegment);
+		}
+		return null;
 	}
 
 	/**
