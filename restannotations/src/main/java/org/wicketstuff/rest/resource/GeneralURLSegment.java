@@ -56,14 +56,21 @@ public class GeneralURLSegment extends StringValue {
 		return new MetaPattern(segmentName, multiGroup);
 	}
 
-	static public GeneralURLSegment createVariableSegment(String segment) {
+	static public GeneralURLSegment createSegment(String segment, MethodMappingInfo mappingInfo) {
 		if(isParameterSegment(segment))
-			return new VariableSegment(segment);
+			return new ParamSegment(segment, mappingInfo);
 		
 		if(segment.equals("*"))
 			return new StarSegment(segment);
 			
 		return new GeneralURLSegment(segment);
+	}
+	
+	protected int calculateScore(String actualSegment){
+		if(actualSegment.equals(getSegmentName()))
+			return 2;
+		
+		return 0;
 	}
 	
 	/**

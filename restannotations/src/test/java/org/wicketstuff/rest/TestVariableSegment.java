@@ -23,13 +23,13 @@ import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wicketstuff.rest.resource.GeneralURLSegment;
-import org.wicketstuff.rest.resource.VariableSegment;
+import org.wicketstuff.rest.resource.ParamSegment;
 
 public class TestVariableSegment extends Assert {
 
 	@Test
 	public void testStandardUrlSegment() {
-		MetaPattern pattern = new MetaPattern(VariableSegment.STANDARD_URL_SEGMENT);
+		MetaPattern pattern = new MetaPattern(ParamSegment.STANDARD_URL_SEGMENT);
 
 		Matcher matcher = pattern.matcher("");
 		assertTrue(!matcher.matches());
@@ -52,7 +52,7 @@ public class TestVariableSegment extends Assert {
 
 	@Test
 	public void testVarSegmentPattern() {
-		MetaPattern pattern = VariableSegment.VAR_SEGMENT_PATTERN;
+		MetaPattern pattern = ParamSegment.VAR_SEGMENT_PATTERN;
 
 		Matcher matcher = pattern.matcher("segment;");
 		assertTrue(!matcher.matches());

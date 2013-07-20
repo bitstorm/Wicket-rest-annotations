@@ -107,13 +107,4 @@ public class ReflectionUtils {
 
 		return null;
 	}
-	
-	static public boolean isInstaceOf(Object object, Class<?>[] classes){
-		for (Class<?> clazz : classes) {
-			if(clazz.isInstance(object))
-				return true;
-		}
-		
-		return false;
-	} 
 }

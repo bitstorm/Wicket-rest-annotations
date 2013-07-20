@@ -35,11 +35,11 @@ import org.wicketstuff.rest.utils.ReflectionUtils;
  * @author andrea del bene
  * 
  */
-class UrlMappingInfo {
+class MethodMappingInfo {
 	/** The HTTP method used to invoke this mapped method. */
 	private final HttpMethod httpMethod;
 	/** Segments that compose the URL we mapped the method on. */
-	private final List<StringValue> segments = new ArrayList<StringValue>();
+	private final List<GeneralURLSegment> segments = new ArrayList<GeneralURLSegment>();
 	/**
 	 * Optional roles we used to annotate the method (see annotation
 	 * AuthorizeInvocation).
@@ -65,21 +65,21 @@ class UrlMappingInfo {
 	 * @param method
 	 *            the resource's method mapped.
 	 */
-	public UrlMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
+	public MethodMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
 		this.httpMethod = httpMethod;
 		this.method = method;
 
 		loadSegments(urlPath);
 		loadRoles();
-		loadNotAnnotatedParameters();
 	}
 
 	/**
 	 * Loads the method parameters that are NOT annotated with an AnnotatedParam
 	 * annotation (i.e. their value must be extracted from URL). See annotations
-	 * in package org.wicketstuff.rest.annotations.parameters .
+	 * in package {@link org.wicketstuff.rest.annotations.parameters}.
+	 * @return 
 	 */
-	private void loadNotAnnotatedParameters() {
+	private Class<?>[] loadNotAnnotatedParameters() {
 		Class<?>[] parameters = method.getParameterTypes();
 		List<Class<?>> notAnnotParams = new ArrayList<Class<?>>();
 
@@ -90,28 +90,29 @@ class UrlMappingInfo {
 				notAnnotParams.add(param);
 		}
 
-		notAnnotatedParams = notAnnotParams.toArray(parameters);
+		return notAnnotParams.toArray(parameters);
 	}
 
 	/**
 	 * Loads the segment that compose the URL used to map the method. Segments are instances
-	 * of class {@link StringValue}. Segments that contains a parameter value (for example '/{id}/') 
-	 * are stored with class {@link VariableSegment}.
+	 * of class {@link GeneralURLSegment}. Segments that contains a parameter value (for example '/{id}/') 
+	 * are stored with class {@link ParamSegment}.
 	 * 
 	 * @param urlPath
 	 */
 	private void loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
-
+		this.notAnnotatedParams = loadNotAnnotatedParameters();
+		
 		for (int i = 0; i < segArray.length; i++) {
 			String segment = segArray[i];
-			StringValue segmentValue;
+			GeneralURLSegment segmentValue;
 
 			if (segment.isEmpty())
 				continue;
 
-			segmentValue = VariableSegment.createVariableSegment(segment);
-			segments.add(segmentValue);
+			segmentValue = GeneralURLSegment.createSegment(segment, this);
+			this.segments.add(segmentValue);
 		}
 	}
 
@@ -127,7 +128,7 @@ class UrlMappingInfo {
 	}
 
 	// getters and setters
-	public List<StringValue> getSegments() {
+	public List<GeneralURLSegment> getSegments() {
 		return segments;
 	}
 

@@ -58,7 +58,7 @@ import org.wicketstuff.rest.utils.ReflectionUtils;
  */
 public abstract class AbstractRestResource<T> implements IResource {
 	/** Multimap that stores every mapped method of the class */
-	private MultiMap<String, UrlMappingInfo> mappedMethods = new MultiMap<String, UrlMappingInfo>();
+	private MultiMap<String, MethodMappingInfo> mappedMethods = new MultiMap<String, MethodMappingInfo>();
 
 	/**
 	 * General class that is used to serialize/desiarilze objects to string (for
@@ -117,10 +117,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		// mapped method are stored concatenating the number of the segments of
 		// their URL and their HTTP method (see annotation MethodMapping)
-		List<UrlMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
+		List<MethodMappingInfo> mappedMethodsCandidates = mappedMethods.get(indexedParamCount + "_"
 				+ httpMethod.getMethod());
 
-		UrlMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
+		MethodMappingInfo mappedMethod = selectMostSuitedMethod(mappedMethodsCandidates, pageParameters);
 
 		if (mappedMethod != null) {
 			if (!hasAny(mappedMethod.getRoles())) {
@@ -160,17 +160,17 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * request.
 	 * 
 	 * @param mappedMethods
-	 *            List of {@link UrlMappingInfo} containing the informations of
+	 *            List of {@link MethodMappingInfo} containing the informations of
 	 *            mapped methods.
 	 * @param pageParameters
 	 *            The PageParameters of the current request.
 	 * @return The "best" method found to serve the request.
 	 */
-	private UrlMappingInfo selectMostSuitedMethod(List<UrlMappingInfo> mappedMethods,
+	private MethodMappingInfo selectMostSuitedMethod(List<MethodMappingInfo> mappedMethods,
 			PageParameters pageParameters) {
 		int highestScore = 0;
 		// no method mapped
-		MultiMap<Integer, UrlMappingInfo> mappedMethodByScore = new MultiMap<Integer, UrlMappingInfo>();
+		MultiMap<Integer, MethodMappingInfo> mappedMethodByScore = new MultiMap<Integer, MethodMappingInfo>();
 
 		if (mappedMethods == null || mappedMethods.size() == 0)
 			return null;
@@ -186,28 +186,24 @@ public abstract class AbstractRestResource<T> implements IResource {
 		 * is increased by one point. In any other case the total score for a
 		 * method is set to 0.
 		 */
-		for (UrlMappingInfo mappedMethod : mappedMethods) {
-			List<StringValue> segments = mappedMethod.getSegments();
-			Class<?>[] argsClasses = mappedMethod.getNotAnnotatedParams();
-
+		for (MethodMappingInfo mappedMethod : mappedMethods) {
+			List<GeneralURLSegment> segments = mappedMethod.getSegments();
 			int score = 0;
-			int functionParamsIndex = 0;
-
-			for (StringValue segment : segments) {
+			
+			for (GeneralURLSegment segment : segments) {
 				int i = segments.indexOf(segment);
 				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters
 						.get(i).toString());
-
-				if (segment instanceof VariableSegment
-						&& isSegmentCompatible(currentActualSegment,
-								argsClasses[functionParamsIndex++])) {
-					score++;
-				} else if (currentActualSegment.equals(segment.toString())) {
-					score += 2;
-				} else {
+				int partialScore = 0;
+				
+				partialScore = segment.calculateScore(currentActualSegment);
+				
+				if(partialScore == 0) {
 					score = -1;
 					break;
 				}
+				
+				score += partialScore;
 			}
 
 			if (score >= highestScore) {
@@ -215,7 +211,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 				mappedMethodByScore.addValue(score, mappedMethod);
 			}
 		}
-
+		//if we have more than one method with the highest score, throw ambiguous exception.
 		if (mappedMethodByScore.get(highestScore) != null
 				&& mappedMethodByScore.get(highestScore).size() > 1)
 			throwAmbiguousMethodsException(mappedMethodByScore.get(highestScore));
@@ -230,11 +226,11 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @param list
 	 *            the list of ambiguous methods.
 	 */
-	private void throwAmbiguousMethodsException(List<UrlMappingInfo> list) {
+	private void throwAmbiguousMethodsException(List<MethodMappingInfo> list) {
 		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
 		String methodsNames = "";
 
-		for (UrlMappingInfo urlMappingInfo : list) {
+		for (MethodMappingInfo urlMappingInfo : list) {
 			if (!methodsNames.isEmpty())
 				methodsNames += ", ";
 
@@ -321,7 +317,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			if (methodMapped != null) {
 				String urlPath = methodMapped.value();
 				HttpMethod httpMethod = methodMapped.httpMethod();
-				UrlMappingInfo urlMappingInfo = new UrlMappingInfo(urlPath, httpMethod, method);
+				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(urlPath, httpMethod, method);
 
 				mappedMethods.addValue(
 						urlMappingInfo.getSegmentsCount() + "_" + httpMethod.getMethod(),
@@ -357,12 +353,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            PageParametrs object of the current request
 	 * @return the value returned by the invoked method
 	 */
-	private Object invokeMappedMethod(UrlMappingInfo mappedMethod, PageParameters pageParameters) {
+	private Object invokeMappedMethod(MethodMappingInfo mappedMethod, PageParameters pageParameters) {
 
 		Method targetMethod = mappedMethod.getMethod();
 		Class<?>[] argsClasses = targetMethod.getParameterTypes();
 		List parametersValues = new ArrayList();
-		Iterator<StringValue> segmentsIterator = mappedMethod.getSegments().iterator();
+		Iterator<GeneralURLSegment> segmentsIterator = mappedMethod.getSegments().iterator();
 
 		for (int i = 0; i < argsClasses.length; i++) {
 			Class<?> argClass = argsClasses[i];
@@ -543,15 +539,15 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            type of the parameter we want to extract.
 	 * @return the parameter value.
 	 */
-	private Object extractParameterFromUrl(UrlMappingInfo mappedMethod,
-			PageParameters pageParameters, Iterator<StringValue> segmentsIterator, Class<?> argClass) {
+	private Object extractParameterFromUrl(MethodMappingInfo mappedMethod,
+			PageParameters pageParameters, Iterator<GeneralURLSegment> segmentsIterator, Class<?> argClass) {
 		try {
 			StringValue segmentValue = null;
 
 			while (segmentsIterator.hasNext()) {
 				StringValue currentSegment = segmentsIterator.next();
 
-				if (currentSegment instanceof VariableSegment) {
+				if (currentSegment instanceof ParamSegment) {
 					segmentValue = currentSegment;
 					break;
 				}
@@ -580,7 +576,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the string value we want to convert into the wrapper class
 	 * @return the wrapper class for the given primitive type
 	 */
-	protected Object toObject(Class clazz, String value) throws IllegalArgumentException {
+	public static Object toObject(Class clazz, String value) throws IllegalArgumentException {
 		try {
 			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 
