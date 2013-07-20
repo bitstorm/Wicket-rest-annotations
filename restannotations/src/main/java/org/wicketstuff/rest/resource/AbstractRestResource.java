@@ -194,9 +194,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 				int i = segments.indexOf(segment);
 				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters
 						.get(i).toString());
-				int partialScore = 0;
 				
-				partialScore = segment.calculateScore(currentActualSegment);
+				int partialScore  = segment.calculateScore(currentActualSegment);
 				
 				if(partialScore == 0) {
 					score = -1;

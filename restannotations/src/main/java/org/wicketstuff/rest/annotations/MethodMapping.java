@@ -34,6 +34,6 @@ import org.wicketstuff.rest.utils.HttpMethod;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface MethodMapping {
-	String value() default "";
+	String value();
 	HttpMethod httpMethod() default HttpMethod.GET;
 }

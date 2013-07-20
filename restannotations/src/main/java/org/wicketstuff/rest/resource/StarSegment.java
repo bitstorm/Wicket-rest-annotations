@@ -21,4 +21,9 @@ public class StarSegment extends GeneralURLSegment {
 	StarSegment(String text) {
 		super(text);
 	}
+	
+	@Override
+	protected int calculateScore(String actualSegment) {
+		return 1;
+	}
 }

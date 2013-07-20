@@ -32,5 +32,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @AnnotatedParam
 public @interface CookieParam{
-	String value() default "";
+	String value();
 }

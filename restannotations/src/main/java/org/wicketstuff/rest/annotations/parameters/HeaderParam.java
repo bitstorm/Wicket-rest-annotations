@@ -32,5 +32,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @AnnotatedParam
 public @interface HeaderParam {
-	String value() default "";
+	String value();
 }

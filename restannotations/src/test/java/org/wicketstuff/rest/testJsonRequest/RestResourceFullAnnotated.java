@@ -45,8 +45,8 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 	}
 
 	/**
-	 * new Roles()new Roles()new Roles()for GET requests and URLs like
-	 * '<resource path>/5' The id parameter is automatically extracted from URL
+	 * Method for GET requests and URLs like '<resource path>/5'. The id
+	 * parameter is automatically extracted from URL.
 	 */
 	@MethodMapping("/{id}")
 	public int testMethodInt(int id) {
@@ -123,6 +123,13 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		Args.notNull(title, "title");
 
 		return "testPostRequestParameter";
+	}
+
+	@MethodMapping(value = "/book/*/{title}", httpMethod = HttpMethod.POST)
+	public String testPostRequestStarParameter(String title) {
+		Args.notNull(title, "title");
+
+		return "testPostRequestStarParameter";
 	}
 
 	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST)

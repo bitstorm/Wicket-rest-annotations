@@ -53,7 +53,7 @@ public class ParamSegment extends GeneralURLSegment {
 	@Override
 	protected int calculateScore(String actualSegment) {
 		if(isSegmentCompatible(actualSegment, paramClass))
-			return 1;
+			return 2;
 		
 		return 0;
 	}

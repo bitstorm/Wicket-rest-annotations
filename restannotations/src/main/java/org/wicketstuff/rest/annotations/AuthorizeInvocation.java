@@ -33,5 +33,5 @@ public @interface AuthorizeInvocation {
 	 * 
 	 * @return the roles that are allowed. Returns a zero length array by default
 	 */
-	String[] value() default { };
+	String[] value();
 }

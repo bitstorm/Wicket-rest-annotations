@@ -68,7 +68,7 @@ public class GeneralURLSegment extends StringValue {
 	
 	protected int calculateScore(String actualSegment){
 		if(actualSegment.equals(getSegmentName()))
-			return 2;
+			return 3;
 		
 		return 0;
 	}
