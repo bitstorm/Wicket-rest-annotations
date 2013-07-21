@@ -16,11 +16,15 @@
  */
 package org.wicketstuff.rest.resource;
 
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.util.encoding.UrlDecoder;
+import org.apache.wicket.util.encoding.UrlEncoder;
 import org.apache.wicket.util.parse.metapattern.Group;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser;
@@ -30,9 +34,10 @@ public class GeneralURLSegment extends StringValue {
 
 	final private String segmentName;
 
-	public static final String STANDARD_URL_SEGMENT = "([A-Za-z0-9_]+|\\*)";
-
-	public static final MetaPattern VAR_SEGMENT_PATTERN = initVarSegmentPattern();
+	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
+			RIGHT_CURLY);
+	public static final MetaPattern STAR_SEGMENT = new MetaPattern(LEFT_CURLY, STAR,
+			RIGHT_CURLY);
 
 	GeneralURLSegment(String text) {
 		super(text);
@@ -43,39 +48,37 @@ public class GeneralURLSegment extends StringValue {
 		return this.toString();
 	}
 
-	protected static MetaPattern initVarSegmentPattern() {
-		List<MetaPattern> patterns = new ArrayList<MetaPattern>();
-		MetaPattern segmentName = new MetaPattern(STANDARD_URL_SEGMENT);
-		MetaPattern parameter = new MetaPattern(MetaPattern.VARIABLE_NAME, MetaPattern.EQUALS,
-				MetaPattern.STRING);
-
-		MetaPattern matrixParameter = new MetaPattern(MetaPattern.SEMICOLON, parameter);
-		Group matrixParamGroup = new Group(matrixParameter);
-		MetaPattern multiGroup = new MetaPattern(matrixParamGroup.toString() + "*");
-
-		return new MetaPattern(segmentName, multiGroup);
-	}
-
 	static public GeneralURLSegment createSegment(String segment, MethodMappingInfo mappingInfo) {
-		if(isParameterSegment(segment))
+		if (SEGMENT_PARAMETER.matcher(segment).matches())
 			return new ParamSegment(segment, mappingInfo);
-		
-		if(segment.equals("*"))
+
+		if (STAR_SEGMENT.matcher(segment).matches())
 			return new StarSegment(segment);
-			
+		
+		if (SEGMENT_PARAMETER.matcher(segment).find())
+			return new MultivariableSegment(segment);
+		
+		
 		return new GeneralURLSegment(segment);
 	}
-	
-	protected int calculateScore(String actualSegment){
-		if(actualSegment.equals(getSegmentName()))
-			return 3;
+
+	static public boolean areSegmentCharactersValid(String segment){
+		String decodedSegment = UrlEncoder.PATH_INSTANCE.encode(segment, "UTF-8");
 		
-		return 0;
+		return segment.equals(decodedSegment);
 	}
 	
+	protected int calculateScore(String actualSegment) {
+		if (actualSegment.equals(getSegmentName()))
+			return 3;
+
+		return 0;
+	}
+
 	/**
-	 * Get the segment value without optional matrix parameters. For example given the 
-	 * following value as segment 'segment;parm=value', the function returns 'segment'.
+	 * Get the segment value without optional matrix parameters. For example
+	 * given the following value as segment 'segment;parm=value', the function
+	 * returns 'segment'.
 	 * 
 	 * @param fullSegment
 	 * @return
@@ -89,21 +92,20 @@ public class GeneralURLSegment extends StringValue {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
 		HashMap<String, String> matrixParameters = new HashMap<String, String>();
 
-		if(segmentParts.length < 2)
+		if (segmentParts.length < 2)
 			return matrixParameters;
-		
+
 		for (int i = 1; i < segmentParts.length; i++) {
 			String parameterDeclar = segmentParts[i];
-			VariableAssignmentParser parser = new VariableAssignmentParser(
-					parameterDeclar);
-			
+			VariableAssignmentParser parser = new VariableAssignmentParser(parameterDeclar);
+
 			parser.matcher().find();
 			matrixParameters.put(parser.getKey(), parser.getValue());
 		}
 
 		return matrixParameters;
 	}
-	
+
 	/**
 	 * Utility method to check if a segment contains a parameter (i.e.
 	 * '/{parameterName}/').

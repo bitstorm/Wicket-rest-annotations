@@ -16,20 +16,25 @@
  */
 package org.wicketstuff.rest;
 
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
+import org.apache.wicket.request.Url;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wicketstuff.rest.resource.GeneralURLSegment;
+import org.wicketstuff.rest.resource.MultivariableSegment;
 import org.wicketstuff.rest.resource.ParamSegment;
 
-public class TestVariableSegment extends Assert {
+public class TestSegmentClasses extends Assert {
 
 	@Test
-	public void testStandardUrlSegment() {
-		MetaPattern pattern = new MetaPattern(ParamSegment.STANDARD_URL_SEGMENT);
+	public void testStandardUrlSegmentPattern() {
+		MetaPattern pattern = new MetaPattern(GeneralURLSegment.SEGMENT_PARAMETER);
 
 		Matcher matcher = pattern.matcher("");
 		assertTrue(!matcher.matches());
@@ -40,38 +45,21 @@ public class TestVariableSegment extends Assert {
 		matcher = pattern.matcher("segment:");
 		assertTrue(!matcher.matches());
 
-		matcher = pattern.matcher("*");
+		matcher = pattern.matcher("{*}");
+		assertTrue(!matcher.matches());
+
+		matcher = pattern.matcher("{segment}");
 		assertTrue(matcher.matches());
 
-		matcher = pattern.matcher("segment");
-		assertTrue(matcher.matches());
-
-		matcher = pattern.matcher("117");
-		assertTrue(matcher.matches());
+		matcher = pattern.matcher("a segment {segment1} another segment {segment2}");
+		assertTrue(matcher.find());
+	
+		matcher = pattern.matcher("{117}");
+		assertTrue(!matcher.matches());
 	}
 
 	@Test
-	public void testVarSegmentPattern() {
-		MetaPattern pattern = ParamSegment.VAR_SEGMENT_PATTERN;
-
-		Matcher matcher = pattern.matcher("segment;");
-		assertTrue(!matcher.matches());
-
-		matcher = pattern.matcher("segment");
-		assertTrue(matcher.matches());
-
-		matcher = pattern.matcher("segment;param=");
-		assertTrue(!matcher.matches());
-
-		matcher = pattern.matcher("segment;param=value");
-		assertTrue(matcher.matches());
-
-		matcher = pattern.matcher("segment;param=value;param1=value1");
-		assertTrue(matcher.matches());
-	}
-
-	@Test
-	public void testGetActualSegmentValue() {
+	public void testSegmentManipulation() {
 		String segment = "segment";
 		String segmentMatrixParam = segment + ";param=value";
 
@@ -97,5 +85,35 @@ public class TestVariableSegment extends Assert {
 		assertEquals("value", matrixParams.get("param"));
 		assertEquals("'hello world'", matrixParams.get("param1"));
 	}
-
+	
+	@Test
+	public void testSegmentCharactersValid() {
+		assertFalse(GeneralURLSegment.areSegmentCharactersValid("/"));
+		assertFalse(GeneralURLSegment.areSegmentCharactersValid("{sa}"));
+		assertFalse(GeneralURLSegment.areSegmentCharactersValid("segm()"));
+		
+		assertTrue(GeneralURLSegment.areSegmentCharactersValid("segment177"));
+	}
+	
+	@Test
+	public void testSegmentCreation() {
+		String segment = "segment{segment1}anothersegment{xyzw}";
+		GeneralURLSegment segmentObj = GeneralURLSegment.createSegment(segment, null);
+		
+		assertTrue(segmentObj instanceof MultivariableSegment);
+		
+		MultivariableSegment multivariableSegment = (MultivariableSegment) segmentObj;
+		List<String> params = multivariableSegment.getSegmentParams();
+		
+		assertEquals(2, params.size());
+		assertEquals("segment1", params.get(0));
+		assertEquals("xyzw", params.get(1));
+		
+		List<String> staticSubsegments = multivariableSegment.getStaticSubsegments();
+		
+		assertEquals(2, staticSubsegments.size());
+		assertEquals("segment", staticSubsegments.get(0));
+		assertEquals("anothersegment", staticSubsegments.get(1));
+		
+	}
 }

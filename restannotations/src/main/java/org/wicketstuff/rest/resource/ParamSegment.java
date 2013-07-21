@@ -74,14 +74,17 @@ public class ParamSegment extends GeneralURLSegment {
 			// segment's value not compatible with paramClass
 			return false;
 		}
-
 		return true;
 	}
 	
 	@Override
 	protected String loadSegmentVarName() {
 		String segValue = toString();
-		return segValue.substring(1, segValue.length() - 2);
+		return getParamName(segValue);
+	}
+
+	public static String getParamName(String segValue) {
+		return segValue.substring(1, segValue.length() - 1);
 	}
 
 	public Class<?> getParamClass() {

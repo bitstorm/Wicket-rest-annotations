@@ -125,7 +125,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testPostRequestParameter";
 	}
 
-	@MethodMapping(value = "/book/*/{title}", httpMethod = HttpMethod.POST)
+	@MethodMapping(value = "/book/{*}/{title}", httpMethod = HttpMethod.POST)
 	public String testPostRequestStarParameter(String title) {
 		Args.notNull(title, "title");
 
