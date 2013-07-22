@@ -24,6 +24,7 @@ import static org.apache.wicket.util.parse.metapattern.MetaPattern.VARIABLE_NAME
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.wicket.util.encoding.UrlEncoder;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
@@ -35,9 +36,13 @@ public class GeneralURLSegment extends StringValue {
 	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, ANYTHING_NON_EMPTY);
 	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
 			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
+	
+	final private MetaPattern metaPattern;
 
 	GeneralURLSegment(String text) {
 		super(text);
+		
+		metaPattern = new MetaPattern(Pattern.quote(text));
 	}
 
 	static public GeneralURLSegment newSegment(String segment) {
@@ -103,5 +108,9 @@ public class GeneralURLSegment extends StringValue {
 	 */
 	public static boolean isParameterSegment(String segment) {
 		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
+	}
+
+	public MetaPattern getMetaPattern() {
+		return metaPattern;
 	}
 }

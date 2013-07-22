@@ -80,6 +80,7 @@ public class ParamSegment extends GeneralURLSegment {
 		return paramName;
 	}
 
+	@Override
 	public MetaPattern getMetaPattern() {
 		return metaPattern;
 	}
