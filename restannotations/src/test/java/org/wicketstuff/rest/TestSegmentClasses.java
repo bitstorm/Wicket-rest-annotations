@@ -16,6 +16,8 @@
  */
 package org.wicketstuff.rest;
 
+import static org.junit.Assert.*;
+
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -23,6 +25,7 @@ import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wicketstuff.rest.resource.GeneralURLSegment;
+import org.wicketstuff.rest.resource.ParamSegment;
 
 public class TestSegmentClasses extends Assert {
 
@@ -45,7 +48,7 @@ public class TestSegmentClasses extends Assert {
 		matcher = pattern.matcher("{segment}");
 		assertTrue(matcher.matches());
 
-		matcher = pattern.matcher("a segment {segment1} another segment {segment2}");
+		matcher = pattern.matcher("{segment0} a segment {segment1} another segment {segment2}");
 		assertTrue(matcher.find());
 		
 		matcher.reset();
@@ -53,18 +56,10 @@ public class TestSegmentClasses extends Assert {
 		
 		matcher = pattern.matcher("{117}");
 		assertFalse(matcher.matches());
-		
-		String segmentWithRegEx = "{id: [0-9]*:abba}";
-		matcher = pattern.matcher(segmentWithRegEx);
-		assertTrue(matcher.matches());
-		
-		pattern = new MetaPattern(GeneralURLSegment.REGEXP_DECLARATION);
-		matcher = pattern.matcher(segmentWithRegEx);
-		assertTrue(matcher.find());
 	}
 
 	@Test
-	public void testSegmentManipulation() {
+	public void testMatrixParameters() {
 		String segment = "segment";
 		String segmentMatrixParam = segment + ";param=value";
 
@@ -99,15 +94,24 @@ public class TestSegmentClasses extends Assert {
 		
 		assertTrue(GeneralURLSegment.isValidSegment("segment177"));
 	}
-/*	
+
 	@Test
-	public void testSegmentCreation() {
-		String segment = "{segment1}";
-		GeneralURLSegment segmentObj = GeneralURLSegment.createSegment(segment, null);
+	public void testParamSegment() throws Exception {
+		String segmentWithRegEx = "{id:[0-9]*:abba}";
+		GeneralURLSegment segment = GeneralURLSegment.newSegment(segmentWithRegEx);
 		
-		assertTrue(segmentObj instanceof ParamSegment);
+		assertTrue(segment instanceof ParamSegment);
 		
-		segment = "segment{segment1}anothersegment{xyzw}";
-		segmentObj = GeneralURLSegment.createSegment(segment, null);
-	}*/
+		ParamSegment paramSegment = (ParamSegment) segment;
+		
+		assertEquals(paramSegment.getParamName(), "id");
+		assertEquals(paramSegment.getMetaPattern().toString(), "[0-9]*:abba");
+		
+		MetaPattern metaPattern = paramSegment.getMetaPattern();
+		
+		assertTrue(metaPattern.matcher("1:abba").matches());
+		assertTrue(metaPattern.matcher("1234521:abba").matches());
+		assertTrue(metaPattern.matcher(":abba").matches());
+		
+	}
 }

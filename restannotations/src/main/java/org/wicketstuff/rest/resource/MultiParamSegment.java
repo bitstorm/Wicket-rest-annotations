@@ -35,7 +35,7 @@ public class MultiParamSegment extends GeneralURLSegment {
 			
 		while (matcher.find()) {
 			String group = matcher.group();
-			String paramName = ParamSegment.trimFirstAndLast(group);
+			String paramName = ParamSegment.trimFirstAndLastCharacter(group);
 			
 			segmentParams.add(paramName);
 		}

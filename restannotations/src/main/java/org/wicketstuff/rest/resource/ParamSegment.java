@@ -17,7 +17,9 @@
 package org.wicketstuff.rest.resource;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
+import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.apache.wicket.util.string.StringValue;
 
 /**
@@ -28,73 +30,57 @@ import org.apache.wicket.util.string.StringValue;
  * 
  */
 public class ParamSegment extends GeneralURLSegment {
-	private Class<?> paramClass;
 	
-	ParamSegment(String text, MethodMappingInfo mappingInfo) {
+	final private String paramName;
+	
+	final private MetaPattern metaPattern;
+	
+	ParamSegment(String text) {
 		super(text);
 		
-		loadParamClass(mappingInfo);
-	}
-
-	private void loadParamClass(MethodMappingInfo mappingInfo) {
-		Class<?>[] notAnnotatedParams = mappingInfo.getNotAnnotatedParams();
-		List<GeneralURLSegment> urlSegments = mappingInfo.getSegments();
+		String segmentContent = trimFirstAndLastCharacter(this.toString());
 		
-		int paramSegmentsCount = 0;
-		
-		for (GeneralURLSegment generalURLSegment : urlSegments) {
-			if(generalURLSegment instanceof ParamSegment)
-				paramSegmentsCount++;
-		}
-		
-		this.paramClass = notAnnotatedParams[paramSegmentsCount];
+		this.paramName = loadParamName(segmentContent);
+		this.metaPattern = loadRegExp(segmentContent);
 	}
 	
 	@Override
 	protected int calculateScore(String actualSegment) {
-		if(isSegmentCompatible(actualSegment, paramClass))
-			return 2;
+		Matcher matcher = metaPattern.matcher(actualSegment);
 		
-		return 0;
+		return matcher.matches() ? 1 : 0;
 	}
 
-	/**
-	 * This method checks if a string value can be converted to a target type.
-	 * 
-	 * @param segment
-	 *            the string value we want to convert.
-	 * @param paramClass
-	 *            the target type.
-	 * @return true if the segment value is compatible, false otherwise
-	 */
-	private boolean isSegmentCompatible(String segment, Class<?> paramClass) {
-		try {
-			Object convertedObject = AbstractRestResource.toObject(paramClass, segment.toString());
-		} catch (Exception e) {
-			// segment's value not compatible with paramClass
-			return false;
-		}
-		return true;
-	}
-	
-	/*@Override
-	protected String loadSegmentVarName() {
-		String segmentContent = trimFirstAndLast(this.toString());
+	private String loadParamName(String segmentContent) {
 		Matcher matcher = MetaPattern.VARIABLE_NAME.matcher(segmentContent);
 		
 		matcher.find();
 		return matcher.group();
-	}*/
-
-	public static String trimFirstAndLast(String segValue) {
+	}
+	
+	private MetaPattern loadRegExp(String segmentContent) {
+		Matcher matcher = REGEXP_DECLARATION.matcher(segmentContent);
+		String regExp;
+		
+		if(matcher.find()){
+			String group = matcher.group();
+			regExp = group.substring(1, group.length());
+		}else{
+			regExp = MetaPattern.ANYTHING_NON_EMPTY.toString();
+		}
+		
+		return new MetaPattern(regExp);
+	}
+	
+	public static String trimFirstAndLastCharacter(String segValue) {
 		return segValue.substring(1, segValue.length() - 1);
 	}
 
-	public Class<?> getParamClass() {
-		return paramClass;
+	public String getParamName() {
+		return paramName;
 	}
 
-	public void setParamClass(Class<?> paramClass) {
-		this.paramClass = paramClass;
+	public MetaPattern getMetaPattern() {
+		return metaPattern;
 	}
 }

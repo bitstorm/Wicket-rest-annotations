@@ -567,7 +567,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			String currentActualSegment = GeneralURLSegment
 					.getActualSegment(actualValue.toString());
 
-			return toObject(segmentValue.getParamClass(), currentActualSegment);
+			return toObject(String.class, currentActualSegment);
 		}
 		return null;
 	}

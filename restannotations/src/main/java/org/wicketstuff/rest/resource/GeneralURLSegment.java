@@ -40,9 +40,9 @@ public class GeneralURLSegment extends StringValue {
 		super(text);
 	}
 
-	static public GeneralURLSegment createSegment(String segment, MethodMappingInfo mappingInfo) {
+	static public GeneralURLSegment newSegment(String segment) {
 		if (SEGMENT_PARAMETER.matcher(segment).matches())
-			return new ParamSegment(segment, mappingInfo);
+			return new ParamSegment(segment);
 		
 		if (SEGMENT_PARAMETER.matcher(segment).find())
 			return new MultiParamSegment(segment);
@@ -56,8 +56,8 @@ public class GeneralURLSegment extends StringValue {
 		return segment.equals(decodedSegment);
 	}
 	
-	protected int calculateScore(String actualSegment) {
-		if (actualSegment.equals(this.toString()))
+	protected int calculateScore(String segment) {
+		if (segment.equals(this.toString()))
 			return 3;
 		
 		return 0;

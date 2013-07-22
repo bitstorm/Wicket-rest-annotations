@@ -111,7 +111,7 @@ class MethodMappingInfo {
 			if (segment.isEmpty())
 				continue;
 
-			segmentValue = GeneralURLSegment.createSegment(segment, this);
+			segmentValue = GeneralURLSegment.newSegment(segment);
 			this.segments.add(segmentValue);
 		}
 	}
