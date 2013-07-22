@@ -16,62 +16,50 @@
  */
 package org.wicketstuff.rest.resource;
 
-import static org.apache.wicket.util.parse.metapattern.MetaPattern.*;
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.ANYTHING_NON_EMPTY;
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.COLON;
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.LEFT_CURLY;
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.RIGHT_CURLY;
+import static org.apache.wicket.util.parse.metapattern.MetaPattern.VARIABLE_NAME;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.util.encoding.UrlDecoder;
 import org.apache.wicket.util.encoding.UrlEncoder;
-import org.apache.wicket.util.parse.metapattern.Group;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
+import org.apache.wicket.util.parse.metapattern.OptionalMetaPattern;
 import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser;
 import org.apache.wicket.util.string.StringValue;
 
 public class GeneralURLSegment extends StringValue {
-
-	final private String segmentName;
-
+	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, ANYTHING_NON_EMPTY);
 	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
-			RIGHT_CURLY);
-	public static final MetaPattern STAR_SEGMENT = new MetaPattern(LEFT_CURLY, STAR,
-			RIGHT_CURLY);
+			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
 
 	GeneralURLSegment(String text) {
 		super(text);
-		this.segmentName = loadSegmentVarName();
-	}
-
-	protected String loadSegmentVarName() {
-		return this.toString();
 	}
 
 	static public GeneralURLSegment createSegment(String segment, MethodMappingInfo mappingInfo) {
 		if (SEGMENT_PARAMETER.matcher(segment).matches())
 			return new ParamSegment(segment, mappingInfo);
-
-		if (STAR_SEGMENT.matcher(segment).matches())
-			return new StarSegment(segment);
 		
 		if (SEGMENT_PARAMETER.matcher(segment).find())
-			return new MultivariableSegment(segment);
-		
-		
+			return new MultiParamSegment(segment);
+				
 		return new GeneralURLSegment(segment);
 	}
 
-	static public boolean areSegmentCharactersValid(String segment){
+	static public boolean isValidSegment(String segment){
 		String decodedSegment = UrlEncoder.PATH_INSTANCE.encode(segment, "UTF-8");
 		
 		return segment.equals(decodedSegment);
 	}
 	
 	protected int calculateScore(String actualSegment) {
-		if (actualSegment.equals(getSegmentName()))
+		if (actualSegment.equals(this.toString()))
 			return 3;
-
+		
 		return 0;
 	}
 
@@ -115,9 +103,5 @@ public class GeneralURLSegment extends StringValue {
 	 */
 	public static boolean isParameterSegment(String segment) {
 		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
-	}
-
-	public String getSegmentName() {
-		return segmentName;
 	}
 }

@@ -77,13 +77,16 @@ public class ParamSegment extends GeneralURLSegment {
 		return true;
 	}
 	
-	@Override
+	/*@Override
 	protected String loadSegmentVarName() {
-		String segValue = toString();
-		return getParamName(segValue);
-	}
+		String segmentContent = trimFirstAndLast(this.toString());
+		Matcher matcher = MetaPattern.VARIABLE_NAME.matcher(segmentContent);
+		
+		matcher.find();
+		return matcher.group();
+	}*/
 
-	public static String getParamName(String segValue) {
+	public static String trimFirstAndLast(String segValue) {
 		return segValue.substring(1, segValue.length() - 1);
 	}
 

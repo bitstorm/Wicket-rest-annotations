@@ -21,11 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
-public class MultivariableSegment extends GeneralURLSegment {
+public class MultiParamSegment extends GeneralURLSegment {
 	private final List<String> segmentParams = new ArrayList<String>();
 	private final List<String> staticSubsegments = new ArrayList<String>();
 	
-	MultivariableSegment(String text) {
+	MultiParamSegment(String text) {
 		super(text);
 		loadVariables(text);
 	}
@@ -35,7 +35,7 @@ public class MultivariableSegment extends GeneralURLSegment {
 			
 		while (matcher.find()) {
 			String group = matcher.group();
-			String paramName = ParamSegment.getParamName(group);
+			String paramName = ParamSegment.trimFirstAndLast(group);
 			
 			segmentParams.add(paramName);
 		}

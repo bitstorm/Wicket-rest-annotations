@@ -82,10 +82,6 @@ public class TestResourceFullAnnotated {
 		tester.getRequest().setParameter("title", "The divine comedy.");
 		tester.executeUrl("./api/book/113");
 		testIfResponseStringIsEqual("testPostRequestParameter");
-		
-		tester.getRequest().setMethod("POST");
-		tester.executeUrl("./api/book/113/theBook");
-		testIfResponseStringIsEqual("testPostRequestStarParameter");
 	}
 
 	@Test

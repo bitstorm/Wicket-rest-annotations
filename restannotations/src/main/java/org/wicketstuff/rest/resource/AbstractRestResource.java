@@ -32,7 +32,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
-import org.apache.wicket.request.Response;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -315,6 +314,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			MethodMapping methodMapped = method.getAnnotation(MethodMapping.class);
 			AuthorizeInvocation authorizeInvocation = method
 					.getAnnotation(AuthorizeInvocation.class);
+			
 			isUsingAuthAnnot = isUsingAuthAnnot || authorizeInvocation != null;
 
 			if (methodMapped != null) {
