@@ -33,7 +33,8 @@ import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser
 import org.apache.wicket.util.string.StringValue;
 
 public class GeneralURLSegment extends StringValue {
-	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, ANYTHING_NON_EMPTY);
+	public static final MetaPattern REGEXP_BODY = new MetaPattern("([^\\}\\{]*|(\\{[\\d]+\\}))*");
+	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, REGEXP_BODY);
 	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
 			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
 	

@@ -38,7 +38,7 @@ public class ParamSegment extends GeneralURLSegment {
 	ParamSegment(String text) {
 		super(text);
 		
-		String segmentContent = trimFirstAndLastCharacter(this.toString());
+		String segmentContent = this.toString();
 		
 		this.paramName = loadParamName(segmentContent);
 		this.metaPattern = loadRegExp(segmentContent);
@@ -59,17 +59,19 @@ public class ParamSegment extends GeneralURLSegment {
 	}
 	
 	private MetaPattern loadRegExp(String segmentContent) {
-		Matcher matcher = REGEXP_DECLARATION.matcher(segmentContent);
-		String regExp;
+		int semicolonIndex = segmentContent.indexOf(':');
 		
-		if(matcher.find()){
-			String group = matcher.group();
-			regExp = group.substring(1, group.length());
-		}else{
-			regExp = MetaPattern.ANYTHING_NON_EMPTY.toString();
-		}
+		if(semicolonIndex < 0)
+			return MetaPattern.ANYTHING_NON_EMPTY;
 		
-		return new MetaPattern(regExp);
+		String regExp = segmentContent.substring(semicolonIndex + 1, segmentContent.length() - 1);
+		Matcher matcher = REGEXP_BODY.matcher(regExp);
+		
+		matcher.matches();
+		
+		String group = matcher.group();
+		
+		return new MetaPattern(group);
 	}
 	
 	public static String trimFirstAndLastCharacter(String segValue) {

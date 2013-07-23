@@ -18,6 +18,7 @@ package org.wicketstuff.rest;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -25,6 +26,7 @@ import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
 import org.wicketstuff.rest.resource.GeneralURLSegment;
+import org.wicketstuff.rest.resource.MultiParamSegment;
 import org.wicketstuff.rest.resource.ParamSegment;
 
 public class TestSegmentClasses extends Assert {
@@ -56,6 +58,15 @@ public class TestSegmentClasses extends Assert {
 		
 		matcher = pattern.matcher("{117}");
 		assertFalse(matcher.matches());
+		
+		pattern = new MetaPattern(GeneralURLSegment.REGEXP_BODY);
+		matcher = pattern.matcher("[0-9]*:abba");
+		assertTrue(matcher.matches());
+		
+		matcher = pattern.matcher("^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$anotherseg");
+		assertTrue(matcher.matches());
+		System.out.println(matcher.group());
+		
 	}
 
 	@Test
@@ -113,5 +124,16 @@ public class TestSegmentClasses extends Assert {
 		assertTrue(metaPattern.matcher("1234521:abba").matches());
 		assertTrue(metaPattern.matcher(":abba").matches());
 		
+		String segmentMultiParam = "{segment0}asegment{segment1:^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$}anotherseg";
+		segment = GeneralURLSegment.newSegment(segmentMultiParam);
+		
+		assertTrue(segment instanceof MultiParamSegment);
+
+		MultiParamSegment multiParamSegment = (MultiParamSegment) segment;		
+		List<GeneralURLSegment> subSegments = multiParamSegment.getSubSegments();
+		
+		assertEquals(4, subSegments.size());
+		metaPattern = subSegments.get(2).getMetaPattern();
+		assertEquals(metaPattern.toString(), "^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$");
 	}
 }

@@ -21,10 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import org.apache.wicket.util.string.StringValue;
+
 public class MultiParamSegment extends GeneralURLSegment {
-	private final List<String> segmentParams = new ArrayList<String>();
-	private final List<String> staticSubsegments = new ArrayList<String>();
-	
+	private final List<GeneralURLSegment> subSegments = new ArrayList<GeneralURLSegment>();
+
 	MultiParamSegment(String text) {
 		super(text);
 		loadVariables(text);
@@ -32,24 +33,29 @@ public class MultiParamSegment extends GeneralURLSegment {
 
 	private void loadVariables(String text) {
 		Matcher matcher = SEGMENT_PARAMETER.matcher(text);
-			
+		int fixedTextIndex = 0;
+
 		while (matcher.find()) {
 			String group = matcher.group();
-			String paramName = ParamSegment.trimFirstAndLastCharacter(group);
-			
-			segmentParams.add(paramName);
+			GeneralURLSegment segment = GeneralURLSegment.newSegment(group);
+			String fixedText = text.substring(fixedTextIndex, matcher.start());
+
+			fixedTextIndex = matcher.end();
+
+			if (!fixedText.isEmpty()) {
+				subSegments.add(GeneralURLSegment.newSegment(fixedText));
+			}
+
+			subSegments.add(segment);
 		}
 		
-		String[] splittedSegment = text.split(SEGMENT_PARAMETER.toString());
-		staticSubsegments.addAll(Arrays.asList(splittedSegment));
+		if(fixedTextIndex < text.length()){
+			String fixedText = text.substring(fixedTextIndex, text.length());
+			subSegments.add(GeneralURLSegment.newSegment(fixedText));
+		}
 	}
 
-	public List<String> getSegmentParams() {
-		return segmentParams;
+	public List<GeneralURLSegment> getSubSegments() {
+		return subSegments;
 	}
-
-	public List<String> getStaticSubsegments() {
-		return staticSubsegments;
-	}
-
 }
