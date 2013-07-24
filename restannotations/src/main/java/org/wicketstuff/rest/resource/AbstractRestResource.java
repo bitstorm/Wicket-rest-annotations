@@ -369,7 +369,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 		WebResponse response = (WebResponse) attributes.getResponse();
 		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
-		LinkedHashMap<String, String> pathVariables = mappedMethod.populatePathVariables(pageParameters);		
+		LinkedHashMap<String, String> pathVariables = mappedMethod.populatePathVariables(pageParameters);
+		Iterator<String> pathVarIterator = pathVariables.values().iterator();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 		
 		for (int i = 0; i < parameterTypes.length; i++) {
@@ -377,9 +378,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], method, i);
 			
 			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
-				paramValue = extractParameterValue(i, method, pageParameters);
+				paramValue = extractParameterValue(methodParameter, pathVariables);
 			else
-				paramValue = extractParameterFromUrl(mappedMethod, pageParameters, segmentsIterator);
+				paramValue = extractParameterFromUrl(methodParameter, pathVarIterator);
 
 			if (paramValue == null) {
 				response.sendError(400, "No suitable method found for URL '"
