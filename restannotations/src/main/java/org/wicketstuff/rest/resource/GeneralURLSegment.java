@@ -16,7 +16,6 @@
  */
 package org.wicketstuff.rest.resource;
 
-import static org.apache.wicket.util.parse.metapattern.MetaPattern.ANYTHING_NON_EMPTY;
 import static org.apache.wicket.util.parse.metapattern.MetaPattern.COLON;
 import static org.apache.wicket.util.parse.metapattern.MetaPattern.LEFT_CURLY;
 import static org.apache.wicket.util.parse.metapattern.MetaPattern.RIGHT_CURLY;
@@ -98,6 +97,10 @@ public class GeneralURLSegment extends StringValue {
 		}
 
 		return matrixParameters;
+	}
+	
+	public void populatePathVariables(Map<String, String> variables, String segment) {
+		//I don'have path variables, I do nothing
 	}
 
 	/**

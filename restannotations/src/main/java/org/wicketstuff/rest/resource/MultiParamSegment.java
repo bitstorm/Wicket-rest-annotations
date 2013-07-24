@@ -17,22 +17,26 @@
 package org.wicketstuff.rest.resource;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
-import org.apache.wicket.util.string.StringValue;
+import org.apache.wicket.util.parse.metapattern.MetaPattern;
 
 public class MultiParamSegment extends GeneralURLSegment {
-	private final List<GeneralURLSegment> subSegments = new ArrayList<GeneralURLSegment>();
-
+	final private List<GeneralURLSegment> subSegments;
+	final private MetaPattern metaPattern;
+	
 	MultiParamSegment(String text) {
 		super(text);
-		loadVariables(text);
+		
+		this.subSegments = loadVariables(text);
+		this.metaPattern = loadMetaPattern(subSegments);
 	}
 
-	private void loadVariables(String text) {
+	private List<GeneralURLSegment> loadVariables(String text) {
 		Matcher matcher = SEGMENT_PARAMETER.matcher(text);
+		List<GeneralURLSegment> subSegments = new ArrayList<GeneralURLSegment>();
 		int fixedTextIndex = 0;
 
 		while (matcher.find()) {
@@ -53,9 +57,48 @@ public class MultiParamSegment extends GeneralURLSegment {
 			String fixedText = text.substring(fixedTextIndex, text.length());
 			subSegments.add(GeneralURLSegment.newSegment(fixedText));
 		}
+		
+		return subSegments;
 	}
-
+	
+	private MetaPattern loadMetaPattern(List<GeneralURLSegment> subSegments) {
+		List<MetaPattern> patterns = new ArrayList<MetaPattern>();
+		
+		for (GeneralURLSegment segment : subSegments) {
+			patterns.add(segment.getMetaPattern());
+		}
+		
+		return new MetaPattern(patterns);
+	}
+	
+	@Override
+	public void populatePathVariables(Map<String, String> variables, String segment) {
+		int startingIndex = 0;
+		
+		if(!metaPattern.matcher(segment).matches())
+			return;
+		
+		for (GeneralURLSegment subSegment : subSegments) {
+			MetaPattern pattern = subSegment.getMetaPattern();
+			segment = segment.substring(startingIndex);			
+			Matcher matcher = pattern.matcher(segment);
+			
+			if(matcher.find()){
+				String group = matcher.group();
+				
+				subSegment.populatePathVariables(variables, group);
+				
+				startingIndex = matcher.end();
+			}
+		}
+	}
+	
 	public List<GeneralURLSegment> getSubSegments() {
 		return subSegments;
+	}
+	
+	@Override
+	public MetaPattern getMetaPattern() {
+		return metaPattern;
 	}
 }

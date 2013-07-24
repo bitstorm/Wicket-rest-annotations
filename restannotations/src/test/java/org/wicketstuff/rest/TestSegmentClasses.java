@@ -16,8 +16,7 @@
  */
 package org.wicketstuff.rest;
 
-import static org.junit.Assert.*;
-
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -65,8 +64,6 @@ public class TestSegmentClasses extends Assert {
 		
 		matcher = pattern.matcher("^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$anotherseg");
 		assertTrue(matcher.matches());
-		System.out.println(matcher.group());
-		
 	}
 
 	@Test
@@ -135,5 +132,27 @@ public class TestSegmentClasses extends Assert {
 		assertEquals(4, subSegments.size());
 		metaPattern = subSegments.get(2).getMetaPattern();
 		assertEquals(metaPattern.toString(), "^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$");
+		
+		System.out.println(segment.getMetaPattern().toString());
+		
+		segmentMultiParam = "filename-{symbolicName:[a-z]+}-{version:\\d\\.\\d\\.\\d}{extension:\\.[a-z]+}";
+		segment = GeneralURLSegment.newSegment(segmentMultiParam);
+		metaPattern = segment.getMetaPattern();
+		
+		String fileName = "filename-gsaon-1.2.3.zip";
+		Matcher matcher = metaPattern.matcher(fileName);
+		
+		assertTrue(matcher.matches());
+		
+		matcher = metaPattern.matcher("gsaon-1.2.3.zip");
+		
+		assertFalse(matcher.matches());
+		
+		HashMap<String, String> map;
+		
+		segment.populatePathVariables(map = new HashMap<String, String>(), fileName);
+		
+		for(String val : map.values())
+			System.out.println(val);
 	}
 }

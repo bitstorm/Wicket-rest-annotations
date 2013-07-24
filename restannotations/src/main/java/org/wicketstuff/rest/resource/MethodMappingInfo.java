@@ -18,9 +18,11 @@ package org.wicketstuff.rest.resource;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
@@ -77,7 +79,8 @@ class MethodMappingInfo {
 	 * Loads the method parameters that are NOT annotated with an AnnotatedParam
 	 * annotation (i.e. their value must be extracted from URL). See annotations
 	 * in package {@link org.wicketstuff.rest.annotations.parameters}.
-	 * @return 
+	 * 
+	 * @return
 	 */
 	private Class<?>[] loadNotAnnotatedParameters() {
 		Class<?>[] parameters = method.getParameterTypes();
@@ -94,16 +97,16 @@ class MethodMappingInfo {
 	}
 
 	/**
-	 * Loads the segment that compose the URL used to map the method. Segments are instances
-	 * of class {@link GeneralURLSegment}. Segments that contains a parameter value (for example '/{id}/') 
-	 * are stored with class {@link ParamSegment}.
+	 * Loads the segment that compose the URL used to map the method. Segments
+	 * are instances of class {@link GeneralURLSegment}. Segments that contains
+	 * a parameter value (for example '/{id}/') are stored with class
+	 * {@link ParamSegment}.
 	 * 
 	 * @param urlPath
 	 */
 	private void loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
-		this.notAnnotatedParams = loadNotAnnotatedParameters();
-		
+
 		for (int i = 0; i < segArray.length; i++) {
 			String segment = segArray[i];
 			GeneralURLSegment segmentValue;
@@ -117,7 +120,8 @@ class MethodMappingInfo {
 	}
 
 	/**
-	 * Load the optionals roles used to annotate the method with {@link AuthorizeInvocation}
+	 * Load the optionals roles used to annotate the method with
+	 * {@link AuthorizeInvocation}
 	 */
 	private void loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
@@ -125,6 +129,20 @@ class MethodMappingInfo {
 		if (authorizeInvocation != null) {
 			roles = new Roles(authorizeInvocation.value());
 		}
+	}
+
+	public LinkedHashMap<String, String> populatePathVariables(PageParameters pageParameters) {
+		LinkedHashMap<String, String> pathVariables = new LinkedHashMap<String, String>();
+		int indexedCount = pageParameters.getIndexedCount();
+
+		for (int i = 0; i < indexedCount; i++) {
+			StringValue segmentContent = pageParameters.get(i);
+			GeneralURLSegment segment = segments.get(i);
+
+			segment.populatePathVariables(pathVariables, segmentContent.toString());
+		}
+
+		return pathVariables;
 	}
 
 	// getters and setters

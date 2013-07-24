@@ -22,6 +22,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,7 @@ import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.utils.HttpMethod;
+import org.wicketstuff.rest.utils.MethodParameter;
 import org.wicketstuff.rest.utils.ReflectionUtils;
 
 /**
@@ -367,9 +369,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 		WebResponse response = (WebResponse) attributes.getResponse();
 		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
-		for (int i = 0; i < method.getParameterTypes().length; i++) {
+		LinkedHashMap<String, String> pathVariables = mappedMethod.populatePathVariables(pageParameters);		
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		
+		for (int i = 0; i < parameterTypes.length; i++) {
 			Object paramValue = null;
-
+			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], method, i);
+			
 			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
 				paramValue = extractParameterValue(i, method, pageParameters);
 			else

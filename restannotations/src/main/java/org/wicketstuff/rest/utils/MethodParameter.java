@@ -14,41 +14,32 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest;
+package org.wicketstuff.rest.utils;
 
+import java.lang.reflect.Method;
 
-public class Person{
-	private String name;
-	private String surname;
-	private String email;
+public class MethodParameter {
+	final private Class<?> type;
+	final private Method ownerMethod;
+	final private int paramIndex;
 	
-	public Person(){}
+	public MethodParameter(Class<?> type, Method ownerMethod, int paramIndex) {
+		this.type = type;
+		this.ownerMethod = ownerMethod;
+		this.paramIndex = paramIndex;
+	}
+
+	public Class<?> getType() {
+		return type;
+	}
+
+	public Method getOwnerMethod() {
+		return ownerMethod;
+	}
+
+	public int getParamIndex() {
+		return paramIndex;
+	}
 	
-	public Person(String name, String surname, String email) {
-		this.name = name;
-		this.surname = surname;
-		this.email = email;
-	}
 	
-	public String getName() {
-		return name;
-	}
-	public String getSurname() {
-		return surname;
-	}
-	public String getEmail() {
-		return email;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
 }

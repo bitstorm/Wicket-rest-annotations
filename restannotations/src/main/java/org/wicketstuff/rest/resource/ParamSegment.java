@@ -16,7 +16,7 @@
  */
 package org.wicketstuff.rest.resource;
 
-import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
@@ -72,6 +72,13 @@ public class ParamSegment extends GeneralURLSegment {
 		String group = matcher.group();
 		
 		return new MetaPattern(group);
+	}
+	
+	@Override
+	public void populatePathVariables(Map<String, String> variables, String segment) {
+		Matcher matcher = metaPattern.matcher(segment);
+		matcher.matches();
+		variables.put(paramName, matcher.group());
 	}
 	
 	public static String trimFirstAndLastCharacter(String segValue) {
