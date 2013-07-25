@@ -20,7 +20,7 @@
 <html>
 <head>
 
-<title>Insert title here</title>
+<title>Persons archive</title>
 <script type="text/javascript" src="http://knockoutjs.com/downloads/knockout-2.2.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -35,7 +35,18 @@
 			 var self = this;
 			 this.people = ko.observableArray([]);
 			 
-			 this.deletePerson = function(person){alert(self.people.indexOf(person))};
+			 this.deletePerson = function(person){
+				 var index = self.people.indexOf(person);
+				 
+				 $.ajax({
+					 type: "DELETE",
+					 contentType: "application/json; charset=utf-8",
+					 url: "./personsmanager/persons/" + index,
+					 async: false
+				 });
+				 
+				 loadAllPersons();
+			 };
 		};
 
 		var model = new AppViewModel();
@@ -44,11 +55,11 @@
 		
 		$( "#dialog-form" ).dialog({
 			 autoOpen: false,
-			 height: 300,
+			 height: 150,
 			 width: 350,
 			 modal: true,
 			 buttons: {
-				 "Create an account": function(){
+				 "Create a person": function(){
 					 var personPojo = new Object();
 					 
 					 personPojo.name = $('#name').val();
@@ -59,10 +70,13 @@
 						 type: "POST",
 						 contentType: "application/json; charset=utf-8",
 						 url: "./personsmanager/persons",
-						 data: JSON.stringify(personPojo)
+						 data: JSON.stringify(personPojo),
+						 async: false
 					 });
 					 
-					 $( this ).dialog( "close" );
+					 $(this).find('input').val('');
+					 $(this).dialog( "close" );
+					 
 					 loadAllPersons();
 				 }
 			 },
@@ -75,9 +89,7 @@
 			$( "#dialog-form" ).dialog( "open" );
 		});
 		
-		$('#loadData').click(function(event){
-			loadAllPersons();
-		});
+		loadAllPersons();
 		
 		function loadAllPersons(){
 			$.getJSON("./personsmanager/persons",function(data){
@@ -95,39 +107,59 @@
 </head>
 <body style="padding: 1.25em 1.45em 1.25em 1.55em">
 
-	<div class="content sticker">
-		<button id="loadData">Click here</button>  <button id="openNewUser">Click here</button>
+	<div class="content sticker" style="font-size: 12px;">
+		<h1>Persons archive</h1>
+		<button id="openNewUser">Add a person</button>
 		<br/><br/>
-		<div id="forecast" class="liveExample">
 		
-			<table>
-			    <thead>
-			        <tr><th>Name</th><th>Email</th><th>Password</th></tr>
-			    </thead>
-				<tbody data-bind="foreach: people">
-			        <tr>
-			            <td data-bind="text: name"></td>
-			            <td data-bind="text: email"></td>
-			            <td data-bind="text: password"></td>
-			            <td> <a href='#' data-bind='click: $root.deletePerson'>Delete</a> </td> 
-			        </tr>
-			    </tbody>
-			</table>
-			
-		</div>
-		    
+		<table class="liveExample">
+		    <thead>
+		        <tr><th>Name</th><th>Email</th><th>Password</th><th></th></tr>
+		    </thead>
+			<tbody data-bind="foreach: people">
+		        <tr>
+		            <td data-bind="text: name"></td>
+		            <td data-bind="text: email"></td>
+		            <td data-bind="text: password"></td>
+		            <td> <a href='#' data-bind='click: $root.deletePerson'>Delete</a> </td> 
+		        </tr>
+		    </tbody>
+		</table>    
 	</div>
 	
-	<div id="dialog-form" title="Create new user">
+	<div id="dialog-form" title="Create new person">
 		<form>
-			<fieldset>
-				<label for="name">Name</label> <input type="text" name="name"
-					id="name" class="text ui-widget-content ui-corner-all" /><br/>
-				<label for="email">Email</label> <input type="text" name="email"
-					id="email" value="" class="text ui-widget-content ui-corner-all" /><br/>
-				<label for="password">Password</label> <input type="password"
-					name="password" id="password" value=""
-					class="text ui-widget-content ui-corner-all" />
+			<fieldset style="border: 0px">
+				<div style="display: table;">
+					<div style="display: table-row;">
+						<div style="display: table-cell;">
+							<label for="name">Name</label> 
+						</div>
+						<div style="display: table-cell;">
+							<input type="text" name="name"
+								id="name" class="text ui-widget-content ui-corner-all" />
+						</div>		
+					</div>
+					<div style="display: table-row;">
+						<div style="display: table-cell;">
+							<label for="email">Email</label> 
+						</div>
+						<div style="display: table-cell;">
+							<input type="text" name="email"
+								id="email" value="" class="text ui-widget-content ui-corner-all" />
+						</div>	
+					</div>
+					<div style="display: table-row;">
+						<div style="display: table-cell;padding-right: 5px">
+							<label for="password">Password</label> 
+						</div>
+						<div style="display: table-cell;">
+							<input type="password"
+								name="password" id="password" value=""
+								class="text ui-widget-content ui-corner-all" />
+						</div>	
+					</div>	
+				</div>
 			</fieldset>
 		</form>
 	</div>
