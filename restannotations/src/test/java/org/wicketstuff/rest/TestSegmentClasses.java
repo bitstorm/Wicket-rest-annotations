@@ -24,9 +24,9 @@ import java.util.regex.Matcher;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wicketstuff.rest.resource.GeneralURLSegment;
-import org.wicketstuff.rest.resource.MultiParamSegment;
-import org.wicketstuff.rest.resource.ParamSegment;
+import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.resource.urlsegments.MultiParamSegment;
+import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 
 public class TestSegmentClasses extends Assert {
 

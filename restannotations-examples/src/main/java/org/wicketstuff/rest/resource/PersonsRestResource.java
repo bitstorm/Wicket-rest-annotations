@@ -23,7 +23,7 @@ import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.domain.PersonPojo;
 import org.wicketstuff.rest.resource.gson.GsonRestResource;
-import org.wicketstuff.rest.utils.HttpMethod;
+import org.wicketstuff.rest.utils.http.HttpMethod;
 
 public class PersonsRestResource extends GsonRestResource {
 	private final List<PersonPojo> persons = new ArrayList<PersonPojo>();

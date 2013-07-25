@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wicketstuff.rest.domain.PersonPojo;
-import org.wicketstuff.rest.utils.JsonMockRequest;
+import org.wicketstuff.rest.utils.test.JsonMockRequest;
 
 import com.google.gson.Gson;
 

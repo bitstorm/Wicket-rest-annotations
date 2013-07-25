@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
-import org.wicketstuff.rest.utils.JsonMockRequest;
+import org.wicketstuff.rest.utils.test.JsonMockRequest;
 
 /**
  * Simple test using the WicketTester

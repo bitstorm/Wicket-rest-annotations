@@ -32,7 +32,7 @@ import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.resource.AbstractRestResource;
-import org.wicketstuff.rest.utils.HttpMethod;
+import org.wicketstuff.rest.utils.http.HttpMethod;
 
 public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesSer> {
 	public RestResourceFullAnnotated(TestJsonDesSer jsonSerialDeserial,

@@ -48,9 +48,10 @@ import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
-import org.wicketstuff.rest.utils.HttpMethod;
-import org.wicketstuff.rest.utils.MethodParameter;
-import org.wicketstuff.rest.utils.ReflectionUtils;
+import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.utils.http.HttpMethod;
+import org.wicketstuff.rest.utils.reflection.MethodParameter;
+import org.wicketstuff.rest.utils.reflection.ReflectionUtils;
 
 /**
  * Base class to build a resource that serves REST requests.

@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.resource;
+package org.wicketstuff.rest.resource.urlsegments;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -45,7 +45,7 @@ public class ParamSegment extends GeneralURLSegment {
 	}
 	
 	@Override
-	protected int calculateScore(String actualSegment) {
+	public int calculateScore(String actualSegment) {
 		Matcher matcher = metaPattern.matcher(actualSegment);
 		
 		return matcher.matches() ? 1 : 0;

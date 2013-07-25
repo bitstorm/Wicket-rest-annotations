@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.resource;
+package org.wicketstuff.rest.resource.urlsegments;
 
 import static org.apache.wicket.util.parse.metapattern.MetaPattern.COLON;
 import static org.apache.wicket.util.parse.metapattern.MetaPattern.LEFT_CURLY;
@@ -61,7 +61,7 @@ public class GeneralURLSegment extends StringValue {
 		return segment.equals(decodedSegment);
 	}
 	
-	protected int calculateScore(String segment) {
+	public int calculateScore(String segment) {
 		if (segment.equals(this.toString()))
 			return 3;
 		

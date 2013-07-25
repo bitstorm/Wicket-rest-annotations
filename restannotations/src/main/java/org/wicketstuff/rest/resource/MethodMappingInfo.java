@@ -25,7 +25,9 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.utils.HttpMethod;
+import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
+import org.wicketstuff.rest.utils.http.HttpMethod;
 
 /**
  * This class contains the informations of a resource's mapped method (i.e. a
