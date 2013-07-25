@@ -23,11 +23,9 @@ import java.util.List;
 
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.utils.HttpMethod;
-import org.wicketstuff.rest.utils.ReflectionUtils;
 
 /**
  * This class contains the informations of a resource's mapped method (i.e. a
@@ -49,12 +47,6 @@ class MethodMappingInfo {
 	private Roles roles = new Roles();
 	/** The resource method we have mapped. */
 	private final Method method;
-	/**
-	 * Store method parameters that are NOT annotated with an AnnotatedParam
-	 * annotation (i.e. their value must be extracted from URL). See annotations
-	 * in package org.wicketstuff.rest.annotations.parameters .
-	 */
-	private Class<?>[] notAnnotatedParams;
 
 	/**
 	 * Class construnctor.
@@ -73,27 +65,6 @@ class MethodMappingInfo {
 
 		loadSegments(urlPath);
 		loadRoles();
-	}
-
-	/**
-	 * Loads the method parameters that are NOT annotated with an AnnotatedParam
-	 * annotation (i.e. their value must be extracted from URL). See annotations
-	 * in package {@link org.wicketstuff.rest.annotations.parameters}.
-	 * 
-	 * @return
-	 */
-	private Class<?>[] loadNotAnnotatedParameters() {
-		Class<?>[] parameters = method.getParameterTypes();
-		List<Class<?>> notAnnotParams = new ArrayList<Class<?>>();
-
-		for (int i = 0; i < parameters.length; i++) {
-			Class<?> param = parameters[i];
-
-			if (!ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
-				notAnnotParams.add(param);
-		}
-
-		return notAnnotParams.toArray(parameters);
 	}
 
 	/**
@@ -136,10 +107,11 @@ class MethodMappingInfo {
 		int indexedCount = pageParameters.getIndexedCount();
 
 		for (int i = 0; i < indexedCount; i++) {
-			StringValue segmentContent = pageParameters.get(i);
+			String segmentContent = GeneralURLSegment.getActualSegment(pageParameters.get(i)
+					.toString());
 			GeneralURLSegment segment = segments.get(i);
 
-			segment.populatePathVariables(pathVariables, segmentContent.toString());
+			segment.populatePathVariables(pathVariables, segmentContent);
 		}
 
 		return pathVariables;
@@ -164,9 +136,5 @@ class MethodMappingInfo {
 
 	public Roles getRoles() {
 		return roles;
-	}
-
-	public Class<?>[] getNotAnnotatedParams() {
-		return notAnnotatedParams;
 	}
 }

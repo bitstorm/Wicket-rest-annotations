@@ -33,6 +33,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.apache.wicket.request.Url;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
@@ -40,7 +41,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.collections.MultiMap;
 import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
@@ -137,9 +137,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 				serializeObjectToResponse(response, result);
 			}
 		} else {
-			response.sendError(400, "No suitable method found for URL '"
-					+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method "
-					+ httpMethod);
+			response.sendError(400, "No suitable method found for URL '" + extractUrlFromRequest()
+					+ "' and HTTP method " + httpMethod);
 		}
 	}
 
@@ -316,7 +315,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			MethodMapping methodMapped = method.getAnnotation(MethodMapping.class);
 			AuthorizeInvocation authorizeInvocation = method
 					.getAnnotation(AuthorizeInvocation.class);
-			
+
 			isUsingAuthAnnot = isUsingAuthAnnot || authorizeInvocation != null;
 
 			if (methodMapped != null) {
@@ -363,29 +362,31 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		Method method = mappedMethod.getMethod();
 		List parametersValues = new ArrayList();
-		Iterator<GeneralURLSegment> segmentsIterator = mappedMethod.getSegments().iterator();
+
 		// Attributes objects
 		PageParameters pageParameters = attributes.getParameters();
 		WebResponse response = (WebResponse) attributes.getResponse();
 		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
-		LinkedHashMap<String, String> pathVariables = mappedMethod.populatePathVariables(pageParameters);
+		LinkedHashMap<String, String> pathVariables = mappedMethod
+				.populatePathVariables(pageParameters);
 		Iterator<String> pathVarIterator = pathVariables.values().iterator();
 		Class<?>[] parameterTypes = method.getParameterTypes();
-		
+
 		for (int i = 0; i < parameterTypes.length; i++) {
 			Object paramValue = null;
 			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], method, i);
-			
-			if (ReflectionUtils.isParameterAnnotatedWithAnnotatedParam(i, method))
-				paramValue = extractParameterValue(methodParameter, pathVariables);
+			Annotation annotation = ReflectionUtils.getAnnotationParam(i, method);
+
+			if (annotation != null)
+				paramValue = extractParameterValue(methodParameter, pathVariables, annotation,
+						pageParameters);
 			else
 				paramValue = extractParameterFromUrl(methodParameter, pathVarIterator);
 
 			if (paramValue == null) {
 				response.sendError(400, "No suitable method found for URL '"
-						+ RequestCycle.get().getRequest().getClientUrl() + "' and HTTP method "
-						+ httpMethod);
+						+ extractUrlFromRequest() + "' and HTTP method " + httpMethod);
 				return null;
 			}
 
@@ -399,37 +400,41 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
+	static public Url extractUrlFromRequest() {
+		return RequestCycle.get().getRequest().getClientUrl();
+	}
+
 	/**
 	 * Extract the value for an annotated method parameter (see package
 	 * {@link org.wicketstuff.rest.annotations.parameters}).
 	 * 
-	 * @param i
+	 * @param methodParameter
 	 *            the index of the method parameter in the parameters list.
-	 * @param targetMethod
+	 * @param pathVariables
 	 *            the target method.
 	 * @param argClass
 	 *            the type of the current parameter.
-	 * @param pageParameters
+	 * @param annotation
 	 *            PageParameters for the current request.
+	 * @param pageParameters
 	 * @return the extracted value.
 	 */
-	private Object extractParameterValue(int i, Method targetMethod, PageParameters pageParameters) {
+	private Object extractParameterValue(MethodParameter methodParameter,
+			LinkedHashMap<String, String> pathVariables, Annotation annotation,
+			PageParameters pageParameters) {
 		Object paramValue = null;
-		Annotation[][] parametersAnnotations = targetMethod.getParameterAnnotations();
-		Class<?> argClass = targetMethod.getParameterTypes()[i];
+		Class<?> argClass = methodParameter.getParameterClass();
 
-		if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, RequestBody.class))
+		if (annotation instanceof RequestBody)
 			paramValue = extractObjectFromBody(argClass);
-		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, RequestParam.class))
-			paramValue = extractParameterFromQuery(pageParameters, parametersAnnotations[i],
-					argClass);
-		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, HeaderParam.class))
-			paramValue = extractParameterFromHeader(parametersAnnotations[i], argClass);
-		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, CookieParam.class))
-			paramValue = extractParameterFromCookies(parametersAnnotations[i], argClass);
-		else if (ReflectionUtils.isParameterAnnotatedWith(i, targetMethod, MatrixParam.class))
-			paramValue = extractParameterFromMatrixParams(pageParameters, parametersAnnotations[i],
-					argClass);
+		else if (annotation instanceof RequestParam)
+			paramValue = extractParameterFromQuery(pageParameters, (RequestParam)annotation, argClass);
+		else if (annotation instanceof HeaderParam)
+			paramValue = extractParameterFromHeader((HeaderParam)annotation, argClass);
+		else if (annotation instanceof CookieParam)
+			paramValue = extractParameterFromCookies((CookieParam)annotation, argClass);
+		else if (annotation instanceof MatrixParam)
+			paramValue = extractParameterFromMatrixParams(pageParameters, (MatrixParam)annotation, argClass);
 
 		return paramValue;
 	}
@@ -437,38 +442,35 @@ public abstract class AbstractRestResource<T> implements IResource {
 	/**
 	 * 
 	 * @param pageParameters
-	 * @param parameterAnnotations
+	 * @param matrixParam
 	 * @param argClass
 	 * @return
 	 */
 	private Object extractParameterFromMatrixParams(PageParameters pageParameters,
-			Annotation[] parameterAnnotations, Class<?> argClass) {
-		MatrixParam matrixParam = ReflectionUtils.findAnnotation(parameterAnnotations,
-				MatrixParam.class);
-
+			MatrixParam matrixParam, Class<?> argClass) {
 		int segmentIndex = matrixParam.segmentIndex();
 		String variableName = matrixParam.variableName();
 		String rawsSegment = pageParameters.get(segmentIndex).toString();
 		Map<String, String> matrixParameters = GeneralURLSegment
 				.getSegmentMatrixParameters(rawsSegment);
 
+		if(matrixParameters.get(variableName) == null)
+			return null;
+		
 		return toObject(argClass, matrixParameters.get(variableName));
 	}
 
 	/**
 	 * Extract method parameter's value from request header.
 	 * 
-	 * @param parameterAnnotations
+	 * @param annotation
 	 *            an array containing the annotations for the current method
 	 *            parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
 	 * @return the extracted value.
 	 */
-	private Object extractParameterFromHeader(Annotation[] parameterAnnotations, Class<?> argClass) {
-
-		HeaderParam headerParam = ReflectionUtils.findAnnotation(parameterAnnotations,
-				HeaderParam.class);
+	private Object extractParameterFromHeader(HeaderParam headerParam, Class<?> argClass) {
 		String value = headerParam.value();
 		WebRequest webRequest = (WebRequest) RequestCycle.get().getRequest();
 
@@ -488,32 +490,33 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @return the extracted value.
 	 */
 	private Object extractParameterFromQuery(PageParameters pageParameters,
-			Annotation[] parameterAnnotations, Class<?> argClass) {
+			RequestParam requestParam, Class<?> argClass) {
 
-		RequestParam queryParam = ReflectionUtils.findAnnotation(parameterAnnotations,
-				RequestParam.class);
-		String value = queryParam.value();
+		String value = requestParam.value();
 
+		if(pageParameters.get(value) == null)
+			return null;
+		
 		return toObject(argClass, pageParameters.get(value).toString());
 	}
 
 	/**
 	 * Extract method parameter's value from cookies.
 	 * 
-	 * @param parameterAnnotations
+	 * @param annotation
 	 *            an array containing the annotations for the current method
 	 *            parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
 	 * @return the extracted value.
 	 */
-	private Object extractParameterFromCookies(Annotation[] parameterAnnotations, Class<?> argClass) {
-
-		CookieParam cookieParam = ReflectionUtils.findAnnotation(parameterAnnotations,
-				CookieParam.class);
+	private Object extractParameterFromCookies(CookieParam cookieParam, Class<?> argClass) {
 		String value = cookieParam.value();
 		WebRequest webRequest = (WebRequest) RequestCycle.get().getRequest();
 
+		if(webRequest.getCookie(value) == null)
+			return null;
+		
 		return toObject(argClass, webRequest.getCookie(value).getValue());
 	}
 
@@ -544,6 +547,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 	/***
 	 * Extract parameters values from the rest URL.
+	 * @param pathVarIterator 
+	 * @param methodParameter 
 	 * 
 	 * @param mappedMethod
 	 *            mapping info of the method.
@@ -555,28 +560,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            type of the parameter we want to extract.
 	 * @return the parameter value.
 	 */
-	private Object extractParameterFromUrl(MethodMappingInfo mappedMethod,
-			PageParameters pageParameters, Iterator<GeneralURLSegment> segmentsIterator) {
-		ParamSegment segmentValue = null;
-
-		while (segmentsIterator.hasNext()) {
-			GeneralURLSegment currentSegment = segmentsIterator.next();
-
-			if (currentSegment instanceof ParamSegment) {
-				segmentValue = (ParamSegment) currentSegment;
-				break;
-			}
-		}
-
-		if (segmentValue != null) {
-			int indexOf = mappedMethod.getSegments().indexOf(segmentValue);
-			StringValue actualValue = pageParameters.get(indexOf);
-			String currentActualSegment = GeneralURLSegment
-					.getActualSegment(actualValue.toString());
-
-			return toObject(String.class, currentActualSegment);
-		}
-		return null;
+	private Object extractParameterFromUrl(MethodParameter methodParameter, Iterator<String> pathVarIterator) {
+		
+		if(!pathVarIterator.hasNext())
+			return null;
+		
+		return toObject(methodParameter.getParameterClass(), pathVarIterator.next());
 	}
 
 	/**

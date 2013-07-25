@@ -125,13 +125,6 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testPostRequestParameter";
 	}
 
-	@MethodMapping(value = "/book/{*}/{title}", httpMethod = HttpMethod.POST)
-	public String testPostRequestStarParameter(String title) {
-		Args.notNull(title, "title");
-
-		return "testPostRequestStarParameter";
-	}
-
 	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST)
 	public String testAnnotatedParameters(int id, @TestAnnotation String name,
 			@TestAnnotation @RequestParam("title") String title) {
@@ -142,6 +135,13 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testAnnotatedParameters";
 	}
 
+	@MethodMapping(value = "/test/with/headerparams", httpMethod = HttpMethod.POST)
+	public String testHeaderParams(@HeaderParam("credential") String credential) {
+		Args.notNull(credential, "credential");
+		
+		return "testHeaderParams";
+	}
+	
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}

@@ -72,6 +72,13 @@ public class MultiParamSegment extends GeneralURLSegment {
 	}
 	
 	@Override
+	protected int calculateScore(String actualSegment) {
+		Matcher matcher = metaPattern.matcher(actualSegment);
+		
+		return matcher.matches() ? 1 : 0;
+	}
+	
+	@Override
 	public void populatePathVariables(Map<String, String> variables, String segment) {
 		int startingIndex = 0;
 		

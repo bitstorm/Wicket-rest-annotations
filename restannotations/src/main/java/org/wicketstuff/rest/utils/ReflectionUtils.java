@@ -20,8 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.wicketstuff.rest.annotations.parameters.AnnotatedParam;
-import org.wicketstuff.rest.annotations.parameters.RequestBody;
-import org.wicketstuff.rest.annotations.parameters.RequestParam;
 
 public class ReflectionUtils {
 	/**
@@ -64,11 +62,11 @@ public class ReflectionUtils {
 	 * 
 	 * @return true if such an annotation is found, false otherwise.
 	 */
-	static public boolean isParameterAnnotatedWithAnnotatedParam(int i, Method method) {
+	static public Annotation getAnnotationParam(int i, Method method) {
 		Annotation[][] parametersAnnotations = method.getParameterAnnotations();
 
 		if (parametersAnnotations.length == 0)
-			return false;
+			return null;
 
 		Annotation[] parameterAnnotations = parametersAnnotations[i];
 
@@ -78,10 +76,10 @@ public class ReflectionUtils {
 					AnnotatedParam.class);
 
 			if (isAnnotatedParam != null)
-				return true;
+				return annotation;
 		}
 
-		return false;
+		return null;
 	}
 
 	/**

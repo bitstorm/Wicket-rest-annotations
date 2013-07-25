@@ -37,7 +37,7 @@ import org.wicketstuff.rest.utils.JsonMockRequest;
 /**
  * Simple test using the WicketTester
  */
-public class TestResourceFullAnnotated {
+public class TestRestResources {
 	private WicketTester tester;
 	private Roles roles = new Roles();
 
@@ -82,6 +82,11 @@ public class TestResourceFullAnnotated {
 		tester.getRequest().setParameter("title", "The divine comedy.");
 		tester.executeUrl("./api/book/113");
 		testIfResponseStringIsEqual("testPostRequestParameter");
+		
+		tester.getRequest().setMethod("POST");
+		tester.getRequest().setHeader("credential", "bob");
+		tester.executeUrl("./api/test/with/headerparams");
+		testIfResponseStringIsEqual("testHeaderParams");
 	}
 
 	@Test
@@ -109,7 +114,7 @@ public class TestResourceFullAnnotated {
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/admin");
 		Assert.assertEquals(200, tester.getLastResponse().getStatus());
-
+		//without roles must get 401 HTTP code
 		roles.clear();
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/admin");
@@ -127,13 +132,26 @@ public class TestResourceFullAnnotated {
 
 	@Test
 	public void testMethodParamWithOtherAnnotations() {
-		// method resolving must not be misguided by other annotations (for
-		// example @Valid)
 		tester.getRequest().setMethod("POST");
 		tester.getRequest().setParameter("title", "The divine comedy.");
 		tester.executeUrl("./api/param/31/annotated/james");
 
 		testIfResponseStringIsEqual("testAnnotatedParameters");
+	}
+	
+	@Test
+	public void testRegExpResource() throws Exception {
+		tester.getRequest().setMethod("GET");
+		tester.getRequest().setCookies(new Cookie[] { new Cookie("credential", "bob") });
+		tester.executeUrl("./api2/recordlog/message/07-23-2007_success");
+
+		Assert.assertEquals(200, tester.getLastResponse().getStatus());
+		
+		tester.getRequest().setMethod("GET");
+		tester.getRequest().setCookies(new Cookie[] { new Cookie("credential", "bob") });
+		tester.executeUrl("./api2/recordlog/message/34xxxxx");
+		
+		Assert.assertEquals(400, tester.getLastResponse().getStatus());
 	}
 
 	protected void testIfResponseStringIsEqual(String value) {

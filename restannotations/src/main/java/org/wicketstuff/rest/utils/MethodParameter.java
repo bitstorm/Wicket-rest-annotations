@@ -19,18 +19,18 @@ package org.wicketstuff.rest.utils;
 import java.lang.reflect.Method;
 
 public class MethodParameter {
-	final private Class<?> type;
+	final private Class<?> parameterClass;
 	final private Method ownerMethod;
 	final private int paramIndex;
 	
 	public MethodParameter(Class<?> type, Method ownerMethod, int paramIndex) {
-		this.type = type;
+		this.parameterClass = type;
 		this.ownerMethod = ownerMethod;
 		this.paramIndex = paramIndex;
 	}
 
-	public Class<?> getType() {
-		return type;
+	public Class<?> getParameterClass() {
+		return parameterClass;
 	}
 
 	public Method getOwnerMethod() {
