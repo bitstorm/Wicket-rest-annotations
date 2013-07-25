@@ -114,7 +114,7 @@ public class TestRestResources {
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/admin");
 		Assert.assertEquals(200, tester.getLastResponse().getStatus());
-		//without roles must get 401 HTTP code
+		//without roles must get a 401 HTTP code (user unauthorized)
 		roles.clear();
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/admin");

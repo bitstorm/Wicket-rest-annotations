@@ -152,7 +152,8 @@ public class TestSegmentClasses extends Assert {
 		
 		segment.populatePathVariables(map = new HashMap<String, String>(), fileName);
 		
-		for(String val : map.values())
-			System.out.println(val);
+		assertEquals("gsaon", map.get("symbolicName"));
+		assertEquals("1.2.3", map.get("version"));
+		assertEquals(".zip", map.get("extension"));
 	}
 }

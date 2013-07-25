@@ -41,7 +41,7 @@ public class WicketApplication extends WebApplication{
 	public void init() {
 		super.init();
 
-		mountResource("/weather", new ResourceReference("restReference") {
+		mountResource("/personsmanager", new ResourceReference("restReference") {
 			PersonsRestResource resource = new PersonsRestResource();
 			@Override
 			public IResource getResource() {

@@ -26,6 +26,4 @@ public class PersonPojo {
 		this.email = email;
 		this.password = password;
 	}
-	
-	
 }

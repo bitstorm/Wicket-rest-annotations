@@ -32,33 +32,40 @@
 	$(document).ready(function() {
 		
 		function AppViewModel() {
-			this.date = ko.observable();
-			this.temperature = ko.observable();
-			this.people = [
-			            { firstName: 'Bert', lastName: 'Bertington' },
-			            { firstName: 'Charles', lastName: 'Charlesforth' },
-			            { firstName: 'Denise', lastName: 'Dentiste' }
-			        ];
+			 var self = this;
+			 this.people = ko.observableArray([]);
+			 
+			 this.deletePerson = function(person){alert(self.people.indexOf(person))};
 		};
 
 		var model = new AppViewModel();
 		
 		ko.applyBindings(model);
 		
-		$('#loadData').click(function(event){
-			var day = new Date();
-			
-			$.getJSON(location.href + 'weather/forecast/' + day.getTime() + '/3', function(data) {
-				model.date(data.date);
-				model.temperature(data.temperature);
-			});	
-		});
-		
 		$( "#dialog-form" ).dialog({
 			 autoOpen: false,
 			 height: 300,
 			 width: 350,
 			 modal: true,
+			 buttons: {
+				 "Create an account": function(){
+					 var personPojo = new Object();
+					 
+					 personPojo.name = $('#name').val();
+					 personPojo.email = $('#email').val();
+					 personPojo.password = $('#password').val();
+					 
+					 $.ajax({
+						 type: "POST",
+						 contentType: "application/json; charset=utf-8",
+						 url: "./personsmanager/persons",
+						 data: JSON.stringify(personPojo)
+					 });
+					 
+					 $( this ).dialog( "close" );
+					 loadAllPersons();
+				 }
+			 },
 			 cancel: function() {
 				 $( this ).dialog( "close" );
 			 },
@@ -67,7 +74,23 @@
 		$('#openNewUser').click(function(event){
 			$( "#dialog-form" ).dialog( "open" );
 		});
+		
+		$('#loadData').click(function(event){
+			loadAllPersons();
+		});
+		
+		function loadAllPersons(){
+			$.getJSON("./personsmanager/persons",function(data){
+				var people = model.people;
+				people.removeAll();
+				
+				for(var i = 0; i < data.length; i++)
+					people.push(data[i]);
+				
+			});
+		}
 	})
+	
 </script>
 </head>
 <body style="padding: 1.25em 1.45em 1.25em 1.55em">
@@ -76,21 +99,23 @@
 		<button id="loadData">Click here</button>  <button id="openNewUser">Click here</button>
 		<br/><br/>
 		<div id="forecast" class="liveExample">
-			<h3>Date: <span data-bind="text: date"></span></h3>
-			<p>Temperature: <span data-bind="text: temperature"></span></p>
-		</div>
 		
-		<table>
-		    <thead>
-		        <tr><th>First name</th><th>Last name</th></tr>
-		    </thead>
-			<tbody data-bind="foreach: people">
-		        <tr>
-		            <td data-bind="text: firstName"></td>
-		            <td data-bind="text: lastName"></td>
-		        </tr>
-		    </tbody>
-		</table>    
+			<table>
+			    <thead>
+			        <tr><th>Name</th><th>Email</th><th>Password</th></tr>
+			    </thead>
+				<tbody data-bind="foreach: people">
+			        <tr>
+			            <td data-bind="text: name"></td>
+			            <td data-bind="text: email"></td>
+			            <td data-bind="text: password"></td>
+			            <td> <a href='#' data-bind='click: $root.deletePerson'>Delete</a> </td> 
+			        </tr>
+			    </tbody>
+			</table>
+			
+		</div>
+		    
 	</div>
 	
 	<div id="dialog-form" title="Create new user">
