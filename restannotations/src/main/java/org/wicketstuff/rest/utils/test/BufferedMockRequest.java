@@ -23,10 +23,10 @@ import java.io.StringReader;
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.mock.MockHttpServletRequest;
 
-public class JsonMockRequest extends MockHttpServletRequest {
+public class BufferedMockRequest extends MockHttpServletRequest {
 	BufferedReader reader;
 	
-	public JsonMockRequest(MockHttpServletRequest mockHttpServletRequest, String method) {
+	public BufferedMockRequest(MockHttpServletRequest mockHttpServletRequest, String method) {
 		super(Application.get(), mockHttpServletRequest.getSession(), mockHttpServletRequest.getServletContext());
 		setMethod(method);
 	}

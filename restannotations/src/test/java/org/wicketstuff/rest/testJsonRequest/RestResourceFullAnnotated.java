@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
@@ -29,6 +30,7 @@ import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.MatrixParam;
+import org.wicketstuff.rest.annotations.parameters.PathParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.resource.AbstractRestResource;
@@ -142,6 +144,14 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testHeaderParams";
 	}
 	
+	@MethodMapping("/variable/{p1}/order/{p2}")
+	public String testParamOutOfOrder(@PathParam("p2") String textParam, @PathParam("p1") int intParam) {
+		Args.notNull(textParam, "textParam");
+		Args.notNull(intParam, "intParam");
+		
+		return "testParamOutOfOrder";
+	}
+	
 	public static Person createTestPerson() {
 		return new Person("Mary", "Smith", "m.smith@gmail.com");
 	}
@@ -159,6 +169,10 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return TestJsonDesSer.getObject();
 	}
 
+	@Override
+	protected void configureWebResponse(WebResponse response) {
+		// TODO Auto-generated method stub
+	}
 }
 
 @Retention(RetentionPolicy.RUNTIME)

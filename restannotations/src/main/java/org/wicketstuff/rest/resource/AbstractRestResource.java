@@ -46,6 +46,7 @@ import org.wicketstuff.rest.annotations.MethodMapping;
 import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.annotations.parameters.HeaderParam;
 import org.wicketstuff.rest.annotations.parameters.MatrixParam;
+import org.wicketstuff.rest.annotations.parameters.PathParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
@@ -61,7 +62,7 @@ import org.wicketstuff.rest.utils.reflection.ReflectionUtils;
  */
 public abstract class AbstractRestResource<T> implements IResource {
 	/** Multimap that stores every mapped method of the class */
-	private MultiMap<String, MethodMappingInfo> mappedMethods = new MultiMap<String, MethodMappingInfo>();
+	private final MultiMap<String, MethodMappingInfo> mappedMethods = new MultiMap<String, MethodMappingInfo>();
 
 	/**
 	 * General class that is used to serialize/desiarilze objects to string (for
@@ -135,6 +136,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			Object result = invokeMappedMethod(mappedMethod, attributes);
 			// if the invoked method returns a value, it is written to response
 			if (result != null) {
+				configureWebResponse(response);
 				serializeObjectToResponse(response, result);
 			}
 		} else {
@@ -142,6 +144,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 					+ "' and HTTP method " + httpMethod);
 		}
 	}
+
+	protected abstract void configureWebResponse(WebResponse response);
 
 	/**
 	 * Method invoked to serialize an object and write it as response.
@@ -428,6 +432,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		if (annotation instanceof RequestBody)
 			paramValue = extractObjectFromBody(argClass);
+		else if (annotation instanceof PathParam)
+			paramValue = toObject(argClass, pathVariables.get(((PathParam) annotation).value()));
 		else if (annotation instanceof RequestParam)
 			paramValue = extractParameterFromQuery(pageParameters, (RequestParam)annotation, argClass);
 		else if (annotation instanceof HeaderParam)
@@ -576,16 +582,19 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the primitive class we want to convert
 	 * @param value
 	 *            the string value we want to convert into the wrapper class
-	 * @return the wrapper class for the given primitive type
+	 * @return the wrapper class for the given primitive type, or null if value parameter is null
 	 */
 	public static Object toObject(Class clazz, String value) throws IllegalArgumentException {
+		if(value == null)
+			return null;
+		
 		try {
 			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 
 			return converter.convertToObject(value, Session.get().getLocale());
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not find a suitable constructor for value "
-					+ value + " of class " + clazz, e);
+			throw new IllegalArgumentException("Could not find a suitable constructor for value '"
+					+ value + "' of type '" + clazz + "'", e);
 		}
 	}
 

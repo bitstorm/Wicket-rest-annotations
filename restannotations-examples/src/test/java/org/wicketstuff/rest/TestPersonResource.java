@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.wicketstuff.rest.domain.PersonPojo;
-import org.wicketstuff.rest.utils.test.JsonMockRequest;
+import org.wicketstuff.rest.utils.test.BufferedMockRequest;
 
 import com.google.gson.Gson;
 
@@ -42,16 +42,16 @@ public class TestPersonResource extends Assert
 	@Test
 	public void testCreatePerson()
 	{
-		JsonMockRequest mockRequest =new JsonMockRequest(tester.getRequest(), "POST");
+		BufferedMockRequest mockRequest =new BufferedMockRequest(tester.getRequest(), "POST");
 		String jsonObj = gson.toJson(new PersonPojo("James", "Smith", "changeit"));
 		
 		mockRequest.setTextAsRequestBody(jsonObj);
 		
 		tester.setRequest(mockRequest);
-		tester.executeUrl("./weather/persons");
+		tester.executeUrl("./personsmanager/persons");
 		
 		tester.getRequest().setMethod("GET");
-		tester.executeUrl("./weather/persons");
+		tester.executeUrl("./personsmanager/persons");
 		
 		assertTrue(tester.getLastResponseAsString().contains(jsonObj));
 	}

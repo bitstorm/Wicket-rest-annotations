@@ -14,22 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.domain;
+package org.wicketstuff.rest.annotations.parameters;
 
-import java.util.Date;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class WeatherForecast {
-	private float umidity;
-	private float temperature;
-	private int status;
-	private int partOfTheDay;
-	private Date date;
-	
-	public WeatherForecast(float umidity, float temperature, int status, int partOfTheDay, Date date) {
-		this.umidity = umidity;
-		this.temperature = temperature;
-		this.status = status;
-		this.partOfTheDay = partOfTheDay;
-		this.date = date;
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@AnnotatedParam
+public @interface PathParam {
+	String value();
 }

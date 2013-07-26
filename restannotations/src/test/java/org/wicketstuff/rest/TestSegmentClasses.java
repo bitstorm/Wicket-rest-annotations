@@ -132,9 +132,7 @@ public class TestSegmentClasses extends Assert {
 		assertEquals(4, subSegments.size());
 		metaPattern = subSegments.get(2).getMetaPattern();
 		assertEquals(metaPattern.toString(), "^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$");
-		
-		System.out.println(segment.getMetaPattern().toString());
-		
+	
 		segmentMultiParam = "filename-{symbolicName:[a-z]+}-{version:\\d\\.\\d\\.\\d}{extension:\\.[a-z]+}";
 		segment = GeneralURLSegment.newSegment(segmentMultiParam);
 		metaPattern = segment.getMetaPattern();
@@ -149,7 +147,7 @@ public class TestSegmentClasses extends Assert {
 		assertFalse(matcher.matches());
 		
 		HashMap<String, String> map;
-		
+		//testing segment parsing with regular expressions
 		segment.populatePathVariables(map = new HashMap<String, String>(), fileName);
 		
 		assertEquals("gsaon", map.get("symbolicName"));

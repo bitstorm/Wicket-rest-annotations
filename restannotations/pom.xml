@@ -15,13 +15,13 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>restannotations-parent</artifactId>
+		<artifactId>wicketstuff-restannotations-parent</artifactId>
 		<groupId>org.adelbene.wicket.rest</groupId>
 		<version>6.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.adelbene.wicket.rest</groupId>
-	<artifactId>restannotations</artifactId>
+	<artifactId>wicketstuff-restannotations</artifactId>
 	<packaging>jar</packaging>
 	<version>6.0-SNAPSHOT</version>
 

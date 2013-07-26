@@ -41,12 +41,12 @@ class MethodMappingInfo {
 	/** The HTTP method used to invoke this mapped method. */
 	private final HttpMethod httpMethod;
 	/** Segments that compose the URL we mapped the method on. */
-	private final List<GeneralURLSegment> segments = new ArrayList<GeneralURLSegment>();
+	private final List<GeneralURLSegment> segments;
 	/**
 	 * Optional roles we used to annotate the method (see annotation
 	 * AuthorizeInvocation).
 	 */
-	private Roles roles = new Roles();
+	private final Roles roles;
 	/** The resource method we have mapped. */
 	private final Method method;
 
@@ -64,9 +64,8 @@ class MethodMappingInfo {
 	public MethodMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
 		this.httpMethod = httpMethod;
 		this.method = method;
-
-		loadSegments(urlPath);
-		loadRoles();
+		this.segments = loadSegments(urlPath);
+		this.roles = loadRoles();
 	}
 
 	/**
@@ -76,10 +75,12 @@ class MethodMappingInfo {
 	 * {@link ParamSegment}.
 	 * 
 	 * @param urlPath
+	 * @return 
 	 */
-	private void loadSegments(String urlPath) {
+	private ArrayList<GeneralURLSegment> loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
-
+		ArrayList<GeneralURLSegment> segments = new ArrayList<GeneralURLSegment>();
+		
 		for (int i = 0; i < segArray.length; i++) {
 			String segment = segArray[i];
 			GeneralURLSegment segmentValue;
@@ -88,20 +89,25 @@ class MethodMappingInfo {
 				continue;
 
 			segmentValue = GeneralURLSegment.newSegment(segment);
-			this.segments.add(segmentValue);
+			segments.add(segmentValue);
 		}
+		
+		return segments;
 	}
 
 	/**
 	 * Load the optionals roles used to annotate the method with
 	 * {@link AuthorizeInvocation}
+	 * @return 
 	 */
-	private void loadRoles() {
+	private Roles loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
-
+		Roles roles = new Roles();
+		
 		if (authorizeInvocation != null) {
 			roles = new Roles(authorizeInvocation.value());
 		}
+		return roles;
 	}
 
 	public LinkedHashMap<String, String> populatePathVariables(PageParameters pageParameters) {

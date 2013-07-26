@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
-import org.wicketstuff.rest.utils.test.JsonMockRequest;
+import org.wicketstuff.rest.utils.test.BufferedMockRequest;
 
 /**
  * Simple test using the WicketTester
@@ -87,12 +87,16 @@ public class TestRestResources {
 		tester.getRequest().setHeader("credential", "bob");
 		tester.executeUrl("./api/test/with/headerparams");
 		testIfResponseStringIsEqual("testHeaderParams");
+		
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/variable/31/order/segtext");
+		testIfResponseStringIsEqual("testParamOutOfOrder");
 	}
 
 	@Test
 	public void testJsonDeserializedParamRequest() {
 		// test if @JsonBody annotation
-		JsonMockRequest jsonMockRequest = new JsonMockRequest(tester.getRequest(), "POST");
+		BufferedMockRequest jsonMockRequest = new BufferedMockRequest(tester.getRequest(), "POST");
 		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
 
 		tester.setRequest(jsonMockRequest);
