@@ -30,7 +30,7 @@ import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
 /**
- * This class contains the informations of a resource's mapped method (i.e. a
+ * This class contains the informations of a resource mapped method (i.e. a
  * method annotated with {@link MethodMapping}). These informations are used at
  * runtime to select the most suited method to serve the current request.
  * 
@@ -70,14 +70,14 @@ class MethodMappingInfo {
 
 	/**
 	 * Loads the segment that compose the URL used to map the method. Segments
-	 * are instances of class {@link GeneralURLSegment}. Segments that contains
-	 * a parameter value (for example '/{id}/') are stored with class
-	 * {@link ParamSegment}.
+	 * are instances of class {@link GeneralURLSegment}.
 	 * 
 	 * @param urlPath
+	 * 			the URL path of the method.
 	 * @return 
+	 * 			a list containing the segments that compose the URL in input
 	 */
-	private ArrayList<GeneralURLSegment> loadSegments(String urlPath) {
+	private List<GeneralURLSegment> loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
 		ArrayList<GeneralURLSegment> segments = new ArrayList<GeneralURLSegment>();
 		
@@ -96,9 +96,10 @@ class MethodMappingInfo {
 	}
 
 	/**
-	 * Load the optionals roles used to annotate the method with
+	 * Load the optional roles used to annotate the method with
 	 * {@link AuthorizeInvocation}
 	 * @return 
+	 * 			the authorization roles for the method.
 	 */
 	private Roles loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
@@ -109,7 +110,16 @@ class MethodMappingInfo {
 		}
 		return roles;
 	}
-
+	
+	/**
+	 * This method is invoked to populate the path parameters found in the URL with the values
+	 * obtained from the current request.
+	 * 
+	 * @param pageParameters
+	 * 		the current PageParameters.
+	 * @return
+	 * 		a Map containing the URL parameters with their relative value.
+	 */
 	public LinkedHashMap<String, String> populatePathVariables(PageParameters pageParameters) {
 		LinkedHashMap<String, String> pathVariables = new LinkedHashMap<String, String>();
 		int indexedCount = pageParameters.getIndexedCount();

@@ -65,8 +65,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	private final MultiMap<String, MethodMappingInfo> mappedMethods = new MultiMap<String, MethodMappingInfo>();
 
 	/**
-	 * General class that is used to serialize/desiarilze objects to string (for
-	 * example to a Json string)
+	 * General class that is used to serialize/desiarilze objects to/from string
+	 * (for example to/from JSON)
 	 */
 	private final T objSerialDeserial;
 
@@ -105,8 +105,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	/***
 	 * Handles a REST request invoking one of the methods annotated with
 	 * {@link MethodMapping}. If the annotated method returns a value, this
-	 * latter is automatically serialized as a JSON string and written in the
-	 * web response.<br/>
+	 * latter is automatically serialized to a given string format (like JSON,
+	 * XML, etc...) and written to the web response.<br/>
 	 * If no method is found to serve the current request, a 400 HTTP code is
 	 * returned to the client. Similarly, a 401 HTTP code is return if the user
 	 * doesn't own one of the roles required to execute an annotated method (See
@@ -145,10 +145,18 @@ public abstract class AbstractRestResource<T> implements IResource {
 		}
 	}
 
+	/**
+	 * Method invoked before writing the result of the invoked method to the
+	 * response. Can be overridden to configure the response object.
+	 * 
+	 * @param response
+	 *            the current web response.
+	 */
 	protected abstract void configureWebResponse(WebResponse response);
 
 	/**
-	 * Method invoked to serialize an object and write it as response.
+	 * Method invoked to serialize the result of the invoked method and write it
+	 * to the response.
 	 * 
 	 * @param response
 	 *            The current response object.
@@ -185,14 +193,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		/**
 		 * To select the "best" method, a score is assigned to every mapped
-		 * method. The score is computed comparing each segment of the current
-		 * URL with the corresponding segment of the mounted method. If these
-		 * two segment are equal, the score is increased of 2 points. If the
-		 * mounted segment contains a parameter's value (for example '/{id}/'),
-		 * the value of the URL's segment is checked to see if its value is
-		 * compatible with the corresponding method parameter. If so, the score
-		 * is increased by one point. In any other case the total score for a
-		 * method is set to 0.
+		 * method. To calculate the score method calculateScore is executed for
+		 * every segment.
 		 */
 		for (MethodMappingInfo mappedMethod : mappedMethods) {
 			List<GeneralURLSegment> segments = mappedMethod.getSegments();
@@ -228,8 +230,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Throw an exception if two o more methods are suited for the current
-	 * request.
+	 * Throw an exception if two o more methods have the same "score" for the
+	 * current request. See method selectMostSuitedMethod.
 	 * 
 	 * @param list
 	 *            the list of ambiguous methods.
@@ -273,7 +275,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 	/**
 	 * Method called by the constructor to configure the serializer/deserializer
 	 * object.
-	 * 
 	 * 
 	 * @param objSerialDeserial
 	 *            the object serializer/deserializer
@@ -334,14 +335,15 @@ public abstract class AbstractRestResource<T> implements IResource {
 						urlMappingInfo);
 			}
 		}
-
+		// if AuthorizeInvocation has been found but no role-checker has been
+		// configured, throw an exception
 		if (isUsingAuthAnnot && roleCheckingStrategy == null)
 			throw new WicketRuntimeException(
 					"Annotation AuthorizeInvocation is used but no role-checking strategy has been set for the controller!");
 	}
 
 	/**
-	 * Utility method to extract the request method
+	 * Utility method to extract the HTTP request method.
 	 * 
 	 * @param request
 	 *            the current request object
@@ -354,13 +356,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/***
-	 * This method invokes one of the resource methods annotated with
-	 * {@link MethodMapping}.
+	 * Invokes one of the resource methods annotated with {@link MethodMapping}.
 	 * 
 	 * @param mappedMethod
-	 *            mapping info of the method
-	 * @param pageParameters
-	 *            PageParametrs object of the current request
+	 *            mapping info of the method.
+	 * @param attributes
+	 *            Attributes object for the current request.
 	 * @return the value returned by the invoked method
 	 */
 	private Object invokeMappedMethod(MethodMappingInfo mappedMethod, Attributes attributes) {
@@ -404,7 +405,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 			throw new RuntimeException("Error invoking method '" + method.getName() + "'", e);
 		}
 	}
-
+	/**
+	 * Utility method to extract the client URL from the current request.
+	 * @return the URL for the current request.
+	 */
 	static public Url extractUrlFromRequest() {
 		return RequestCycle.get().getRequest().getClientUrl();
 	}
@@ -417,11 +421,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the index of the method parameter in the parameters list.
 	 * @param pathVariables
 	 *            the target method.
-	 * @param argClass
-	 *            the type of the current parameter.
 	 * @param annotation
 	 *            PageParameters for the current request.
 	 * @param pageParameters
+	 * 			  PageParameters for the current request.
 	 * @return the extracted value.
 	 */
 	private Object extractParameterValue(MethodParameter methodParameter,
@@ -435,18 +438,21 @@ public abstract class AbstractRestResource<T> implements IResource {
 		else if (annotation instanceof PathParam)
 			paramValue = toObject(argClass, pathVariables.get(((PathParam) annotation).value()));
 		else if (annotation instanceof RequestParam)
-			paramValue = extractParameterFromQuery(pageParameters, (RequestParam)annotation, argClass);
+			paramValue = extractParameterFromQuery(pageParameters, (RequestParam) annotation,
+					argClass);
 		else if (annotation instanceof HeaderParam)
-			paramValue = extractParameterFromHeader((HeaderParam)annotation, argClass);
+			paramValue = extractParameterFromHeader((HeaderParam) annotation, argClass);
 		else if (annotation instanceof CookieParam)
-			paramValue = extractParameterFromCookies((CookieParam)annotation, argClass);
+			paramValue = extractParameterFromCookies((CookieParam) annotation, argClass);
 		else if (annotation instanceof MatrixParam)
-			paramValue = extractParameterFromMatrixParams(pageParameters, (MatrixParam)annotation, argClass);
+			paramValue = extractParameterFromMatrixParams(pageParameters, (MatrixParam) annotation,
+					argClass);
 
 		return paramValue;
 	}
 
 	/**
+	 * Extract method parameter value from matrix parameters.
 	 * 
 	 * @param pageParameters
 	 * @param matrixParam
@@ -456,19 +462,19 @@ public abstract class AbstractRestResource<T> implements IResource {
 	private Object extractParameterFromMatrixParams(PageParameters pageParameters,
 			MatrixParam matrixParam, Class<?> argClass) {
 		int segmentIndex = matrixParam.segmentIndex();
-		String variableName = matrixParam.variableName();
+		String variableName = matrixParam.parameterName();
 		String rawsSegment = pageParameters.get(segmentIndex).toString();
 		Map<String, String> matrixParameters = GeneralURLSegment
 				.getSegmentMatrixParameters(rawsSegment);
 
-		if(matrixParameters.get(variableName) == null)
+		if (matrixParameters.get(variableName) == null)
 			return null;
-		
+
 		return toObject(argClass, matrixParameters.get(variableName));
 	}
 
 	/**
-	 * Extract method parameter's value from request header.
+	 * Extract method parameter value from request header.
 	 * 
 	 * @param annotation
 	 *            an array containing the annotations for the current method
@@ -501,9 +507,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		String value = requestParam.value();
 
-		if(pageParameters.get(value) == null)
+		if (pageParameters.get(value) == null)
 			return null;
-		
+
 		return toObject(argClass, pageParameters.get(value).toString());
 	}
 
@@ -521,9 +527,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 		String value = cookieParam.value();
 		WebRequest webRequest = (WebRequest) RequestCycle.get().getRequest();
 
-		if(webRequest.getCookie(value) == null)
+		if (webRequest.getCookie(value) == null)
 			return null;
-		
+
 		return toObject(argClass, webRequest.getCookie(value).getValue());
 	}
 
@@ -554,8 +560,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 	/***
 	 * Extract parameters values from the rest URL.
-	 * @param pathVarIterator 
-	 * @param methodParameter 
+	 * 
+	 * @param pathVarIterator
+	 * @param methodParameter
 	 * 
 	 * @param mappedMethod
 	 *            mapping info of the method.
@@ -567,11 +574,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            type of the parameter we want to extract.
 	 * @return the parameter value.
 	 */
-	private Object extractParameterFromUrl(MethodParameter methodParameter, Iterator<String> pathVarIterator) {
-		
-		if(!pathVarIterator.hasNext())
+	private Object extractParameterFromUrl(MethodParameter methodParameter,
+			Iterator<String> pathVarIterator) {
+
+		if (!pathVarIterator.hasNext())
 			return null;
-		
+
 		return toObject(methodParameter.getParameterClass(), pathVarIterator.next());
 	}
 
@@ -582,12 +590,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the primitive class we want to convert
 	 * @param value
 	 *            the string value we want to convert into the wrapper class
-	 * @return the wrapper class for the given primitive type, or null if value parameter is null
+	 * @return the wrapper class for the given primitive type, or null if value
+	 *         parameter is null
 	 */
 	public static Object toObject(Class clazz, String value) throws IllegalArgumentException {
-		if(value == null)
+		if (value == null)
 			return null;
-		
+
 		try {
 			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 

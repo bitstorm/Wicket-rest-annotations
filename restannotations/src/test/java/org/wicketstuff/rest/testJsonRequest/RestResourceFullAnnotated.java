@@ -111,7 +111,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 
 	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST)
 	public String testMethodCookieParameter(@CookieParam("name") String name, int id,
-			@MatrixParam(segmentIndex = 1, variableName = "height") float height) {
+			@MatrixParam(segmentIndex = 1, parameterName = "height") float height) {
 		Args.notNull(id, "id");
 		Args.notNull(name, "name");
 		Args.notNull(height, "name");

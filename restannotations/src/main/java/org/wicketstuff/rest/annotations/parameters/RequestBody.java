@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /***
  * Annotation used to indicate that a method parameter must be extracted from the request body.
- * This implies a deserialization from the request body (from example from JSON format) to the parameter's type. 
+ * This implies a deserialization from the request body (from example from JSON format) to the parameter type. 
  * 
  * @author andrea del bene
  *

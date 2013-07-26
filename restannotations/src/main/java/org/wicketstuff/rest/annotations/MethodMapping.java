@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
 /**
- * Annotation used to map a resource's method to a given URL.
+ * Annotation used to map a resource method to a given URL.
  * The specified URL can contain parameter segment (for example '{id}') and we can
  * specify also the request method that must be used.
  * 

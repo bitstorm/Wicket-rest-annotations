@@ -31,6 +31,12 @@ import org.apache.wicket.util.parse.metapattern.OptionalMetaPattern;
 import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser;
 import org.apache.wicket.util.string.StringValue;
 
+/**
+ * 
+ * 
+ * @author andrea del bene
+ *
+ */
 public class GeneralURLSegment extends StringValue {
 	public static final MetaPattern REGEXP_BODY = new MetaPattern("([^\\}\\{]*|(\\{[\\d]+\\}))*");
 	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, REGEXP_BODY);
@@ -75,6 +81,7 @@ public class GeneralURLSegment extends StringValue {
 	 * 
 	 * @param fullSegment
 	 * @return
+	 * 		the value of the segment without matrix parameters
 	 */
 	static public String getActualSegment(String fullSegment) {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());

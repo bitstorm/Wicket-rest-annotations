@@ -53,7 +53,7 @@ public class ReflectionUtils {
 	}
 
 	/**
-	 * Check if a parameter is annotated with an AnnotatedParam annotation.
+	 * Check if a parameter is annotated with an {@link AnnotatedParam} annotation.
 	 * 
 	 * @param i
 	 *            function parameter index
@@ -61,6 +61,7 @@ public class ReflectionUtils {
 	 *            the method the parameter belongs to.
 	 * 
 	 * @return true if such an annotation is found, false otherwise.
+	 * @see AnnotatedParam
 	 */
 	static public Annotation getAnnotationParam(int i, Method method) {
 		Annotation[][] parametersAnnotations = method.getParameterAnnotations();
