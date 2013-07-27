@@ -112,7 +112,7 @@ class MethodMappingInfo {
 	}
 	
 	/**
-	 * This method is invoked to populate the path parameters found in the URL with the values
+	 * This method is invoked to populate the path parameters found in the mapped URL with the values
 	 * obtained from the current request.
 	 * 
 	 * @param pageParameters

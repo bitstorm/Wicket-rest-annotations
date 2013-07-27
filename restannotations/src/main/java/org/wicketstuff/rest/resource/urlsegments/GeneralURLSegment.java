@@ -32,62 +32,101 @@ import org.apache.wicket.util.parse.metapattern.parsers.VariableAssignmentParser
 import org.apache.wicket.util.string.StringValue;
 
 /**
- * 
+ * Base class to contain the informations of the segments that compose the URL
+ * used to map a method. It's used to use simple segments with no path
+ * parameters.
  * 
  * @author andrea del bene
- *
+ * 
  */
 public class GeneralURLSegment extends StringValue {
+	/** MetaPattern to identify the content of a regular expression. */
 	public static final MetaPattern REGEXP_BODY = new MetaPattern("([^\\}\\{]*|(\\{[\\d]+\\}))*");
+	/** MetaPattern to identify the declaration of a regular expression. */
 	public static final MetaPattern REGEXP_DECLARATION = new MetaPattern(COLON, REGEXP_BODY);
+	/**
+	 * MetaPattern to identify a path parameter inside a segment (i.e.
+	 * "{paramName:regexp}")
+	 */
 	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
 			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
-	
+
+	/** The MetaPattern corresponding to the current segment. */
 	final private MetaPattern metaPattern;
 
 	GeneralURLSegment(String text) {
 		super(text);
-		
+
 		metaPattern = new MetaPattern(Pattern.quote(text));
 	}
 
+	/**
+	 * Factory method to create new instances of GeneralURLSegment.
+	 * 
+	 * @param The
+	 *            content of the new segment.
+	 * @return the new instance of GeneralURLSegment.
+	 */
 	static public GeneralURLSegment newSegment(String segment) {
 		if (SEGMENT_PARAMETER.matcher(segment).matches())
 			return new ParamSegment(segment);
-		
+
 		if (SEGMENT_PARAMETER.matcher(segment).find())
 			return new MultiParamSegment(segment);
-				
+
 		return new GeneralURLSegment(segment);
 	}
 
-	static public boolean isValidSegment(String segment){
+	/**
+	 * 
+	 * @param segment
+	 * @return
+	 */
+	static public boolean isValidSegment(String segment) {
 		String decodedSegment = UrlEncoder.PATH_INSTANCE.encode(segment, "UTF-8");
-		
+
 		return segment.equals(decodedSegment);
 	}
-	
+
+	/**
+	 * This method checks if a given string is compatible with the current
+	 * segment.
+	 * 
+	 * @param segment
+	 * @return an integer positive value if the string in input is compatible
+	 *         with the current segment, 0 otherwise. Segments of type
+	 *         GeneralURLSegment have the priority over the other subtypes of
+	 *         segment. That's why positive matches has a score of 2 if the
+	 *         method is invoked on a GeneralURLSegment, while it returns 1 for
+	 *         the other types of segment.
+	 */
 	public int calculateScore(String segment) {
 		if (segment.equals(this.toString()))
-			return 3;
-		
+			return 2;
+
 		return 0;
 	}
 
 	/**
 	 * Get the segment value without optional matrix parameters. For example
-	 * given the following value as segment 'segment;parm=value', the function
-	 * returns 'segment'.
+	 * given the following value 'segment;parm=value', the function returns
+	 * 'segment'.
 	 * 
 	 * @param fullSegment
-	 * @return
-	 * 		the value of the segment without matrix parameters
+	 * @return the value of the segment without matrix parameters.
 	 */
 	static public String getActualSegment(String fullSegment) {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
 		return segmentParts[0];
 	}
 
+	/**
+	 * Extract matrix parameters from the segment in input.
+	 * 
+	 * @param fullSegment
+	 * 			the segment in input.
+	 * @return a map containing matrix parameters.
+	 */
 	static public Map<String, String> getSegmentMatrixParameters(String fullSegment) {
 		String[] segmentParts = fullSegment.split(MetaPattern.SEMICOLON.toString());
 		HashMap<String, String> matrixParameters = new HashMap<String, String>();
@@ -106,21 +145,16 @@ public class GeneralURLSegment extends StringValue {
 		return matrixParameters;
 	}
 	
+	/**
+	 * 
+	 */
 	public void populatePathVariables(Map<String, String> variables, String segment) {
-		//I don'have path variables, I do nothing
+		// I don'have path variables, I do nothing
 	}
 
 	/**
-	 * Utility method to check if a segment contains a parameter (i.e.
-	 * '/{parameterName}/').
-	 * 
-	 * @param segment
-	 * @return true if the segment contains a parameter, false otherwise.
-	 */
-	public static boolean isParameterSegment(String segment) {
-		return segment.length() >= 4 && segment.startsWith("{") && segment.endsWith("}");
-	}
-
+	 * Getter method for segment MetaPattern.
+	 **/
 	public MetaPattern getMetaPattern() {
 		return metaPattern;
 	}
