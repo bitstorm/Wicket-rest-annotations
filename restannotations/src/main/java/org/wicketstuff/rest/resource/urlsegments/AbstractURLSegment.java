@@ -57,14 +57,18 @@ public abstract class AbstractURLSegment extends StringValue {
 	AbstractURLSegment(String text) {
 		super(text);
 	}
-
+	
+	/**
+	 * Method invoked the MetaPattern for the current segment.
+	 * 
+	 * @return
+	 */
 	protected abstract MetaPattern loadMetaPattern();
 
 	/**
 	 * Factory method to create new instances of AbstractURLSegment.
 	 * 
-	 * @param The
-	 *            content of the new segment.
+	 * @param segment The content of the new segment.
 	 * @return the new instance of AbstractURLSegment.
 	 */
 	static public AbstractURLSegment newSegment(String segment) {
@@ -75,17 +79,6 @@ public abstract class AbstractURLSegment extends StringValue {
 			return new MultiParamSegment(segment);
 
 		return new FixedURLSegment(segment);
-	}
-
-	/**
-	 * 
-	 * @param segment
-	 * @return
-	 */
-	static public boolean isValidSegment(String segment) {
-		String decodedSegment = UrlEncoder.PATH_INSTANCE.encode(segment, "UTF-8");
-
-		return segment.equals(decodedSegment);
 	}
 
 	/**
@@ -119,7 +112,7 @@ public abstract class AbstractURLSegment extends StringValue {
 	 * Extract matrix parameters from the segment in input.
 	 * 
 	 * @param fullSegment
-	 * 			the segment in input.
+	 *            the segment in input.
 	 * @return a map containing matrix parameters.
 	 */
 	static public Map<String, String> getSegmentMatrixParameters(String fullSegment) {
@@ -139,24 +132,33 @@ public abstract class AbstractURLSegment extends StringValue {
 
 		return matrixParameters;
 	}
-	
+
 	/**
+	 * With this method every segment contributes to extract path parameters
+	 * from the current request URL.
 	 * 
+	 * @param variables
+	 * 				the Map object containing the extracted parameters.
+	 * @param segment
+	 * 				the value of the current segment.
 	 */
 	public abstract void populatePathVariables(Map<String, String> variables, String segment);
 
 	/**
 	 * Getter method for segment MetaPattern.
 	 **/
-	public MetaPattern getMetaPattern() {
-		if(metaPattern == null)
+	public final MetaPattern getMetaPattern() {
+		if (metaPattern == null)
 			syncLoadMetaPattern();
-		
+
 		return metaPattern;
 	}
-	
-	private synchronized final void syncLoadMetaPattern(){
-		if(metaPattern == null)
+
+	/**
+	 * Good old double-checked locking.. :)
+	 */
+	private synchronized final void syncLoadMetaPattern() {
+		if (metaPattern == null)
 			metaPattern = loadMetaPattern();
 	}
 }

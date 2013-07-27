@@ -93,15 +93,6 @@ public class TestSegmentClasses extends Assert {
 		assertEquals("value", matrixParams.get("param"));
 		assertEquals("'hello world'", matrixParams.get("param1"));
 	}
-	
-	@Test
-	public void testSegmentCharactersValid() {
-		assertFalse(AbstractURLSegment.isValidSegment("/"));
-		assertFalse(AbstractURLSegment.isValidSegment("{sa}"));
-		assertFalse(AbstractURLSegment.isValidSegment("segm()"));
-		
-		assertTrue(AbstractURLSegment.isValidSegment("segment177"));
-	}
 
 	@Test
 	public void testParamSegment() throws Exception {
