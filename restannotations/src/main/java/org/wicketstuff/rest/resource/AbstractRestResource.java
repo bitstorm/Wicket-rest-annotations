@@ -74,11 +74,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	private final IRoleCheckingStrategy roleCheckingStrategy;
 
 	/**
-	 * Constructor with no role-checker. If don't use
-	 * {@link AuthorizeInvocation} we don't need such a checker.
+	 * Constructor with no role-checker (i.e we don't use annotation
+	 * {@link AuthorizeInvocation}).
 	 * 
-	 * @param roleCheckingStrategy
-	 *            Role checking strategy.
+	 * @param jsonSerialDeserial
+	 *            General class that is used to serialize/desiarilze objects to
+	 *            string.
 	 */
 	public AbstractRestResource(T jsonSerialDeserial) {
 		this(jsonSerialDeserial, null);
@@ -92,7 +93,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            General class that is used to serialize/desiarilze objects to
 	 *            string
 	 * @param roleCheckingStrategy
-	 *            Role-checking strategy.
+	 *            the role-checking strategy.
 	 */
 	public AbstractRestResource(T jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
 		this.objSerialDeserial = jsonSerialDeserial;
@@ -155,13 +156,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 	protected abstract void configureWebResponse(WebResponse response);
 
 	/**
-	 * Method invoked to serialize the result of the invoked method and write it
-	 * to the response.
+	 * Method invoked to serialize the result of the invoked method and write
+	 * this value to the response.
 	 * 
 	 * @param response
 	 *            The current response object.
 	 * @param result
-	 *            The object to write as response.
+	 *            The object to write to response.
 	 */
 	protected void serializeObjectToResponse(WebResponse response, Object result) {
 		try {
@@ -273,8 +274,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Method called by the constructor to configure the serializer/deserializer
-	 * object.
+	 * Method called to initialize and configure the object
+	 * serializer/deserializer.
 	 * 
 	 * @param objSerialDeserial
 	 *            the object serializer/deserializer
@@ -302,7 +303,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @param strValue
 	 *            the string value containing our object.
 	 * @param objSerialDeserial
-	 *            the object serializer/deserializer.
+	 *            the object used to serialize/deserialize an object.
 	 * @return the deserialized object
 	 */
 	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
@@ -504,8 +505,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * @param pageParameters
 	 *            the PageParameters of the current request.
 	 * @param requestParam
-	 *            the {@link RequestParam} annotation used for the current method
-	 *            parameter.
+	 *            the {@link RequestParam} annotation used for the current
+	 *            method parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
 	 * @return the extracted value converted to argClass.
@@ -570,9 +571,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * Extract a parameter values from the rest URL.
 	 * 
 	 * @param methodParameter
-	 * 			the current method parameter.
+	 *            the current method parameter.
 	 * @param pathParamIterator
-	 * 			an iterator on the current values of path parameters.
+	 *            an iterator on the current values of path parameters.
 	 * 
 	 * @return the parameter value.
 	 */
@@ -592,13 +593,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the type of the object we want to obtain.
 	 * @param value
 	 *            the string value we want to convert.
-	 * @return the object corresponding to the converted string value, or null if value
-	 *         parameter is null
+	 * @return the object corresponding to the converted string value, or null
+	 *         if value parameter is null
 	 */
 	public static Object toObject(Class clazz, String value) throws IllegalArgumentException {
 		if (value == null)
 			return null;
-		//we use the standard Wicket conversion mechanism to obtain the converted value. 
+		// we use the standard Wicket conversion mechanism to obtain the
+		// converted value.
 		try {
 			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 

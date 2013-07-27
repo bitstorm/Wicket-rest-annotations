@@ -59,9 +59,10 @@ public abstract class AbstractURLSegment extends StringValue {
 	}
 	
 	/**
-	 * Method invoked the MetaPattern for the current segment.
+	 * Method invoked to load the MetaPattern for the current segment.
 	 * 
 	 * @return
+	 * 		the MetaPattern for the current segment.
 	 */
 	protected abstract MetaPattern loadMetaPattern();
 

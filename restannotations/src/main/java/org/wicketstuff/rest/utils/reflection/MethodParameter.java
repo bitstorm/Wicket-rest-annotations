@@ -18,33 +18,66 @@ package org.wicketstuff.rest.utils.reflection;
 
 import java.lang.reflect.Method;
 
+// TODO: Auto-generated Javadoc
 /**
+ * The class contains the informations of a method parameter, like its type or
+ * its index in the array of method's parameters.
  * 
  * @author andrea del bene
- *
  */
 public class MethodParameter {
+
+	/** The parameter class. */
 	final private Class<?> parameterClass;
+
+	/** The owner method. */
 	final private Method ownerMethod;
+
+	/** The param index. */
 	final private int paramIndex;
-	
+
+	/**
+	 * Instantiates a new method parameter.
+	 * 
+	 * @param type
+	 *            the type of the parameter.
+	 * @param ownerMethod
+	 *            the owner method for the parameter.
+	 * @param paramIndex
+	 *            the index of the parameter in the array of method's
+	 *            parameters.
+	 */
 	public MethodParameter(Class<?> type, Method ownerMethod, int paramIndex) {
 		this.parameterClass = type;
 		this.ownerMethod = ownerMethod;
 		this.paramIndex = paramIndex;
 	}
 
+	/**
+	 * Gets the type of the method parameter.
+	 * 
+	 * @return the parameter class
+	 */
 	public Class<?> getParameterClass() {
 		return parameterClass;
 	}
 
+	/**
+	 * Gets the owner method.
+	 * 
+	 * @return the owner method
+	 */
 	public Method getOwnerMethod() {
 		return ownerMethod;
 	}
 
+	/**
+	 * Gets the index of the parameter in the array of method's parameters.
+	 * 
+	 * @return the parameter index
+	 */
 	public int getParamIndex() {
 		return paramIndex;
 	}
-	
-	
+
 }

@@ -22,11 +22,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation indicates that the value of a method parameter
- * must be extracted from a path parameter (for example: /book/{bookid}).
+ * This annotation indicates that the value of a method parameter must be
+ * extracted from a path parameter. It requires the name of the method parameter
+ * we want to use (ex: @PathName("bookId")).
  * 
  * @author andrea del bene
- *
+ * 
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
