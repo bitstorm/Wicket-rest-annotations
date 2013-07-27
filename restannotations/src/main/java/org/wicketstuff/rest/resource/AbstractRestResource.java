@@ -374,9 +374,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 		WebResponse response = (WebResponse) attributes.getResponse();
 		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
-		LinkedHashMap<String, String> pathVariables = mappedMethod
-				.populatePathVariables(pageParameters);
-		Iterator<String> pathVarIterator = pathVariables.values().iterator();
+		LinkedHashMap<String, String> pathParameters = mappedMethod
+				.populatePathParameters(pageParameters);
+		Iterator<String> pathParamsIterator = pathParameters.values().iterator();
 		Class<?>[] parameterTypes = method.getParameterTypes();
 
 		for (int i = 0; i < parameterTypes.length; i++) {
@@ -385,10 +385,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 			Annotation annotation = ReflectionUtils.getAnnotationParam(i, method);
 
 			if (annotation != null)
-				paramValue = extractParameterValue(methodParameter, pathVariables, annotation,
+				paramValue = extractParameterValue(methodParameter, pathParameters, annotation,
 						pageParameters);
 			else
-				paramValue = extractParameterFromUrl(methodParameter, pathVarIterator);
+				paramValue = extractParameterFromUrl(methodParameter, pathParamsIterator);
 
 			if (paramValue == null) {
 				response.sendError(400, "No suitable method found for URL '"
@@ -405,8 +405,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 			throw new RuntimeException("Error invoking method '" + method.getName() + "'", e);
 		}
 	}
+
 	/**
 	 * Utility method to extract the client URL from the current request.
+	 * 
 	 * @return the URL for the current request.
 	 */
 	static public Url extractUrlFromRequest() {
@@ -414,21 +416,22 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * Extract the value for an annotated method parameter (see package
+	 * Extract the value for an annotated-method parameter (see package
 	 * {@link org.wicketstuff.rest.annotations.parameters}).
 	 * 
 	 * @param methodParameter
-	 *            the index of the method parameter in the parameters list.
-	 * @param pathVariables
-	 *            the target method.
+	 *            the current method parameter.
+	 * @param pathParameters
+	 *            the values of path parameters for the current request.
 	 * @param annotation
-	 *            PageParameters for the current request.
+	 *            the annotation for the current parameter that indicates how to
+	 *            retrieve the value for the current parameter.
 	 * @param pageParameters
-	 * 			  PageParameters for the current request.
+	 *            PageParameters for the current request.
 	 * @return the extracted value.
 	 */
 	private Object extractParameterValue(MethodParameter methodParameter,
-			LinkedHashMap<String, String> pathVariables, Annotation annotation,
+			LinkedHashMap<String, String> pathParameters, Annotation annotation,
 			PageParameters pageParameters) {
 		Object paramValue = null;
 		Class<?> argClass = methodParameter.getParameterClass();
@@ -436,7 +439,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		if (annotation instanceof RequestBody)
 			paramValue = extractObjectFromBody(argClass);
 		else if (annotation instanceof PathParam)
-			paramValue = toObject(argClass, pathVariables.get(((PathParam) annotation).value()));
+			paramValue = toObject(argClass, pathParameters.get(((PathParam) annotation).value()));
 		else if (annotation instanceof RequestParam)
 			paramValue = extractParameterFromQuery(pageParameters, (RequestParam) annotation,
 					argClass);
@@ -455,9 +458,14 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * Extract method parameter value from matrix parameters.
 	 * 
 	 * @param pageParameters
+	 *            PageParameters for the current request.
 	 * @param matrixParam
+	 *            the {@link MatrixParam} annotation used for the current
+	 *            parameter.
 	 * @param argClass
-	 * @return
+	 *            the type of the current method parameter.
+	 * @return the value obtained from query parameters and converted to
+	 *         argClass.
 	 */
 	private Object extractParameterFromMatrixParams(PageParameters pageParameters,
 			MatrixParam matrixParam, Class<?> argClass) {
@@ -476,12 +484,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	/**
 	 * Extract method parameter value from request header.
 	 * 
-	 * @param annotation
-	 *            an array containing the annotations for the current method
+	 * @param headerParam
+	 *            the {@link HeaderParam} annotation used for the current method
 	 *            parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
-	 * @return the extracted value.
+	 * @return the extracted value converted to argClass.
 	 */
 	private Object extractParameterFromHeader(HeaderParam headerParam, Class<?> argClass) {
 		String value = headerParam.value();
@@ -495,12 +503,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * 
 	 * @param pageParameters
 	 *            the PageParameters of the current request.
-	 * @param parameterAnnotations
-	 *            an array containing the annotations for the current method
+	 * @param requestParam
+	 *            the {@link RequestParam} annotation used for the current method
 	 *            parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
-	 * @return the extracted value.
+	 * @return the extracted value converted to argClass.
 	 */
 	private Object extractParameterFromQuery(PageParameters pageParameters,
 			RequestParam requestParam, Class<?> argClass) {
@@ -517,11 +525,11 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * Extract method parameter's value from cookies.
 	 * 
 	 * @param annotation
-	 *            an array containing the annotations for the current method
+	 *            the {@link CookieParam} annotation used for the current method
 	 *            parameter.
 	 * @param argClass
 	 *            the type of the current method parameter.
-	 * @return the extracted value.
+	 * @return the extracted value converted to argClass.
 	 */
 	private Object extractParameterFromCookies(CookieParam cookieParam, Class<?> argClass) {
 		String value = cookieParam.value();
@@ -559,44 +567,38 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/***
-	 * Extract parameters values from the rest URL.
+	 * Extract a parameter values from the rest URL.
 	 * 
-	 * @param pathVarIterator
 	 * @param methodParameter
+	 * 			the current method parameter.
+	 * @param pathParamIterator
+	 * 			an iterator on the current values of path parameters.
 	 * 
-	 * @param mappedMethod
-	 *            mapping info of the method.
-	 * @param pageParameters
-	 *            PageParametrs object of the current request.
-	 * @param segmentsIterator
-	 *            iterator over the mapped segments.
-	 * @param argClass
-	 *            type of the parameter we want to extract.
 	 * @return the parameter value.
 	 */
 	private Object extractParameterFromUrl(MethodParameter methodParameter,
-			Iterator<String> pathVarIterator) {
+			Iterator<String> pathParamIterator) {
 
-		if (!pathVarIterator.hasNext())
+		if (!pathParamIterator.hasNext())
 			return null;
 
-		return toObject(methodParameter.getParameterClass(), pathVarIterator.next());
+		return toObject(methodParameter.getParameterClass(), pathParamIterator.next());
 	}
 
 	/**
-	 * Utility method to convert string values to the corresponding objects
+	 * Utility method to convert string values to the corresponding objects.
 	 * 
 	 * @param clazz
-	 *            the primitive class we want to convert
+	 *            the type of the object we want to obtain.
 	 * @param value
-	 *            the string value we want to convert into the wrapper class
-	 * @return the wrapper class for the given primitive type, or null if value
+	 *            the string value we want to convert.
+	 * @return the object corresponding to the converted string value, or null if value
 	 *         parameter is null
 	 */
 	public static Object toObject(Class clazz, String value) throws IllegalArgumentException {
 		if (value == null)
 			return null;
-
+		//we use the standard Wicket conversion mechanism to obtain the converted value. 
 		try {
 			IConverter converter = Application.get().getConverterLocator().getConverter(clazz);
 
@@ -612,7 +614,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 * input.
 	 * 
 	 * @param roles
-	 *            checked roles.
+	 *            the checked roles.
 	 * @return true if the user owns one of roles in input, false otherwise.
 	 */
 	protected final boolean hasAny(Roles roles) {

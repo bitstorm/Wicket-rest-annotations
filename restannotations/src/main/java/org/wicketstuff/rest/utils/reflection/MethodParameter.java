@@ -18,6 +18,11 @@ package org.wicketstuff.rest.utils.reflection;
 
 import java.lang.reflect.Method;
 
+/**
+ * 
+ * @author andrea del bene
+ *
+ */
 public class MethodParameter {
 	final private Class<?> parameterClass;
 	final private Method ownerMethod;

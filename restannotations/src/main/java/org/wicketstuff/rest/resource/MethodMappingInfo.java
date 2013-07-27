@@ -118,10 +118,10 @@ class MethodMappingInfo {
 	 * @param pageParameters
 	 * 		the current PageParameters.
 	 * @return
-	 * 		a Map containing the URL parameters with their relative value.
+	 * 		a Map containing the path parameters with their relative value.
 	 */
-	public LinkedHashMap<String, String> populatePathVariables(PageParameters pageParameters) {
-		LinkedHashMap<String, String> pathVariables = new LinkedHashMap<String, String>();
+	public LinkedHashMap<String, String> populatePathParameters(PageParameters pageParameters) {
+		LinkedHashMap<String, String> pathParameters = new LinkedHashMap<String, String>();
 		int indexedCount = pageParameters.getIndexedCount();
 
 		for (int i = 0; i < indexedCount; i++) {
@@ -129,10 +129,10 @@ class MethodMappingInfo {
 					.toString());
 			GeneralURLSegment segment = segments.get(i);
 
-			segment.populatePathVariables(pathVariables, segmentContent);
+			segment.populatePathVariables(pathParameters, segmentContent);
 		}
 
-		return pathVariables;
+		return pathParameters;
 	}
 
 	// getters and setters
