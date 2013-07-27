@@ -29,36 +29,34 @@ import org.apache.wicket.util.string.StringValue;
  * @author andrea del bene
  * 
  */
-public class ParamSegment extends GeneralURLSegment {
+public class ParamSegment extends AbstractURLSegment {
 	
 	final private String paramName;
-	
-	final private MetaPattern metaPattern;
 	
 	ParamSegment(String text) {
 		super(text);
 		
-		String segmentContent = this.toString();
-		
-		this.paramName = loadParamName(segmentContent);
-		this.metaPattern = loadRegExp(segmentContent);
+		this.paramName = loadParamName();
 	}
 	
 	@Override
 	public int calculateScore(String actualSegment) {
-		Matcher matcher = metaPattern.matcher(actualSegment);
+		Matcher matcher = getMetaPattern().matcher(actualSegment);
 		
 		return matcher.matches() ? 1 : 0;
 	}
 
-	private String loadParamName(String segmentContent) {
+	private String loadParamName() {
+		String segmentContent = this.toString();
 		Matcher matcher = MetaPattern.VARIABLE_NAME.matcher(segmentContent);
 		
 		matcher.find();
 		return matcher.group();
 	}
 	
-	private MetaPattern loadRegExp(String segmentContent) {
+	@Override
+	protected MetaPattern loadMetaPattern() {
+		String segmentContent = this.toString();
 		int semicolonIndex = segmentContent.indexOf(':');
 		
 		if(semicolonIndex < 0)
@@ -76,21 +74,12 @@ public class ParamSegment extends GeneralURLSegment {
 	
 	@Override
 	public void populatePathVariables(Map<String, String> variables, String segment) {
-		Matcher matcher = metaPattern.matcher(segment);
+		Matcher matcher = getMetaPattern().matcher(segment);
 		matcher.matches();
 		variables.put(paramName, matcher.group());
 	}
 	
-	public static String trimFirstAndLastCharacter(String segValue) {
-		return segValue.substring(1, segValue.length() - 1);
-	}
-
 	public String getParamName() {
 		return paramName;
-	}
-
-	@Override
-	public MetaPattern getMetaPattern() {
-		return metaPattern;
 	}
 }

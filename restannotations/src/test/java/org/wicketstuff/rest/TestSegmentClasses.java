@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.junit.Assert;
 import org.junit.Test;
-import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.resource.urlsegments.MultiParamSegment;
 import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 
@@ -32,7 +32,7 @@ public class TestSegmentClasses extends Assert {
 
 	@Test
 	public void testStandardUrlSegmentPattern() {
-		MetaPattern pattern = new MetaPattern(GeneralURLSegment.SEGMENT_PARAMETER);
+		MetaPattern pattern = new MetaPattern(AbstractURLSegment.SEGMENT_PARAMETER);
 
 		Matcher matcher = pattern.matcher("");
 		assertFalse(matcher.matches());
@@ -58,7 +58,7 @@ public class TestSegmentClasses extends Assert {
 		matcher = pattern.matcher("{117}");
 		assertFalse(matcher.matches());
 		
-		pattern = new MetaPattern(GeneralURLSegment.REGEXP_BODY);
+		pattern = new MetaPattern(AbstractURLSegment.REGEXP_BODY);
 		matcher = pattern.matcher("[0-9]*:abba");
 		assertTrue(matcher.matches());
 		
@@ -71,23 +71,23 @@ public class TestSegmentClasses extends Assert {
 		String segment = "segment";
 		String segmentMatrixParam = segment + ";param=value";
 
-		String segmentValue = GeneralURLSegment.getActualSegment(segment);
+		String segmentValue = AbstractURLSegment.getActualSegment(segment);
 		assertEquals(segment, segmentValue);
 
-		Map<String, String> matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segment);
+		Map<String, String> matrixParams = AbstractURLSegment.getSegmentMatrixParameters(segment);
 		assertTrue(matrixParams.size() == 0);
 
-		segmentValue = GeneralURLSegment.getActualSegment(segmentMatrixParam);
+		segmentValue = AbstractURLSegment.getActualSegment(segmentMatrixParam);
 		assertEquals(segment, segmentValue);
 
-		matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segmentMatrixParam);
+		matrixParams = AbstractURLSegment.getSegmentMatrixParameters(segmentMatrixParam);
 
 		assertEquals(1, matrixParams.size());
 
 		assertNotNull(matrixParams.get("param"));
 
 		String segmentMatrixParamsQuotes = segment + ";param=value;param1='hello world'";
-		matrixParams = GeneralURLSegment.getSegmentMatrixParameters(segmentMatrixParamsQuotes);
+		matrixParams = AbstractURLSegment.getSegmentMatrixParameters(segmentMatrixParamsQuotes);
 
 		assertEquals(2, matrixParams.size());
 		assertEquals("value", matrixParams.get("param"));
@@ -96,17 +96,17 @@ public class TestSegmentClasses extends Assert {
 	
 	@Test
 	public void testSegmentCharactersValid() {
-		assertFalse(GeneralURLSegment.isValidSegment("/"));
-		assertFalse(GeneralURLSegment.isValidSegment("{sa}"));
-		assertFalse(GeneralURLSegment.isValidSegment("segm()"));
+		assertFalse(AbstractURLSegment.isValidSegment("/"));
+		assertFalse(AbstractURLSegment.isValidSegment("{sa}"));
+		assertFalse(AbstractURLSegment.isValidSegment("segm()"));
 		
-		assertTrue(GeneralURLSegment.isValidSegment("segment177"));
+		assertTrue(AbstractURLSegment.isValidSegment("segment177"));
 	}
 
 	@Test
 	public void testParamSegment() throws Exception {
 		String segmentWithRegEx = "{id:[0-9]*:abba}";
-		GeneralURLSegment segment = GeneralURLSegment.newSegment(segmentWithRegEx);
+		AbstractURLSegment segment = AbstractURLSegment.newSegment(segmentWithRegEx);
 		
 		assertTrue(segment instanceof ParamSegment);
 		
@@ -122,19 +122,19 @@ public class TestSegmentClasses extends Assert {
 		assertTrue(metaPattern.matcher(":abba").matches());
 		
 		String segmentMultiParam = "{segment0}asegment{segment1:^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$}anotherseg";
-		segment = GeneralURLSegment.newSegment(segmentMultiParam);
+		segment = AbstractURLSegment.newSegment(segmentMultiParam);
 		
 		assertTrue(segment instanceof MultiParamSegment);
 
 		MultiParamSegment multiParamSegment = (MultiParamSegment) segment;		
-		List<GeneralURLSegment> subSegments = multiParamSegment.getSubSegments();
+		List<AbstractURLSegment> subSegments = multiParamSegment.getSubSegments();
 		
 		assertEquals(4, subSegments.size());
 		metaPattern = subSegments.get(2).getMetaPattern();
 		assertEquals(metaPattern.toString(), "^\\(?\\d{3}\\)?[ -]?\\d{3}[ -]?\\d{4}$");
 	
 		segmentMultiParam = "filename-{symbolicName:[a-z]+}-{version:\\d\\.\\d\\.\\d}{extension:\\.[a-z]+}";
-		segment = GeneralURLSegment.newSegment(segmentMultiParam);
+		segment = AbstractURLSegment.newSegment(segmentMultiParam);
 		metaPattern = segment.getMetaPattern();
 		
 		String fileName = "filename-gsaon-1.2.3.zip";

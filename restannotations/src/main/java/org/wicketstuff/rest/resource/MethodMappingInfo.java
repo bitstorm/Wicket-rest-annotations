@@ -25,7 +25,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
@@ -41,7 +41,7 @@ class MethodMappingInfo {
 	/** The HTTP method used to invoke this mapped method. */
 	private final HttpMethod httpMethod;
 	/** Segments that compose the URL we mapped the method on. */
-	private final List<GeneralURLSegment> segments;
+	private final List<AbstractURLSegment> segments;
 	/**
 	 * Optional roles we used to annotate the method (see annotation
 	 * AuthorizeInvocation).
@@ -70,25 +70,25 @@ class MethodMappingInfo {
 
 	/**
 	 * Loads the segment that compose the URL used to map the method. Segments
-	 * are instances of class {@link GeneralURLSegment}.
+	 * are instances of class {@link AbstractURLSegment}.
 	 * 
 	 * @param urlPath
 	 * 			the URL path of the method.
 	 * @return 
 	 * 			a list containing the segments that compose the URL in input
 	 */
-	private List<GeneralURLSegment> loadSegments(String urlPath) {
+	private List<AbstractURLSegment> loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
-		ArrayList<GeneralURLSegment> segments = new ArrayList<GeneralURLSegment>();
+		ArrayList<AbstractURLSegment> segments = new ArrayList<AbstractURLSegment>();
 		
 		for (int i = 0; i < segArray.length; i++) {
 			String segment = segArray[i];
-			GeneralURLSegment segmentValue;
+			AbstractURLSegment segmentValue;
 
 			if (segment.isEmpty())
 				continue;
 
-			segmentValue = GeneralURLSegment.newSegment(segment);
+			segmentValue = AbstractURLSegment.newSegment(segment);
 			segments.add(segmentValue);
 		}
 		
@@ -125,9 +125,9 @@ class MethodMappingInfo {
 		int indexedCount = pageParameters.getIndexedCount();
 
 		for (int i = 0; i < indexedCount; i++) {
-			String segmentContent = GeneralURLSegment.getActualSegment(pageParameters.get(i)
+			String segmentContent = AbstractURLSegment.getActualSegment(pageParameters.get(i)
 					.toString());
-			GeneralURLSegment segment = segments.get(i);
+			AbstractURLSegment segment = segments.get(i);
 
 			segment.populatePathVariables(pathParameters, segmentContent);
 		}
@@ -136,7 +136,7 @@ class MethodMappingInfo {
 	}
 
 	// getters and setters
-	public List<GeneralURLSegment> getSegments() {
+	public List<AbstractURLSegment> getSegments() {
 		return segments;
 	}
 

@@ -23,31 +23,28 @@ import java.util.regex.Matcher;
 
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 
-public class MultiParamSegment extends GeneralURLSegment {
-	final private List<GeneralURLSegment> subSegments;
-	final private MetaPattern metaPattern;
+public class MultiParamSegment extends AbstractURLSegment {
+	final private List<AbstractURLSegment> subSegments;
 	
 	MultiParamSegment(String text) {
 		super(text);
-		
 		this.subSegments = loadVariables(text);
-		this.metaPattern = loadMetaPattern(subSegments);
 	}
-
-	private List<GeneralURLSegment> loadVariables(String text) {
+		
+	private List<AbstractURLSegment> loadVariables(String text) {
 		Matcher matcher = SEGMENT_PARAMETER.matcher(text);
-		List<GeneralURLSegment> subSegments = new ArrayList<GeneralURLSegment>();
+		List<AbstractURLSegment> subSegments = new ArrayList<AbstractURLSegment>();
 		int fixedTextIndex = 0;
 
 		while (matcher.find()) {
 			String group = matcher.group();
-			GeneralURLSegment segment = GeneralURLSegment.newSegment(group);
+			AbstractURLSegment segment = AbstractURLSegment.newSegment(group);
 			String fixedText = text.substring(fixedTextIndex, matcher.start());
 
 			fixedTextIndex = matcher.end();
 
 			if (!fixedText.isEmpty()) {
-				subSegments.add(GeneralURLSegment.newSegment(fixedText));
+				subSegments.add(AbstractURLSegment.newSegment(fixedText));
 			}
 
 			subSegments.add(segment);
@@ -55,16 +52,17 @@ public class MultiParamSegment extends GeneralURLSegment {
 		
 		if(fixedTextIndex < text.length()){
 			String fixedText = text.substring(fixedTextIndex, text.length());
-			subSegments.add(GeneralURLSegment.newSegment(fixedText));
+			subSegments.add(AbstractURLSegment.newSegment(fixedText));
 		}
 		
 		return subSegments;
 	}
 	
-	private MetaPattern loadMetaPattern(List<GeneralURLSegment> subSegments) {
+	@Override
+	protected MetaPattern loadMetaPattern() {
 		List<MetaPattern> patterns = new ArrayList<MetaPattern>();
 		
-		for (GeneralURLSegment segment : subSegments) {
+		for (AbstractURLSegment segment : subSegments) {
 			patterns.add(segment.getMetaPattern());
 		}
 		
@@ -73,7 +71,7 @@ public class MultiParamSegment extends GeneralURLSegment {
 	
 	@Override
 	public int calculateScore(String actualSegment) {
-		Matcher matcher = metaPattern.matcher(actualSegment);
+		Matcher matcher = getMetaPattern().matcher(actualSegment);
 		
 		return matcher.matches() ? 1 : 0;
 	}
@@ -82,10 +80,10 @@ public class MultiParamSegment extends GeneralURLSegment {
 	public void populatePathVariables(Map<String, String> variables, String segment) {
 		int startingIndex = 0;
 		
-		if(!metaPattern.matcher(segment).matches())
+		if(!getMetaPattern().matcher(segment).matches())
 			return;
 		
-		for (GeneralURLSegment subSegment : subSegments) {
+		for (AbstractURLSegment subSegment : subSegments) {
 			MetaPattern pattern = subSegment.getMetaPattern();
 			segment = segment.substring(startingIndex);			
 			Matcher matcher = pattern.matcher(segment);
@@ -100,12 +98,7 @@ public class MultiParamSegment extends GeneralURLSegment {
 		}
 	}
 	
-	public List<GeneralURLSegment> getSubSegments() {
+	public List<AbstractURLSegment> getSubSegments() {
 		return subSegments;
-	}
-	
-	@Override
-	public MetaPattern getMetaPattern() {
-		return metaPattern;
 	}
 }

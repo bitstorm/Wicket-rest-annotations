@@ -49,7 +49,7 @@ import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.PathParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
-import org.wicketstuff.rest.resource.urlsegments.GeneralURLSegment;
+import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 import org.wicketstuff.rest.utils.reflection.MethodParameter;
 import org.wicketstuff.rest.utils.reflection.ReflectionUtils;
@@ -197,12 +197,12 @@ public abstract class AbstractRestResource<T> implements IResource {
 		 * every segment.
 		 */
 		for (MethodMappingInfo mappedMethod : mappedMethods) {
-			List<GeneralURLSegment> segments = mappedMethod.getSegments();
+			List<AbstractURLSegment> segments = mappedMethod.getSegments();
 			int score = 0;
 
-			for (GeneralURLSegment segment : segments) {
+			for (AbstractURLSegment segment : segments) {
 				int i = segments.indexOf(segment);
-				String currentActualSegment = GeneralURLSegment.getActualSegment(pageParameters
+				String currentActualSegment = AbstractURLSegment.getActualSegment(pageParameters
 						.get(i).toString());
 
 				int partialScore = segment.calculateScore(currentActualSegment);
@@ -472,7 +472,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 		int segmentIndex = matrixParam.segmentIndex();
 		String variableName = matrixParam.parameterName();
 		String rawsSegment = pageParameters.get(segmentIndex).toString();
-		Map<String, String> matrixParameters = GeneralURLSegment
+		Map<String, String> matrixParameters = AbstractURLSegment
 				.getSegmentMatrixParameters(rawsSegment);
 
 		if (matrixParameters.get(variableName) == null)

@@ -39,7 +39,7 @@ import org.apache.wicket.util.string.StringValue;
  * @author andrea del bene
  * 
  */
-public class GeneralURLSegment extends StringValue {
+public abstract class AbstractURLSegment extends StringValue {
 	/** MetaPattern to identify the content of a regular expression. */
 	public static final MetaPattern REGEXP_BODY = new MetaPattern("([^\\}\\{]*|(\\{[\\d]+\\}))*");
 	/** MetaPattern to identify the declaration of a regular expression. */
@@ -52,29 +52,29 @@ public class GeneralURLSegment extends StringValue {
 			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
 
 	/** The MetaPattern corresponding to the current segment. */
-	final private MetaPattern metaPattern;
+	private volatile MetaPattern metaPattern;
 
-	GeneralURLSegment(String text) {
+	AbstractURLSegment(String text) {
 		super(text);
-
-		metaPattern = new MetaPattern(Pattern.quote(text));
 	}
 
+	protected abstract MetaPattern loadMetaPattern();
+
 	/**
-	 * Factory method to create new instances of GeneralURLSegment.
+	 * Factory method to create new instances of AbstractURLSegment.
 	 * 
 	 * @param The
 	 *            content of the new segment.
-	 * @return the new instance of GeneralURLSegment.
+	 * @return the new instance of AbstractURLSegment.
 	 */
-	static public GeneralURLSegment newSegment(String segment) {
+	static public AbstractURLSegment newSegment(String segment) {
 		if (SEGMENT_PARAMETER.matcher(segment).matches())
 			return new ParamSegment(segment);
 
 		if (SEGMENT_PARAMETER.matcher(segment).find())
 			return new MultiParamSegment(segment);
 
-		return new GeneralURLSegment(segment);
+		return new FixedURLSegment(segment);
 	}
 
 	/**
@@ -95,17 +95,12 @@ public class GeneralURLSegment extends StringValue {
 	 * @param segment
 	 * @return an integer positive value if the string in input is compatible
 	 *         with the current segment, 0 otherwise. Segments of type
-	 *         GeneralURLSegment have the priority over the other subtypes of
+	 *         FixedURLSegment have the priority over the other types of
 	 *         segment. That's why positive matches has a score of 2 if the
-	 *         method is invoked on a GeneralURLSegment, while it returns 1 for
+	 *         method is invoked on a FixedURLSegment, while it returns 1 for
 	 *         the other types of segment.
 	 */
-	public int calculateScore(String segment) {
-		if (segment.equals(this.toString()))
-			return 2;
-
-		return 0;
-	}
+	public abstract int calculateScore(String segment);
 
 	/**
 	 * Get the segment value without optional matrix parameters. For example
@@ -148,14 +143,20 @@ public class GeneralURLSegment extends StringValue {
 	/**
 	 * 
 	 */
-	public void populatePathVariables(Map<String, String> variables, String segment) {
-		// I don'have path variables, I do nothing
-	}
+	public abstract void populatePathVariables(Map<String, String> variables, String segment);
 
 	/**
 	 * Getter method for segment MetaPattern.
 	 **/
 	public MetaPattern getMetaPattern() {
+		if(metaPattern == null)
+			syncLoadMetaPattern();
+		
 		return metaPattern;
+	}
+	
+	private synchronized final void syncLoadMetaPattern(){
+		if(metaPattern == null)
+			metaPattern = loadMetaPattern();
 	}
 }
