@@ -21,12 +21,18 @@ import java.lang.reflect.Method;
 
 import org.wicketstuff.rest.annotations.parameters.AnnotatedParam;
 
+/**
+ * Utility methods to work with reflection entities
+ * 
+ * @author andrea del bene
+ *
+ */
 public class ReflectionUtils {
 	/**
 	 * Check if a parameter is annotated with a given annotation.
 	 * 
 	 * @param i
-	 *            function parameter index
+	 *            method parameter index.
 	 * @param method
 	 *            the method the parameter belongs to.
 	 * @param targetAnnotation
@@ -56,7 +62,7 @@ public class ReflectionUtils {
 	 * Check if a parameter is annotated with an {@link AnnotatedParam} annotation.
 	 * 
 	 * @param i
-	 *            function parameter index
+	 *            method parameter index.
 	 * @param method
 	 *            the method the parameter belongs to.
 	 * 
@@ -92,7 +98,7 @@ public class ReflectionUtils {
 	 * @param targetAnnotation
 	 *            the type of annotation we are looking for.
 	 * @return the first occurrence of the targetAnnotation found in the array,
-	 *         null if no occurrence is found
+	 *         null if no occurrence was found.
 	 */
 	static public <T extends Annotation> T findAnnotation(Annotation[] parameterAnnotations,
 			Class<T> targetAnnotation) {

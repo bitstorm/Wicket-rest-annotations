@@ -73,14 +73,13 @@ class MethodMappingInfo {
 	 * are instances of class {@link AbstractURLSegment}.
 	 * 
 	 * @param urlPath
-	 * 			the URL path of the method.
-	 * @return 
-	 * 			a list containing the segments that compose the URL in input
+	 *            the URL path of the method.
+	 * @return a list containing the segments that compose the URL in input
 	 */
 	private List<AbstractURLSegment> loadSegments(String urlPath) {
 		String[] segArray = urlPath.split("/");
 		ArrayList<AbstractURLSegment> segments = new ArrayList<AbstractURLSegment>();
-		
+
 		for (int i = 0; i < segArray.length; i++) {
 			String segment = segArray[i];
 			AbstractURLSegment segmentValue;
@@ -91,34 +90,33 @@ class MethodMappingInfo {
 			segmentValue = AbstractURLSegment.newSegment(segment);
 			segments.add(segmentValue);
 		}
-		
+
 		return segments;
 	}
 
 	/**
 	 * Load the optional roles used to annotate the method with
 	 * {@link AuthorizeInvocation}
-	 * @return 
-	 * 			the authorization roles for the method.
+	 * 
+	 * @return the authorization roles for the method.
 	 */
 	private Roles loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
 		Roles roles = new Roles();
-		
+
 		if (authorizeInvocation != null) {
 			roles = new Roles(authorizeInvocation.value());
 		}
 		return roles;
 	}
-	
+
 	/**
-	 * This method is invoked to populate the path parameters found in the mapped URL with the values
-	 * obtained from the current request.
+	 * This method is invoked to populate the path parameters found in the
+	 * mapped URL with the values obtained from the current request.
 	 * 
 	 * @param pageParameters
-	 * 		the current PageParameters.
-	 * @return
-	 * 		a Map containing the path parameters with their relative value.
+	 *            the current PageParameters.
+	 * @return a Map containing the path parameters with their relative value.
 	 */
 	public LinkedHashMap<String, String> populatePathParameters(PageParameters pageParameters) {
 		LinkedHashMap<String, String> pathParameters = new LinkedHashMap<String, String>();
@@ -136,22 +134,48 @@ class MethodMappingInfo {
 	}
 
 	// getters and setters
+
+	/**
+	 * Gets the segments of the mapped URL.
+	 * 
+	 * @return the segments
+	 */
 	public List<AbstractURLSegment> getSegments() {
 		return segments;
 	}
 
+	/**
+	 * Gets the segments count.
+	 * 
+	 * @return the segments count
+	 */
 	public int getSegmentsCount() {
 		return segments.size();
 	}
 
+	/**
+	 * Gets the http method.
+	 * 
+	 * @return the http method
+	 */
 	public HttpMethod getHttpMethod() {
 		return httpMethod;
 	}
 
+	/**
+	 * Gets the relative class method.
+	 * 
+	 * @return the class method
+	 */
 	public Method getMethod() {
 		return method;
 	}
 
+	/**
+	 * Gets the optional authorization roles for this method.
+	 * 
+	 * @return the roles
+	 */
 	public Roles getRoles() {
 		return roles;
 	}

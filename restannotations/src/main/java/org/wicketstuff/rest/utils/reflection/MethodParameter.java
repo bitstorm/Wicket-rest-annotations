@@ -18,7 +18,6 @@ package org.wicketstuff.rest.utils.reflection;
 
 import java.lang.reflect.Method;
 
-// TODO: Auto-generated Javadoc
 /**
  * The class contains the informations of a method parameter, like its type or
  * its index in the array of method's parameters.
