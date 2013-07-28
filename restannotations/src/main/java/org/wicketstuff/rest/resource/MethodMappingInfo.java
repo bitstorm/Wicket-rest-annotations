@@ -25,6 +25,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
+import org.wicketstuff.rest.formats.RestMimeFormats;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
@@ -50,6 +51,10 @@ class MethodMappingInfo {
 	/** The resource method we have mapped. */
 	private final Method method;
 
+	private RestMimeFormats inputFormat = RestMimeFormats.JSON;
+	
+	private RestMimeFormats outputFormat  = RestMimeFormats.JSON;
+	
 	/**
 	 * Class construnctor.
 	 * 
@@ -178,5 +183,13 @@ class MethodMappingInfo {
 	 */
 	public Roles getRoles() {
 		return roles;
+	}
+
+	public RestMimeFormats getInputFormat() {
+		return inputFormat;
+	}
+
+	public RestMimeFormats getOutputFormat() {
+		return outputFormat;
 	}
 }
