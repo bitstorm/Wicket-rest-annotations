@@ -16,8 +16,8 @@
  */
 package org.wicketstuff.rest.testJsonRequest;
 
-import org.wicketstuff.rest.formats.IObjectSerialDeserial;
-import org.wicketstuff.rest.formats.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
 public class TestJsonDesSer implements IObjectSerialDeserial {
 	static public Object getObject(){

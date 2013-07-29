@@ -17,18 +17,25 @@
 package org.wicketstuff.rest.resource.urlsegments;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 
+/**
+ * 
+ * 
+ * @author andrea del bene
+ *
+ */
 public class MultiParamSegment extends AbstractURLSegment {
 	final private List<AbstractURLSegment> subSegments;
 	
 	MultiParamSegment(String text) {
 		super(text);
-		this.subSegments = loadVariables(text);
+		this.subSegments = Collections.unmodifiableList(loadVariables(text));
 	}
 		
 	private List<AbstractURLSegment> loadVariables(String text) {

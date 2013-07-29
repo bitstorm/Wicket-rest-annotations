@@ -14,11 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.formats;
+package org.wicketstuff.rest.contenthandling;
 
-public interface IObjectSerialDeserial {
+public enum RestMimeTypes {
+	JSON("json", "application/json;charset=utf-8"), XML("xml", "application/xml;charset=utf-8"), HTML("html", "text/html;charset=utf-8"), 
+	PLAIN_TEXT("text", "text/plain;charset=utf-8"), CSV("csv", "text/csv;charset=utf-8"), CSS("css", "text/css;charset=utf-8");
 	
-	public String objectToString(Object targetObject, RestMimeTypes format);
+	private final String name;
+	private final String requrstContent;
 	
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format);
+	private RestMimeTypes(String name, String requrstContent) {
+		this.name = name;
+		this.requrstContent = requrstContent;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getRequestContentType() {
+		return requrstContent;
+	}
 }

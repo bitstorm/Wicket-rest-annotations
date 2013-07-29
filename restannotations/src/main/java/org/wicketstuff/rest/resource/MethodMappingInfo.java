@@ -18,6 +18,7 @@ package org.wicketstuff.rest.resource;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.formats.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
@@ -68,7 +69,7 @@ public class MethodMappingInfo {
 	public MethodMappingInfo(MethodMapping methodMapped, Method method) {
 		this.httpMethod = methodMapped.httpMethod();
 		this.method = method;
-		this.segments = loadSegments(methodMapped.value());
+		this.segments = Collections.unmodifiableList(loadSegments(methodMapped.value()));
 		this.roles = loadRoles();
 		
 		this.inputFormat = methodMapped.consumes();

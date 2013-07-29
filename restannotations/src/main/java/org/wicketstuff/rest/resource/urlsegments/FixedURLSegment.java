@@ -21,6 +21,12 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.util.parse.metapattern.MetaPattern;
 
+/**
+ * Segment class for segments without path parameter (i.e. with a fixed value).
+ * 
+ * @author andrea del bene
+ *
+ */
 public class FixedURLSegment extends AbstractURLSegment {
 
 	FixedURLSegment(String text) {
