@@ -14,30 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.formats;
 
-import org.wicketstuff.rest.formats.IObjectSerialDeserial;
-import org.wicketstuff.rest.formats.RestMimeTypes;
-
-public class TestJsonDesSer implements IObjectSerialDeserial {
-	static public Object getObject(){
-		return RestResourceFullAnnotated.createTestPerson();
-	}
+public enum RestMimeTypes {
+	JSON("json", "application/json;charset=utf-8"), XML("xml", "application/xml;charset=utf-8"), HTML("html", "text/html;charset=utf-8"), 
+	PLAIN_TEXT("text", "text/plain;charset=utf-8"), CSV("csv", "text/csv;charset=utf-8"), CSS("css", "text/css;charset=utf-8");
 	
-	static public String getJSON(){
-		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
+	private final String name;
+	private final String requrstContent;
+	
+	private RestMimeTypes(String name, String requrstContent) {
+		this.name = name;
+		this.requrstContent = requrstContent;
 	}
 
-	@Override
-	public String objectToString(Object targetObject, RestMimeTypes format) {
-		if(format == RestMimeTypes.PLAIN_TEXT)
-			return targetObject.toString();
-		
-		return getJSON();
+	public String getName() {
+		return name;
 	}
 
-	@Override
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
-		return (T) getObject();
+	public String getRequestContentType() {
+		return requrstContent;
 	}
 }

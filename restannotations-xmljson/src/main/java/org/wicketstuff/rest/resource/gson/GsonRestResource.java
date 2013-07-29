@@ -17,41 +17,22 @@
 package org.wicketstuff.rest.resource.gson;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.resource.AbstractRestResource;
-
-import com.google.gson.Gson;
 
 
 /**
- * Base class to build a resource that serves REST requests with JSON as exchange format.
+ * Base class to build a resource that serves REST requests using JSON as transport format.
  * 
  * @author andrea del bene
  *
  */
-public class GsonRestResource extends AbstractRestResource<Gson>{
+public class GsonRestResource extends AbstractRestResource<GsonSerialDeserial>{
 	
 	public GsonRestResource() {
-		super(new Gson());
+		super(new GsonSerialDeserial());
 	}
 
 	public GsonRestResource(IRoleCheckingStrategy roleCheckingStrategy) {
-		super(new Gson(), roleCheckingStrategy);
-	}
-
-	@Override
-	protected String serializeObjToString(Object result, Gson jsonSerialDeserial) {
-		return jsonSerialDeserial.toJson(result);
-	}
-
-	@Override
-	protected Object deserializeObjFromString(Class<?> argClass, String json,
-			Gson jsonSerialDeserial) {
-		return jsonSerialDeserial.fromJson(json, argClass);
-	}
-
-	@Override
-	protected void configureWebResponse(WebResponse response) {
-		response.setContentType("application/json;charset=utf-8");
+		super(new GsonSerialDeserial(), roleCheckingStrategy);
 	}
 }

@@ -25,9 +25,8 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.rest.annotations.AuthorizeInvocation;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.formats.RestMimeFormats;
+import org.wicketstuff.rest.formats.RestMimeTypes;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
-import org.wicketstuff.rest.resource.urlsegments.ParamSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
 /**
@@ -38,7 +37,7 @@ import org.wicketstuff.rest.utils.http.HttpMethod;
  * @author andrea del bene
  * 
  */
-class MethodMappingInfo {
+public class MethodMappingInfo {
 	/** The HTTP method used to invoke this mapped method. */
 	private final HttpMethod httpMethod;
 	/** Segments that compose the URL we mapped the method on. */
@@ -51,9 +50,9 @@ class MethodMappingInfo {
 	/** The resource method we have mapped. */
 	private final Method method;
 
-	private RestMimeFormats inputFormat = RestMimeFormats.JSON;
+	private final RestMimeTypes inputFormat;
 	
-	private RestMimeFormats outputFormat  = RestMimeFormats.JSON;
+	private final RestMimeTypes outputFormat;
 	
 	/**
 	 * Class construnctor.
@@ -66,11 +65,15 @@ class MethodMappingInfo {
 	 * @param method
 	 *            the resource's method mapped.
 	 */
-	public MethodMappingInfo(String urlPath, HttpMethod httpMethod, Method method) {
-		this.httpMethod = httpMethod;
+	public MethodMappingInfo(MethodMapping methodMapped, Method method) {
+		this.httpMethod = methodMapped.httpMethod();
 		this.method = method;
-		this.segments = loadSegments(urlPath);
+		this.segments = loadSegments(methodMapped.value());
 		this.roles = loadRoles();
+		
+		this.inputFormat = methodMapped.consumes();
+		this.outputFormat = methodMapped.produces();
+		
 	}
 
 	/**
@@ -185,11 +188,11 @@ class MethodMappingInfo {
 		return roles;
 	}
 
-	public RestMimeFormats getInputFormat() {
+	public RestMimeTypes getMimeInputFormat() {
 		return inputFormat;
 	}
 
-	public RestMimeFormats getOutputFormat() {
+	public RestMimeTypes getMimeOutputFormat() {
 		return outputFormat;
 	}
 }

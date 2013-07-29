@@ -14,30 +14,27 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.resource.gson;
 
 import org.wicketstuff.rest.formats.IObjectSerialDeserial;
 import org.wicketstuff.rest.formats.RestMimeTypes;
 
-public class TestJsonDesSer implements IObjectSerialDeserial {
-	static public Object getObject(){
-		return RestResourceFullAnnotated.createTestPerson();
-	}
-	
-	static public String getJSON(){
-		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
-	}
+import com.thoughtworks.xstream.XStream;
 
+public class XstramXmlSerialDeserial implements IObjectSerialDeserial {
+	
+	private XStream xStream = new XStream();
+	
 	@Override
 	public String objectToString(Object targetObject, RestMimeTypes format) {
-		if(format == RestMimeTypes.PLAIN_TEXT)
-			return targetObject.toString();
 		
-		return getJSON();
+		return xStream.toXML(targetObject);
 	}
 
 	@Override
 	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
-		return (T) getObject();
+		
+		return (T) xStream.fromXML(source);
 	}
+
 }

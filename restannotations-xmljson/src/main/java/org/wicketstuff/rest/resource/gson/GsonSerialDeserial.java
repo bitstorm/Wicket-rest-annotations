@@ -14,17 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.formats;
+package org.wicketstuff.rest.resource.gson;
 
-public enum RestMimeFormats {
-	JSON("json", "application/json"), XML("xml", "application/xml"), HTML("html", "text/html"), 
-	PLAIN_TEXT("text", "text/plain"), CSV("csv", "text/csv"), CSS("css", "text/css");
-	
-	private String name;
-	private String requrstContent;
-	
-	private RestMimeFormats(String name, String requrstContent) {
-		this.name = name;
-		this.requrstContent = requrstContent;
+
+import org.wicketstuff.rest.formats.IObjectSerialDeserial;
+import org.wicketstuff.rest.formats.RestMimeTypes;
+
+import com.google.gson.Gson;
+
+public class GsonSerialDeserial implements IObjectSerialDeserial{
+	private final Gson gson = new Gson();
+
+	@Override
+	public String objectToString(Object targetObject, RestMimeTypes format) {
+		return gson.toJson(targetObject);
 	}
+
+	@Override
+	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
+		return gson.fromJson(source, targetClass);
+	}	
 }

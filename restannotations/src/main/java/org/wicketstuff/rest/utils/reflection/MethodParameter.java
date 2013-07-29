@@ -16,11 +16,11 @@
  */
 package org.wicketstuff.rest.utils.reflection;
 
-import java.lang.reflect.Method;
+import org.wicketstuff.rest.resource.MethodMappingInfo;
 
 /**
  * The class contains the informations of a method parameter, like its type or
- * its index in the array of method's parameters.
+ * its index in the array of method parameters.
  * 
  * @author andrea del bene
  */
@@ -30,7 +30,7 @@ public class MethodParameter {
 	final private Class<?> parameterClass;
 
 	/** The owner method. */
-	final private Method ownerMethod;
+	final private MethodMappingInfo ownerMethod;
 
 	/** The param index. */
 	final private int paramIndex;
@@ -46,7 +46,7 @@ public class MethodParameter {
 	 *            the index of the parameter in the array of method's
 	 *            parameters.
 	 */
-	public MethodParameter(Class<?> type, Method ownerMethod, int paramIndex) {
+	public MethodParameter(Class<?> type, MethodMappingInfo ownerMethod, int paramIndex) {
 		this.parameterClass = type;
 		this.ownerMethod = ownerMethod;
 		this.paramIndex = paramIndex;
@@ -66,7 +66,7 @@ public class MethodParameter {
 	 * 
 	 * @return the owner method
 	 */
-	public Method getOwnerMethod() {
+	public MethodMappingInfo getOwnerMethod() {
 		return ownerMethod;
 	}
 

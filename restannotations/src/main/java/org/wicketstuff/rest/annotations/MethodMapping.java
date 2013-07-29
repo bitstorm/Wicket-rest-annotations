@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.wicketstuff.rest.formats.RestMimeTypes;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
 /**
@@ -36,4 +37,6 @@ import org.wicketstuff.rest.utils.http.HttpMethod;
 public @interface MethodMapping {
 	String value();
 	HttpMethod httpMethod() default HttpMethod.GET;
+	RestMimeTypes consumes() default RestMimeTypes.JSON;
+	RestMimeTypes produces() default RestMimeTypes.JSON;
 }

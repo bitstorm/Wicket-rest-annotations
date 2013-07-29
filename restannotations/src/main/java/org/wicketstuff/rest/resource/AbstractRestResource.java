@@ -49,6 +49,8 @@ import org.wicketstuff.rest.annotations.parameters.MatrixParam;
 import org.wicketstuff.rest.annotations.parameters.PathParam;
 import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
+import org.wicketstuff.rest.formats.IObjectSerialDeserial;
+import org.wicketstuff.rest.formats.RestMimeTypes;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 import org.wicketstuff.rest.utils.reflection.MethodParameter;
@@ -60,13 +62,13 @@ import org.wicketstuff.rest.utils.reflection.ReflectionUtils;
  * @author andrea del bene
  * 
  */
-public abstract class AbstractRestResource<T> implements IResource {
+public abstract class AbstractRestResource<T extends IObjectSerialDeserial> implements IResource {
 	/** Multimap that stores every mapped method of the class */
 	private final MultiMap<String, MethodMappingInfo> mappedMethods = new MultiMap<String, MethodMappingInfo>();
 
 	/**
-	 * General class that is used to serialize/desiarilze objects to/from string
-	 * (for example to/from JSON)
+	 * The implementation of {@link IObjectSerialDeserial} that is used to
+	 * serialize/desiarilze objects to/from string (for example to/from JSON)
 	 */
 	private final T objSerialDeserial;
 
@@ -133,27 +135,43 @@ public abstract class AbstractRestResource<T> implements IResource {
 				response.sendError(401, "User is not allowed to invoke method on server.");
 				return;
 			}
-
+			
+			onBeforeMethodInvoked(mappedMethod, attributes);
 			Object result = invokeMappedMethod(mappedMethod, attributes);
+			onAfterMethodInvoked(mappedMethod, attributes, result);
+			
 			// if the invoked method returns a value, it is written to response
 			if (result != null) {
-				configureWebResponse(response);
-				serializeObjectToResponse(response, result);
+				serializeObjectToResponse(response, result, mappedMethod.getMimeOutputFormat());
 			}
 		} else {
 			response.sendError(400, "No suitable method found for URL '" + extractUrlFromRequest()
 					+ "' and HTTP method " + httpMethod);
 		}
 	}
-
+	
 	/**
-	 * Method invoked before writing the result of the invoked method to the
-	 * response. Can be overridden to configure the response object.
+	 * Invoked just before a mapped method is invoked to serve the current request.
 	 * 
-	 * @param response
-	 *            the current web response.
+	 * @param mappedMethod
+	 * 			the mapped method.
+	 * @param attributes
+	 * 			the current Attributes object.
 	 */
-	protected abstract void configureWebResponse(WebResponse response);
+	protected void onBeforeMethodInvoked(MethodMappingInfo mappedMethod, Attributes attributes) {}
+	
+	/**
+	 * Invoked just after a mapped method has been invoked to serve the current request.
+	 * 
+	 * @param mappedMethod
+	 * 			the mapped method.
+	 * @param attributes
+	 * 			the current Attributes object.
+	 * @param result
+	 * 			the value returned by the invoked method.
+	 */
+	protected void onAfterMethodInvoked(MethodMappingInfo mappedMethod, Attributes attributes,
+			Object result) {}
 
 	/**
 	 * Method invoked to serialize the result of the invoked method and write
@@ -163,10 +181,13 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            The current response object.
 	 * @param result
 	 *            The object to write to response.
+	 * @param restMimeFormats
 	 */
-	protected void serializeObjectToResponse(WebResponse response, Object result) {
+	private void serializeObjectToResponse(WebResponse response, Object result,
+			RestMimeTypes restMimeFormats) {
 		try {
-			response.write(serializeObjToString(result, objSerialDeserial));
+			response.setContentType(restMimeFormats.getRequestContentType());
+			response.write(objSerialDeserial.objectToString(result, restMimeFormats));
 		} catch (Exception e) {
 			throw new RuntimeException("Error serializing object to response.", e);
 		}
@@ -186,9 +207,9 @@ public abstract class AbstractRestResource<T> implements IResource {
 	private MethodMappingInfo selectMostSuitedMethod(List<MethodMappingInfo> mappedMethods,
 			PageParameters pageParameters) {
 		int highestScore = 0;
-		// no method mapped
 		MultiMap<Integer, MethodMappingInfo> mappedMethodByScore = new MultiMap<Integer, MethodMappingInfo>();
 
+		// no method mapped
 		if (mappedMethods == null || mappedMethods.size() == 0)
 			return null;
 
@@ -254,26 +275,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 	}
 
 	/**
-	 * This method checks if a string value can be converted to a target type.
-	 * 
-	 * @param segment
-	 *            the string value we want to convert.
-	 * @param paramClass
-	 *            the target type.
-	 * @return true if the segment value is compatible, false otherwise
-	 */
-	private boolean isSegmentCompatible(String segment, Class<?> paramClass) {
-		try {
-			Object convertedObject = toObject(paramClass, segment.toString());
-		} catch (Exception e) {
-			// segment's value not compatible with paramClass
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * Method called to initialize and configure the object
 	 * serializer/deserializer.
 	 * 
@@ -282,32 +283,6 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 */
 	protected void configureObjSerialDeserial(T objSerialDeserial) {
 	};
-
-	/**
-	 * Method invoked to serialize the value returned by the mapped method
-	 * invoked to serve the request.
-	 * 
-	 * @param result
-	 *            the value returned by the method invoked to serve the request.
-	 * @param objSerialDeserial
-	 *            the object used to serialize/deserialize an object.
-	 * @return the object serialized as string.
-	 */
-	protected abstract String serializeObjToString(Object result, T objSerialDeserial);
-
-	/**
-	 * Method invoked to deserialize an object from a string.
-	 * 
-	 * @param argClass
-	 *            the type used to deserialize the object.
-	 * @param strValue
-	 *            the string value containing our object.
-	 * @param objSerialDeserial
-	 *            the object used to serialize/deserialize an object.
-	 * @return the deserialized object
-	 */
-	protected abstract Object deserializeObjFromString(Class<?> argClass, String strValue,
-			T objSerialDeserial);
 
 	/***
 	 * Internal method to load class methods annotated with
@@ -326,10 +301,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 			isUsingAuthAnnot = isUsingAuthAnnot || authorizeInvocation != null;
 
 			if (methodMapped != null) {
-				String urlPath = methodMapped.value();
 				HttpMethod httpMethod = methodMapped.httpMethod();
-				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(urlPath, httpMethod,
-						method);
+				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(methodMapped, method);
 
 				mappedMethods.addValue(
 						urlMappingInfo.getSegmentsCount() + "_" + httpMethod.getMethod(),
@@ -382,7 +355,8 @@ public abstract class AbstractRestResource<T> implements IResource {
 
 		for (int i = 0; i < parameterTypes.length; i++) {
 			Object paramValue = null;
-			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], method, i);
+			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], mappedMethod,
+					i);
 			Annotation annotation = ReflectionUtils.getAnnotationParam(i, method);
 
 			if (annotation != null)
@@ -436,9 +410,10 @@ public abstract class AbstractRestResource<T> implements IResource {
 			PageParameters pageParameters) {
 		Object paramValue = null;
 		Class<?> argClass = methodParameter.getParameterClass();
+		RestMimeTypes mimeInputFormat = methodParameter.getOwnerMethod().getMimeInputFormat();
 
 		if (annotation instanceof RequestBody)
-			paramValue = extractObjectFromBody(argClass);
+			paramValue = deserializeObjectFromRequest(argClass, mimeInputFormat);
 		else if (annotation instanceof PathParam)
 			paramValue = toObject(argClass, pathParameters.get(((PathParam) annotation).value()));
 		else if (annotation instanceof RequestParam)
@@ -550,7 +525,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 	 *            the type we want to extract from request body.
 	 * @return the extracted object.
 	 */
-	private Object extractObjectFromBody(Class<?> argClass) {
+	private Object deserializeObjectFromRequest(Class<?> argClass, RestMimeTypes format) {
 		WebRequest servletRequest = (WebRequest) RequestCycle.get().getRequest();
 		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest.getContainerRequest();
 		try {
@@ -561,7 +536,7 @@ public abstract class AbstractRestResource<T> implements IResource {
 			while ((jsonString = bufReader.readLine()) != null)
 				builder.append(jsonString);
 
-			return deserializeObjFromString(argClass, builder.toString(), objSerialDeserial);
+			return objSerialDeserial.stringToObject(builder.toString(), argClass, format);
 		} catch (IOException e) {
 			throw new RuntimeException("Error deserializing object from request", e);
 		}

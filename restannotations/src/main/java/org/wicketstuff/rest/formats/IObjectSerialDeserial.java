@@ -18,7 +18,7 @@ package org.wicketstuff.rest.formats;
 
 public interface IObjectSerialDeserial {
 	
-	public String objectToString(Object targetObject, RestMimeFormats format);
+	public String objectToString(Object targetObject, RestMimeTypes format);
 	
-	public <T> T stringToObject(String source, Class<T> targetClass);
+	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format);
 }
