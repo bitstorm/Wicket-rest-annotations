@@ -26,12 +26,12 @@ public class XstreamXmlSerialDeserial extends TextualObjectSerialDeserial {
 	private XStream xStream = new XStream();
 	
 	@Override
-	public String objectToString(Object targetObject, RestMimeTypes format) {
+	public String objectToString(Object targetObject, String mimeType) {
 		return xStream.toXML(targetObject);
 	}
 
 	@Override
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
+	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
 		return (T) xStream.fromXML(source);
 	}
 

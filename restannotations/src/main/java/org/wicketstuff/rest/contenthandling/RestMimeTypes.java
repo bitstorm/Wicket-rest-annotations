@@ -16,45 +16,28 @@
  */
 package org.wicketstuff.rest.contenthandling;
 
-public enum RestMimeTypes {
-	JSON("json", "application/json", "charset=utf-8"), 
-	XML("xml", "application/xml","charset=utf-8"), 
-	HTML("html", "text/html", "charset=utf-8"), 
-	PLAIN_TEXT("text", "text/plain", "charset=utf-8"), 
-	CSV("csv", "text/csv", "charset=utf-8"), 
-	CSS("css", "text/css", "charset=utf-8"), 
-	RSS("rss", "application/rss+xml", "charset=utf-8"),
-	IMAGE_GIF("gif", "image/gif"), 
-	IMAGE_JPEG("jpeg", "image/jpeg"), 
-	IMAGE_PNG("png", "image/png"), 
-	OCTET_STREAM("octet-stream", "application/octet-stream")
-	;
+public class RestMimeTypes {
+	public static final String CHARSET_UT8 = "charset=utf-8";
 
-	private final String name;
-	private final String requrstContent;
-	private final String charsetEncoding;
+	public static final String JSON = "application/json;" + CHARSET_UT8;
 	
-	private RestMimeTypes(String name, String requrstContent){
-		this(name, requrstContent, "");
-	}
-			
-			
-	private RestMimeTypes(String name, String requrstContent, String charsetEncoding) {
-		this.name = name;
-		this.requrstContent = requrstContent;
-		this.charsetEncoding = charsetEncoding;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getRequestContentType() {
-		String charEncoding = "";
-		
-		if (!charsetEncoding.isEmpty())
-			charEncoding = ";" + charsetEncoding;
-		
-		return requrstContent + charEncoding;
-	}
+	public static final String XML = "application/xml;" + CHARSET_UT8;
+	
+	public static final String HTML = "text/html;" + CHARSET_UT8;
+	
+	public static final String PLAIN_TEXT = "text/plain;" + CHARSET_UT8;
+	
+	public static final String CSV = "text/csv;" + CHARSET_UT8;
+	
+	public static final String CSS = "text/css;" + CHARSET_UT8;
+	
+	public static final String RSS = "application/rss+xml;" + CHARSET_UT8;
+	
+	public static final String IMAGE_GIF = "image/gif";
+	
+	public static final String IMAGE_JPEG = "image/jpeg";
+	
+	public static final String IMAGE_PNG = "image/png";
+	
+	public static final String OCTET_STREAM = "application/octet-stream";
 }

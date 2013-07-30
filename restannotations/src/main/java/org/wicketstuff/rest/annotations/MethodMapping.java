@@ -37,6 +37,6 @@ import org.wicketstuff.rest.utils.http.HttpMethod;
 public @interface MethodMapping {
 	String value();
 	HttpMethod httpMethod() default HttpMethod.GET;
-	RestMimeTypes consumes() default RestMimeTypes.JSON;
-	RestMimeTypes produces() default RestMimeTypes.JSON;
+	String consumes() default "application/json;charset=utf-8";
+	String produces() default "application/json;charset=utf-8";
 }

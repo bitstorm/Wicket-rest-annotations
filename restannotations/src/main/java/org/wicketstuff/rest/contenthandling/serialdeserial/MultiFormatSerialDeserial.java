@@ -29,22 +29,22 @@ public class MultiFormatSerialDeserial implements IObjectSerialDeserial {
 	private final Map<String, IObjectSerialDeserial> serialsDeserials = new HashMap<String, IObjectSerialDeserial>();
 	
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format)
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
 			throws Exception {
 		
-		IObjectSerialDeserial serialDeserial = serialsDeserials.get(format.getRequestContentType());
+		IObjectSerialDeserial serialDeserial = serialsDeserials.get(mimeType);
 		
 		if(serialDeserial != null)
-			serialDeserial.objectToResponse(targetObject, response, format);
+			serialDeserial.objectToResponse(targetObject, response, mimeType);
 	}
 
 	@Override
-	public <T> T requestToObject(WebRequest request, Class<T> targetClass, RestMimeTypes format)
+	public <T> T requestToObject(WebRequest request, Class<T> targetClass, String mimeType)
 			throws Exception {
-		IObjectSerialDeserial serialDeserial = serialsDeserials.get(format.getRequestContentType());
+		IObjectSerialDeserial serialDeserial = serialsDeserials.get(mimeType);
 		
 		if(serialDeserial != null)
-			return serialDeserial.requestToObject(request, targetClass, format);
+			return serialDeserial.requestToObject(request, targetClass, mimeType);
 		
 		return null;
 	}

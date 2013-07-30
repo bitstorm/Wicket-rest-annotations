@@ -31,23 +31,23 @@ public interface IObjectSerialDeserial {
 	 * 
 	 * @param targetObject
 	 *            the object instance to serialize to string.
-	 * @param format
+	 * @param mimeType
 	 *            the text format to use.
 	 * @return the textual representation of the object in input.
 	 * @throws Exception 
 	 */
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format) throws Exception;
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) throws Exception;
 
 	/**
 	 * Extract an instance of targetClass form the string in input.
-	 * @param targetClass
+	 * @param argClass
 	 * 			the type of the object we want to extract.
-	 * @param format 
+	 * @param mimeType 
 	 * 			the text format to use.
 	 * @param source
 	 * 			the source string to convert to object. 
 	 * 
 	 * @return the object extracted from string value.
 	 */
-	public <T> T requestToObject(WebRequest request, Class<T> targetClass, RestMimeTypes format) throws Exception;
+	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType) throws Exception;
 }

@@ -25,18 +25,18 @@ import org.wicketstuff.rest.utils.http.HttpUtils;
 public abstract class TextualObjectSerialDeserial implements IObjectSerialDeserial {
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format)
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
 			throws Exception {
-		response.write(objectToString(targetObject, format));
+		response.write(objectToString(targetObject, mimeType));
 	}
 
 	@Override
-	public <T> T requestToObject(WebRequest request, Class<T> targetClass, RestMimeTypes format)
+	public <T> T requestToObject(WebRequest request, Class<T> targetClass, String mimeType)
 			throws Exception {
-		return stringToObject(HttpUtils.readStringFromRequest(request), targetClass, format);
+		return stringToObject(HttpUtils.readStringFromRequest(request), targetClass, mimeType);
 	}
 
-	public abstract String objectToString(Object targetObject, RestMimeTypes format);
+	public abstract String objectToString(Object targetObject, String mimeType);
 
-	public abstract <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format);
+	public abstract <T> T stringToObject(String source, Class<T> targetClass, String mimeType);
 }

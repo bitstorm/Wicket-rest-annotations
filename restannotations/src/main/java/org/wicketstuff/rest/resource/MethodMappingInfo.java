@@ -51,9 +51,9 @@ public class MethodMappingInfo {
 	/** The resource method we have mapped. */
 	private final Method method;
 	/** The MIME type to use in input. */
-	private final RestMimeTypes inputFormat;
+	private final String inputFormat;
 	/** The MIME type to use in output. */
-	private final RestMimeTypes outputFormat;
+	private final String outputFormat;
 
 	/**
 	 * Class constructor.
@@ -189,11 +189,11 @@ public class MethodMappingInfo {
 		return roles;
 	}
 
-	public RestMimeTypes getMimeInputFormat() {
+	public String getMimeInputFormat() {
 		return inputFormat;
 	}
 
-	public RestMimeTypes getMimeOutputFormat() {
+	public String getMimeOutputFormat() {
 		return outputFormat;
 	}
 }

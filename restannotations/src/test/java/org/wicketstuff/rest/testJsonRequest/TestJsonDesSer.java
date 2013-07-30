@@ -31,12 +31,12 @@ public class TestJsonDesSer implements IObjectSerialDeserial {
 	}
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format) {
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) {
 		response.write(getJSON());
 	}
 
 	@Override
-	public <T> T requestToObject(WebRequest request,Class<T> targetClass, RestMimeTypes format) {
+	public <T> T requestToObject(WebRequest request,Class<T> targetClass, String mimeType) {
 		return (T) getObject();
 	}
 }

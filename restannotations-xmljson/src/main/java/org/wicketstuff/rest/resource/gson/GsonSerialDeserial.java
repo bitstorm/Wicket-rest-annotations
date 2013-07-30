@@ -32,12 +32,12 @@ public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 	private final Gson gson = new Gson();
 
 	@Override
-	public String objectToString(Object targetObject, RestMimeTypes format) {
+	public String objectToString(Object targetObject, String mimeType) {
 		return gson.toJson(targetObject);
 	}
 
 	@Override
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
+	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
 		return gson.fromJson(source, targetClass);
 	}
 }

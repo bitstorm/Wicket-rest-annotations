@@ -185,14 +185,14 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	 * @param restMimeFormats
 	 */
 	private void serializeObjectToResponse(WebResponse response, Object result,
-			RestMimeTypes restMimeFormats) {
+			String mimeType) {
 		try {
-			response.setContentType(restMimeFormats.getRequestContentType());
+			response.setContentType(mimeType);
 
-			if (restMimeFormats == RestMimeTypes.PLAIN_TEXT)
+			if (RestMimeTypes.PLAIN_TEXT.equals(mimeType))
 				response.write(result.toString());
 			else
-				objSerialDeserial.objectToResponse(result, response, restMimeFormats);
+				objSerialDeserial.objectToResponse(result, response, mimeType);
 		} catch (Exception e) {
 			throw new RuntimeException("Error writing object to response.", e);
 		}
@@ -402,7 +402,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 			PageParameters pageParameters) {
 		Object paramValue = null;
 		Class<?> argClass = methodParameter.getParameterClass();
-		RestMimeTypes mimeInputFormat = methodParameter.getOwnerMethod().getMimeInputFormat();
+		String mimeInputFormat = methodParameter.getOwnerMethod().getMimeInputFormat();
 
 		if (annotation instanceof RequestBody)
 			paramValue = deserializeObjectFromRequest(argClass, mimeInputFormat);
@@ -517,10 +517,10 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	 *            the type we want to extract from request body.
 	 * @return the extracted object.
 	 */
-	private Object deserializeObjectFromRequest(Class<?> argClass, RestMimeTypes format) {
+	private Object deserializeObjectFromRequest(Class<?> argClass, String mimeType) {
 		WebRequest servletRequest = (WebRequest) RequestCycle.get().getRequest();
 		try {
-			return objSerialDeserial.requestToObject(servletRequest, argClass ,format);
+			return objSerialDeserial.requestToObject(servletRequest, argClass, mimeType);
 		} catch (Exception e) {
 			throw new RuntimeException("Error deserializing object from request", e);
 		}

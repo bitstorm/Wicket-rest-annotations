@@ -18,12 +18,11 @@ package org.wicketstuff.rest.contenthandling.serialdeserial;
 
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
 public abstract class ByteArraySerialDeserial implements IObjectSerialDeserial {
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format)
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
 			throws Exception {
 		
 		if(targetObject instanceof byte[])
