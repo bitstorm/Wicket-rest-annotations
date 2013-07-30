@@ -53,10 +53,6 @@ public class MultiFormatSerialDeserial implements IObjectSerialDeserial {
 		serialsDeserials.put(mimeType, serialDeserial);
 	}
 	
-	public void unregisterSerDeser(String mimeType){
-		serialsDeserials.remove(mimeType);
-	}
-	
 	public boolean isMimeTypeSupported(String mimeType){
 		return serialsDeserials.get(mimeType) != null;
 	}
