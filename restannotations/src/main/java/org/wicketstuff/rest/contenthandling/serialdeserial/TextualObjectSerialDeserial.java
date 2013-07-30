@@ -14,27 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.resource.gson;
+package org.wicketstuff.rest.contenthandling.serialdeserial;
 
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.utils.http.HttpUtils;
 
-import com.thoughtworks.xstream.XStream;
+public abstract class TextualObjectSerialDeserial implements IObjectSerialDeserial {
 
-public class XstramXmlSerialDeserial implements IObjectSerialDeserial {
-	
-	private XStream xStream = new XStream();
-	
 	@Override
-	public String objectToString(Object targetObject, RestMimeTypes format) {
-		
-		return xStream.toXML(targetObject);
+	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format)
+			throws Exception {
+		response.write(objectToString(targetObject, format));
 	}
 
 	@Override
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
-		
-		return (T) xStream.fromXML(source);
+	public <T> T requestToObject(WebRequest request, Class<T> targetClass, RestMimeTypes format)
+			throws Exception {
+		return stringToObject(HttpUtils.readStringFromRequest(request), targetClass, format);
 	}
 
+	public abstract String objectToString(Object targetObject, RestMimeTypes format);
+
+	public abstract <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format);
 }

@@ -14,29 +14,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.contenthandling.serialdeserial;
 
-import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
-public class TestJsonDesSer implements IObjectSerialDeserial {
-	static public Object getObject(){
-		return RestResourceFullAnnotated.createTestPerson();
-	}
-	
-	static public String getJSON(){
-		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
-	}
+public abstract class ByteArraySerialDeserial implements IObjectSerialDeserial {
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format) {
-		response.write(getJSON());
-	}
-
-	@Override
-	public <T> T requestToObject(WebRequest request,Class<T> targetClass, RestMimeTypes format) {
-		return (T) getObject();
+	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format)
+			throws Exception {
+		
+		if(targetObject instanceof byte[])
+			response.write((byte[])targetObject);
 	}
 }

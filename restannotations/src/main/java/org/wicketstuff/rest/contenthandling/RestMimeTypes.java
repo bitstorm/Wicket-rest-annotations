@@ -17,15 +17,32 @@
 package org.wicketstuff.rest.contenthandling;
 
 public enum RestMimeTypes {
-	JSON("json", "application/json;charset=utf-8"), XML("xml", "application/xml;charset=utf-8"), HTML("html", "text/html;charset=utf-8"), 
-	PLAIN_TEXT("text", "text/plain;charset=utf-8"), CSV("csv", "text/csv;charset=utf-8"), CSS("css", "text/css;charset=utf-8");
-	
+	JSON("json", "application/json", "charset=utf-8"), 
+	XML("xml", "application/xml","charset=utf-8"), 
+	HTML("html", "text/html", "charset=utf-8"), 
+	PLAIN_TEXT("text", "text/plain", "charset=utf-8"), 
+	CSV("csv", "text/csv", "charset=utf-8"), 
+	CSS("css", "text/css", "charset=utf-8"), 
+	RSS("rss", "application/rss+xml", "charset=utf-8"),
+	IMAGE_GIF("gif", "image/gif"), 
+	IMAGE_JPEG("jpeg", "image/jpeg"), 
+	IMAGE_PNG("png", "image/png"), 
+	OCTET_STREAM("octet-stream", "application/octet-stream")
+	;
+
 	private final String name;
 	private final String requrstContent;
+	private final String charsetEncoding;
 	
-	private RestMimeTypes(String name, String requrstContent) {
+	private RestMimeTypes(String name, String requrstContent){
+		this(name, requrstContent, "");
+	}
+			
+			
+	private RestMimeTypes(String name, String requrstContent, String charsetEncoding) {
 		this.name = name;
 		this.requrstContent = requrstContent;
+		this.charsetEncoding = charsetEncoding;
 	}
 
 	public String getName() {
@@ -33,6 +50,11 @@ public enum RestMimeTypes {
 	}
 
 	public String getRequestContentType() {
-		return requrstContent;
+		String charEncoding = "";
+		
+		if (!charsetEncoding.isEmpty())
+			charEncoding = ";" + charsetEncoding;
+		
+		return requrstContent + charEncoding;
 	}
 }

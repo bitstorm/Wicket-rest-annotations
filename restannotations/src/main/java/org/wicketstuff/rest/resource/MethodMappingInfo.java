@@ -44,19 +44,19 @@ public class MethodMappingInfo {
 	/** Segments that compose the URL we mapped the method on. */
 	private final List<AbstractURLSegment> segments;
 	/**
-	 * Optional roles we used to annotate the method (see annotation
-	 * AuthorizeInvocation).
+	 * Optional roles we used to annotate the method (see
+	 * {@link AuthorizeInvocation}).
 	 */
 	private final Roles roles;
 	/** The resource method we have mapped. */
 	private final Method method;
-
+	/** The MIME type to use in input. */
 	private final RestMimeTypes inputFormat;
-	
+	/** The MIME type to use in output. */
 	private final RestMimeTypes outputFormat;
-	
+
 	/**
-	 * Class construnctor.
+	 * Class constructor.
 	 * 
 	 * @param urlPath
 	 *            the URL used to map a resource's method
@@ -71,10 +71,10 @@ public class MethodMappingInfo {
 		this.method = method;
 		this.segments = Collections.unmodifiableList(loadSegments(methodMapped.value()));
 		this.roles = loadRoles();
-		
+
 		this.inputFormat = methodMapped.consumes();
 		this.outputFormat = methodMapped.produces();
-		
+
 	}
 
 	/**
@@ -163,9 +163,9 @@ public class MethodMappingInfo {
 	}
 
 	/**
-	 * Gets the http method.
+	 * Gets the HTTP method.
 	 * 
-	 * @return the http method
+	 * @return the HTTP method
 	 */
 	public HttpMethod getHttpMethod() {
 		return httpMethod;

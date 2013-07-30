@@ -16,13 +16,19 @@
  */
 package org.wicketstuff.rest.resource.gson;
 
-
-import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.serialdeserial.TextualObjectSerialDeserial;
 
 import com.google.gson.Gson;
 
-public class GsonSerialDeserial implements IObjectSerialDeserial{
+/**
+ * Textual object serializer/deserializer that works with JSON format and uses
+ * <a href="http://code.google.com/p/google-gson/">Gson library</a>.
+ * 
+ * @author andrea del bene
+ * 
+ */
+public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 	private final Gson gson = new Gson();
 
 	@Override
@@ -33,5 +39,5 @@ public class GsonSerialDeserial implements IObjectSerialDeserial{
 	@Override
 	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
 		return gson.fromJson(source, targetClass);
-	}	
+	}
 }

@@ -14,29 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.resource.xml;
 
-import org.apache.wicket.request.http.WebRequest;
-import org.apache.wicket.request.http.WebResponse;
-import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.serialdeserial.TextualObjectSerialDeserial;
 
-public class TestJsonDesSer implements IObjectSerialDeserial {
-	static public Object getObject(){
-		return RestResourceFullAnnotated.createTestPerson();
-	}
+import com.thoughtworks.xstream.XStream;
+
+public class XstreamXmlSerialDeserial extends TextualObjectSerialDeserial {
 	
-	static public String getJSON(){
-		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
+	private XStream xStream = new XStream();
+	
+	@Override
+	public String objectToString(Object targetObject, RestMimeTypes format) {
+		return xStream.toXML(targetObject);
 	}
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format) {
-		response.write(getJSON());
+	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format) {
+		return (T) xStream.fromXML(source);
 	}
 
-	@Override
-	public <T> T requestToObject(WebRequest request,Class<T> targetClass, RestMimeTypes format) {
-		return (T) getObject();
-	}
 }

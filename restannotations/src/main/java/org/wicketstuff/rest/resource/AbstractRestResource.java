@@ -16,8 +16,6 @@
  */
 package org.wicketstuff.rest.resource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,8 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Session;
@@ -53,6 +49,7 @@ import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
+import org.wicketstuff.rest.utils.http.HttpUtils;
 import org.wicketstuff.rest.utils.reflection.MethodParameter;
 import org.wicketstuff.rest.utils.reflection.ReflectionUtils;
 
@@ -119,7 +116,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	public final void respond(Attributes attributes) {
 		PageParameters pageParameters = attributes.getParameters();
 		WebResponse response = (WebResponse) attributes.getResponse();
-		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
+		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
 		// mapped method are stored concatenating the number of the segments of
@@ -135,11 +132,11 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 				response.sendError(401, "User is not allowed to invoke method on server.");
 				return;
 			}
-			
+
 			onBeforeMethodInvoked(mappedMethod, attributes);
 			Object result = invokeMappedMethod(mappedMethod, attributes);
 			onAfterMethodInvoked(mappedMethod, attributes, result);
-			
+
 			// if the invoked method returns a value, it is written to response
 			if (result != null) {
 				serializeObjectToResponse(response, result, mappedMethod.getMimeOutputFormat());
@@ -149,29 +146,33 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 					+ "' and HTTP method " + httpMethod);
 		}
 	}
-	
+
 	/**
-	 * Invoked just before a mapped method is invoked to serve the current request.
+	 * Invoked just before a mapped method is invoked to serve the current
+	 * request.
 	 * 
 	 * @param mappedMethod
-	 * 			the mapped method.
+	 *            the mapped method.
 	 * @param attributes
-	 * 			the current Attributes object.
+	 *            the current Attributes object.
 	 */
-	protected void onBeforeMethodInvoked(MethodMappingInfo mappedMethod, Attributes attributes) {}
-	
+	protected void onBeforeMethodInvoked(MethodMappingInfo mappedMethod, Attributes attributes) {
+	}
+
 	/**
-	 * Invoked just after a mapped method has been invoked to serve the current request.
+	 * Invoked just after a mapped method has been invoked to serve the current
+	 * request.
 	 * 
 	 * @param mappedMethod
-	 * 			the mapped method.
+	 *            the mapped method.
 	 * @param attributes
-	 * 			the current Attributes object.
+	 *            the current Attributes object.
 	 * @param result
-	 * 			the value returned by the invoked method.
+	 *            the value returned by the invoked method.
 	 */
 	protected void onAfterMethodInvoked(MethodMappingInfo mappedMethod, Attributes attributes,
-			Object result) {}
+			Object result) {
+	}
 
 	/**
 	 * Method invoked to serialize the result of the invoked method and write
@@ -187,9 +188,13 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 			RestMimeTypes restMimeFormats) {
 		try {
 			response.setContentType(restMimeFormats.getRequestContentType());
-			response.write(objSerialDeserial.objectToString(result, restMimeFormats));
+
+			if (restMimeFormats == RestMimeTypes.PLAIN_TEXT)
+				response.write(result.toString());
+			else
+				objSerialDeserial.objectToResponse(result, response, restMimeFormats);
 		} catch (Exception e) {
-			throw new RuntimeException("Error serializing object to response.", e);
+			throw new RuntimeException("Error writing object to response.", e);
 		}
 	}
 
@@ -270,7 +275,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		}
 
 		throw new WicketRuntimeException("Ambiguous methods mapped for the current request: URL '"
-				+ request.getClientUrl() + "', HTTP method " + getHttpMethod(request) + ". "
+				+ request.getClientUrl() + "', HTTP method " + HttpUtils.getHttpMethod(request) + ". "
 				+ "Mapped methods: " + methodsNames);
 	}
 
@@ -316,19 +321,6 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 					"Annotation AuthorizeInvocation is used but no role-checking strategy has been set for the controller!");
 	}
 
-	/**
-	 * Utility method to extract the HTTP request method.
-	 * 
-	 * @param request
-	 *            the current request object
-	 * @return the HTTP method used for this request
-	 * @see HttpMethod
-	 */
-	public static HttpMethod getHttpMethod(WebRequest request) {
-		HttpServletRequest httpRequest = (HttpServletRequest) request.getContainerRequest();
-		return HttpMethod.toHttpMethod((httpRequest.getMethod()));
-	}
-
 	/***
 	 * Invokes one of the resource methods annotated with {@link MethodMapping}.
 	 * 
@@ -346,7 +338,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		// Attributes objects
 		PageParameters pageParameters = attributes.getParameters();
 		WebResponse response = (WebResponse) attributes.getResponse();
-		HttpMethod httpMethod = getHttpMethod((WebRequest) RequestCycle.get().getRequest());
+		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get().getRequest());
 
 		LinkedHashMap<String, String> pathParameters = mappedMethod
 				.populatePathParameters(pageParameters);
@@ -527,17 +519,9 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	 */
 	private Object deserializeObjectFromRequest(Class<?> argClass, RestMimeTypes format) {
 		WebRequest servletRequest = (WebRequest) RequestCycle.get().getRequest();
-		HttpServletRequest httpRequest = (HttpServletRequest) servletRequest.getContainerRequest();
 		try {
-			BufferedReader bufReader = httpRequest.getReader();
-			StringBuilder builder = new StringBuilder();
-			String jsonString;
-
-			while ((jsonString = bufReader.readLine()) != null)
-				builder.append(jsonString);
-
-			return objSerialDeserial.stringToObject(builder.toString(), argClass, format);
-		} catch (IOException e) {
+			return objSerialDeserial.requestToObject(servletRequest, argClass ,format);
+		} catch (Exception e) {
 			throw new RuntimeException("Error deserializing object from request", e);
 		}
 	}

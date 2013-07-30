@@ -16,6 +16,9 @@
  */
 package org.wicketstuff.rest.contenthandling;
 
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
+
 /**
  * General interface to implement object serializers/deserializers.
  * 
@@ -31,19 +34,20 @@ public interface IObjectSerialDeserial {
 	 * @param format
 	 *            the text format to use.
 	 * @return the textual representation of the object in input.
+	 * @throws Exception 
 	 */
-	public String objectToString(Object targetObject, RestMimeTypes format);
+	public void objectToResponse(Object targetObject, WebResponse response, RestMimeTypes format) throws Exception;
 
 	/**
 	 * Extract an instance of targetClass form the string in input.
-	 * 
-	 * @param source
-	 * 			the source string to convert to object. 
 	 * @param targetClass
 	 * 			the type of the object we want to extract.
 	 * @param format 
 	 * 			the text format to use.
+	 * @param source
+	 * 			the source string to convert to object. 
+	 * 
 	 * @return the object extracted from string value.
 	 */
-	public <T> T stringToObject(String source, Class<T> targetClass, RestMimeTypes format);
+	public <T> T requestToObject(WebRequest request, Class<T> targetClass, RestMimeTypes format) throws Exception;
 }
