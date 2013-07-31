@@ -32,7 +32,7 @@
 	
 	<modules>	
 	    <module>restannotations</module>
-	    <module>restannotations-xmljson</module>
+	    <module>restannotations-json</module>
 	    <module>restannotations-examples</module>
   	</modules>	
 	<!--url>http://wicket.apache.org/${project.artifactId}</url-->

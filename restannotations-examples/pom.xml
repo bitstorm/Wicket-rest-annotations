@@ -59,7 +59,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.wicketstuff</groupId>
-			<artifactId>wicketstuff-restannotations-xmljson</artifactId>
+			<artifactId>wicketstuff-restannotations-json</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		
