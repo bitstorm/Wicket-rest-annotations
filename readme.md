@@ -17,15 +17,8 @@ The project provides a generic abstract class to implement a Wicket resource tha
 
 
 ````java
-angular.module('sample-app', ['restangular'])
-  .config(function(RestangularProvider) {
-    RestangularProvider.setBaseUrl("/api/v1");
-  });
-  
-angular.module('sample-app').controller('MainCtrl', function($scope, Restangular) {
-  $scope.projects = Restangular.all('projects').getList();
-});
+javacode
 ````
 
 
-```to be continued...
+'''to be continued...
