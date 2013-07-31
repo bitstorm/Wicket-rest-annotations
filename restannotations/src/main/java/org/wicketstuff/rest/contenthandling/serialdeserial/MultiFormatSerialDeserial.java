@@ -22,8 +22,13 @@ import java.util.Map;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
+/**
+ * Object serializer/deserializer that supports multiple formats.
+ * 
+ * @author andrea del bene
+ *
+ */
 public class MultiFormatSerialDeserial implements IObjectSerialDeserial {
 	
 	private final Map<String, IObjectSerialDeserial> serialsDeserials = new HashMap<String, IObjectSerialDeserial>();

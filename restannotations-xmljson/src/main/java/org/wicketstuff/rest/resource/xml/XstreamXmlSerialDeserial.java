@@ -16,14 +16,13 @@
  */
 package org.wicketstuff.rest.resource.xml;
 
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TextualObjectSerialDeserial;
 
 import com.thoughtworks.xstream.XStream;
 
 public class XstreamXmlSerialDeserial extends TextualObjectSerialDeserial {
 	
-	private XStream xStream = new XStream();
+	private final XStream xStream = new XStream();
 	
 	@Override
 	public String objectToString(Object targetObject, String mimeType) {

@@ -27,27 +27,29 @@ import org.apache.wicket.request.http.WebResponse;
  */
 public interface IObjectSerialDeserial {
 	/**
-	 * Converts the object in input to the corresponding string value.
+	 * Write the object in input to the response converting it to a given MIME type.
 	 * 
 	 * @param targetObject
 	 *            the object instance to serialize to string.
+	 * @param response
+	 * 			  the response object.	           
 	 * @param mimeType
-	 *            the text format to use.
-	 * @return the textual representation of the object in input.
+	 *            the MIME type of the response.
 	 * @throws Exception 
 	 */
 	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) throws Exception;
 
 	/**
-	 * Extract an instance of targetClass form the string in input.
+	 * Extract an instance of argClass form the request.
+	 * 
+	 * @param request
+	 * 			the request object.	
 	 * @param argClass
 	 * 			the type of the object we want to extract.
 	 * @param mimeType 
-	 * 			the text format to use.
-	 * @param source
-	 * 			the source string to convert to object. 
+	 * 			the MIME type of the request.
 	 * 
-	 * @return the object extracted from string value.
+	 * @return the object extracted from the request.
 	 */
 	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType) throws Exception;
 }

@@ -16,11 +16,11 @@
 
 	<parent>
 		<artifactId>wicketstuff-restannotations-parent</artifactId>
-		<groupId>org.adelbene.wicket.rest</groupId>
+		<groupId>org.wicketstuff</groupId>
 		<version>6.0-SNAPSHOT</version>
 	</parent>
 
-	<groupId>org.adelbene.wicket.rest</groupId>
+	<groupId>org.wicketstuff</groupId>
 	<artifactId>wicketstuff-restannotations</artifactId>
 	<packaging>jar</packaging>
 	<version>6.0-SNAPSHOT</version>
@@ -43,9 +43,9 @@
 	
 	<developers>
 	    <developer>
-	      <id>...</id>
+	      <id>adelbene</id>
 	      <name>Andrea Del Bene</name>
-	      <email>an.delbene@gmail.com</email>
+	      <email>adelbene@apache.org</email>
 	    </developer>
   	</developers>
 	

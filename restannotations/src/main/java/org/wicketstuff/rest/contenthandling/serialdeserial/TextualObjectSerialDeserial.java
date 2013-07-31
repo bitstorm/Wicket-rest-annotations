@@ -19,9 +19,14 @@ package org.wicketstuff.rest.contenthandling.serialdeserial;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.utils.http.HttpUtils;
 
+/**
+ * Abstract object serializer/deserializer that works with textual formats.
+ * 
+ * @author andrea del bene
+ *
+ */
 public abstract class TextualObjectSerialDeserial implements IObjectSerialDeserial {
 
 	@Override
@@ -35,8 +40,28 @@ public abstract class TextualObjectSerialDeserial implements IObjectSerialDeseri
 			throws Exception {
 		return stringToObject(HttpUtils.readStringFromRequest(request), targetClass, mimeType);
 	}
-
+	
+	/**
+	 * Returns a textual representation of the target object.
+	 * 
+	 * @param targetObject
+	 * 			the object to convert to string.
+	 * @param mimeType
+	 * 			the target mime type.
+	 * @return the textual representation of the object.
+	 */
 	public abstract String objectToString(Object targetObject, String mimeType);
 
+	/**
+	 * Extract an object instance from a string value.
+	 * 
+	 * @param source
+	 * 			the source string.
+	 * @param targetClass
+	 * 			the type of the returned object.
+	 * @param mimeType
+	 * 			the target mime type.
+	 * @return the extracted object.
+	 */
 	public abstract <T> T stringToObject(String source, Class<T> targetClass, String mimeType);
 }
