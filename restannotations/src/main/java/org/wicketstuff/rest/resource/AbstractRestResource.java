@@ -76,29 +76,29 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	 * Constructor with no role-checker (i.e we don't use annotation
 	 * {@link AuthorizeInvocation}).
 	 * 
-	 * @param jsonSerialDeserial
+	 * @param serialDeserial
 	 *            General class that is used to serialize/desiarilze objects to
 	 *            string.
 	 */
-	public AbstractRestResource(T jsonSerialDeserial) {
-		this(jsonSerialDeserial, null);
+	public AbstractRestResource(T serialDeserial) {
+		this(serialDeserial, null);
 	}
 
 	/**
 	 * Main constructor that takes in input the object serializer/deserializer
 	 * and the role-checking strategy to use.
 	 * 
-	 * @param jsonSerialDeserial
+	 * @param serialDeserial
 	 *            General class that is used to serialize/desiarilze objects to
 	 *            string
 	 * @param roleCheckingStrategy
 	 *            the role-checking strategy.
 	 */
-	public AbstractRestResource(T jsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
-		this.objSerialDeserial = jsonSerialDeserial;
+	public AbstractRestResource(T serialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
+		this.objSerialDeserial = serialDeserial;
 		this.roleCheckingStrategy = roleCheckingStrategy;
 
-		configureObjSerialDeserial(jsonSerialDeserial);
+		configureObjSerialDeserial(serialDeserial);
 		loadAnnotatedMethods();
 	}
 

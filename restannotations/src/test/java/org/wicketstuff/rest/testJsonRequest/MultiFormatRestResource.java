@@ -17,27 +17,26 @@
 package org.wicketstuff.rest.testJsonRequest;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.apache.wicket.util.lang.Args;
+import org.wicketstuff.rest.Person;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.annotations.parameters.CookieParam;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.serialdeserial.MultiFormatSerialDeserial;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
+import org.wicketstuff.rest.resource.AbstractRestResource;
 
-public class RegExpRestResource extends RestResourceFullAnnotated{
-	public RegExpRestResource(TestJsonDesSer jsonSerialDeserial,
+public class MultiFormatRestResource extends AbstractRestResource<MultiFormatSerialDeserial> {
+
+	public MultiFormatRestResource(MultiFormatSerialDeserial jsonSerialDeserial,
 			IRoleCheckingStrategy roleCheckingStrategy) {
 		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
 
-	public RegExpRestResource(TestJsonDesSer jsonSerialDeserial) {
+	public MultiFormatRestResource(MultiFormatSerialDeserial jsonSerialDeserial) {
 		super(jsonSerialDeserial);
 	}
-
-	@MethodMapping("recordlog/message/{day:\\d{2}}-{month:\\d{2}}-{year:\\d{4}}_{message}")
-	public void testLogMessage(@CookieParam("credential") String credential, int day, int month, int year, String message){
-		Args.notNull(credential, "credential");
-		Args.notNull(day, "day");
-		Args.notNull(month, "month");
-		Args.notNull(year, "year");
-		Args.notNull(message, "message");
+	
+	@MethodMapping(value = "/person", produces = RestMimeTypes.XML)
+	public Person returnMarshaledObject(){
+		return RestResourceFullAnnotated.createTestPerson();
 	}
 }

@@ -16,6 +16,8 @@
  */
 package org.wicketstuff.rest;
 
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.StringReader;
 
@@ -30,8 +32,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
-import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
 import org.wicketstuff.rest.utils.test.BufferedMockRequest;
 
 /**
@@ -158,6 +161,13 @@ public class TestRestResources {
 		Assert.assertEquals(400, tester.getLastResponse().getStatus());
 	}
 
+	@Test
+	public void testMultiFormat() throws Exception {
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api3/person");
+		
+		assertEquals(RestMimeTypes.XML, tester.getLastResponse().getContentType());
+	}
 	protected void testIfResponseStringIsEqual(String value) {
 		Assert.assertEquals(value, tester.getLastResponseAsString());
 	}

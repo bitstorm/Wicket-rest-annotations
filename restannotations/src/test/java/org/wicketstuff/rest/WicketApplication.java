@@ -22,9 +22,13 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.contenthandling.serialdeserial.MultiFormatSerialDeserial;
+import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
+import org.wicketstuff.rest.contenthandling.serialdeserial.XmlSerialDeser;
+import org.wicketstuff.rest.testJsonRequest.MultiFormatRestResource;
 import org.wicketstuff.rest.testJsonRequest.RegExpRestResource;
 import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
-import org.wicketstuff.rest.testJsonRequest.TestJsonDesSer;
 
 
 
@@ -73,6 +77,20 @@ public class WicketApplication extends WebApplication implements IRoleCheckingSt
 			@Override
 			public IResource getResource() {
 				return new RegExpRestResource(new TestJsonDesSer(), WicketApplication.this);
+			}
+			
+		});
+		
+		mountResource("/api3", new ResourceReference("multiFormatRestResource"){
+
+			@Override
+			public IResource getResource() {
+				MultiFormatSerialDeserial multiFormat = new MultiFormatSerialDeserial();
+				
+				multiFormat.registerSerDeser(RestMimeTypes.JSON, new TestJsonDesSer());
+				multiFormat.registerSerDeser(RestMimeTypes.XML, new XmlSerialDeser());
+				
+				return new MultiFormatRestResource(multiFormat);
 			}
 			
 		});

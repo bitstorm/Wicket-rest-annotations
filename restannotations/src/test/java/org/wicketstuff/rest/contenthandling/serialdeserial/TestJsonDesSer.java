@@ -16,16 +16,28 @@
  */
 package org.wicketstuff.rest.contenthandling.serialdeserial;
 
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
 
-public abstract class ByteArraySerialDeserial implements IObjectSerialDeserial {
+public class TestJsonDesSer implements IObjectSerialDeserial {
+	static public Object getObject(){
+		return RestResourceFullAnnotated.createTestPerson();
+	}
+	
+	static public String getJSON(){
+		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
+	}
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
-			throws Exception {
-		
-		if(targetObject instanceof byte[])
-			response.write((byte[])targetObject);
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) {
+		response.write(getJSON());
+	}
+
+	@Override
+	public <T> T requestToObject(WebRequest request,Class<T> targetClass, String mimeType) {
+		return (T) getObject();
 	}
 }

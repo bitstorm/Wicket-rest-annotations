@@ -14,29 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.contenthandling.serialdeserial;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXB;
 
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
+import org.wicketstuff.rest.utils.http.HttpUtils;
 
-public class TestJsonDesSer implements IObjectSerialDeserial {
-	static public Object getObject(){
-		return RestResourceFullAnnotated.createTestPerson();
-	}
-	
-	static public String getJSON(){
-		return "{\"name\" : \"Mary\", \"surname\" : \"Smith\", \"email\" : \"m.smith@gmail.com\"}";
+public class XmlSerialDeser implements IObjectSerialDeserial {
+
+	@Override
+	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
+			throws Exception {
+		
+		JAXB.marshal(targetObject, response.getOutputStream());
 	}
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) {
-		response.write(getJSON());
+	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType)
+			throws Exception {
+		HttpServletRequest httpRequest = (HttpServletRequest) request.getContainerRequest();
+		return JAXB.unmarshal(httpRequest.getInputStream(), argClass);
 	}
 
-	@Override
-	public <T> T requestToObject(WebRequest request,Class<T> targetClass, String mimeType) {
-		return (T) getObject();
-	}
 }
