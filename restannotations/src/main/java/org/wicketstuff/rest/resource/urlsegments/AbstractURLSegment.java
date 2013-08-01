@@ -51,7 +51,7 @@ public abstract class AbstractURLSegment extends StringValue {
 	public static final MetaPattern SEGMENT_PARAMETER = new MetaPattern(LEFT_CURLY, VARIABLE_NAME,
 			new OptionalMetaPattern(REGEXP_DECLARATION), RIGHT_CURLY);
 
-	/** The MetaPattern corresponding to the current segment. */
+	/** The MetaPattern (i.e regular expression) corresponding to the current segment. */
 	private volatile MetaPattern metaPattern;
 
 	AbstractURLSegment(String text) {
@@ -156,7 +156,7 @@ public abstract class AbstractURLSegment extends StringValue {
 	}
 
 	/**
-	 * Good old double-checked locking.. :)
+	 * Good old double-checked locking... :)
 	 */
 	private synchronized final void syncLoadMetaPattern() {
 		if (metaPattern == null)

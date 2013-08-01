@@ -1,5 +1,4 @@
 #Wicket rest annotaions
----------
 
 REST-based API are becoming more and more popular around the web and the number of services based on this architecture is constantly increasing.
 
@@ -8,7 +7,6 @@ Wicket is well-known for its capability of transparently handling the state of w
 This project provides a special resource class and a set of annotations to implement REST API/services in much the same way as we do it with Spring MVC or with the standard JAX-RS.
 
 #How to use this module
----------
 
 Quick introduction for impatients.
 ---------
@@ -21,4 +19,4 @@ javacode
 ````
 
 
-'''to be continued...
+**to be continued...**

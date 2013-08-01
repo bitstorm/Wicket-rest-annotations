@@ -23,7 +23,7 @@ import org.apache.wicket.util.parse.metapattern.MetaPattern;
 import org.apache.wicket.util.string.StringValue;
 
 /**
- * {@link StringValue} subtype that contains a mounted segment containing a
+ * {@link StringValue} subtype that represents a mounted segment containing a
  * parameter's value (for example '/{id}/').
  * 
  * @author andrea del bene
