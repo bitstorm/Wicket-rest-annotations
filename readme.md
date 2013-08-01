@@ -8,7 +8,7 @@ This project provides a special resource class and a set of annotations to imple
 
 #How to use this module
 
-User manual for impatients.
+Quick overview
 ---------
 
 The project provides a generic abstract class to implement a Wicket resource that handles the request and the response using a particular data format (XML, JSON, etc...). As JSON is de-facto standard data format for REST API, the project comes also with a ready-to-use resource that produces and consumes JSON data.   
@@ -26,5 +26,7 @@ The project provides a generic abstract class to implement a Wicket resource tha
 	}
 ````
 
+Advanced mapping and annotations
+---------
 
 **to be continued...**
