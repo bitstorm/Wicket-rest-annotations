@@ -26,7 +26,7 @@ import org.apache.wicket.util.parse.metapattern.MetaPattern;
 
 /**
  * This kind of segment can contain more than one path parameter, for example
- * "/message-{day}-{month}-{year}/"
+ * "/message-{day}-{month}-{year}/".
  * 
  * @author andrea del bene
  * 

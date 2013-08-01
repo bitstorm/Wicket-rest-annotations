@@ -8,14 +8,22 @@ This project provides a special resource class and a set of annotations to imple
 
 #How to use this module
 
-Quick introduction for impatients.
+User manual for impatients.
 ---------
 
 The project provides a generic abstract class to implement a Wicket resource that handles the request and the response using a particular data format (XML, JSON, etc...). As JSON is de-facto standard data format for REST API, the project comes also with a ready-to-use resource that produces and consumes JSON data.   
 
 
 ````java
-javacode
+	@MethodMapping("/persons")
+	public List<PersonPojo> getAllPersons() {
+		//...
+	}
+	
+	@MethodMapping(value = "/persons/{personIndex}", httpMethod = HttpMethod.DELETE)
+	public void deletePerson(int personIndex) {
+		//...
+	}
 ````
 
 
