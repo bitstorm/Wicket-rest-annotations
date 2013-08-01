@@ -16,12 +16,15 @@
  */
 package org.wicketstuff.rest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.servlet.http.Cookie;
+import javax.xml.bind.JAXB;
+import javax.xml.transform.stream.StreamResult;
 
 import junit.framework.Assert;
 
@@ -167,6 +170,13 @@ public class TestRestResources {
 		tester.executeUrl("./api3/person");
 		
 		assertEquals(RestMimeTypes.XML, tester.getLastResponse().getContentType());
+		
+		StringWriter writer = new StringWriter();  
+	    StreamResult result = new StreamResult(writer);
+	    
+		JAXB.marshal(RestResourceFullAnnotated.createTestPerson(), result);
+		
+		assertEquals(writer.toString(), tester.getLastResponseAsString());
 	}
 	protected void testIfResponseStringIsEqual(String value) {
 		Assert.assertEquals(value, tester.getLastResponseAsString());

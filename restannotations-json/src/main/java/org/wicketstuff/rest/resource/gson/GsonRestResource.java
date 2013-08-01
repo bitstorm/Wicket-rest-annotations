@@ -29,10 +29,14 @@ import org.wicketstuff.rest.resource.AbstractRestResource;
 public class GsonRestResource extends AbstractRestResource<GsonSerialDeserial>{
 	
 	public GsonRestResource() {
-		super(new GsonSerialDeserial());
+		this(new GsonSerialDeserial());
+	}
+	
+	public GsonRestResource(GsonSerialDeserial gsonSerialDeserial) {
+		super(gsonSerialDeserial);
 	}
 
-	public GsonRestResource(IRoleCheckingStrategy roleCheckingStrategy) {
-		super(new GsonSerialDeserial(), roleCheckingStrategy);
+	public GsonRestResource(GsonSerialDeserial gsonSerialDeserial, IRoleCheckingStrategy roleCheckingStrategy) {
+		super(gsonSerialDeserial, roleCheckingStrategy);
 	}
 }

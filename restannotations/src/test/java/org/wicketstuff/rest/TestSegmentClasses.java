@@ -144,5 +144,6 @@ public class TestSegmentClasses extends Assert {
 		assertEquals("gsaon", map.get("symbolicName"));
 		assertEquals("1.2.3", map.get("version"));
 		assertEquals(".zip", map.get("extension"));
+		
 	}
 }

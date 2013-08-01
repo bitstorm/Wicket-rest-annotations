@@ -16,7 +16,6 @@
  */
 package org.wicketstuff.rest.resource.gson;
 
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TextualObjectSerialDeserial;
 
 import com.google.gson.Gson;
@@ -29,7 +28,15 @@ import com.google.gson.Gson;
  * 
  */
 public class GsonSerialDeserial extends TextualObjectSerialDeserial {
-	private final Gson gson = new Gson();
+	private final Gson gson;
+
+	public GsonSerialDeserial() {
+		this(new Gson());
+	}
+	
+	public GsonSerialDeserial(Gson gson) {
+		this.gson = gson;
+	}
 
 	@Override
 	public String objectToString(Object targetObject, String mimeType) {
