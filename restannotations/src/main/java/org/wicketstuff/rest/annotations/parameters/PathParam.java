@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates that the value of a method parameter must be
- * extracted from a path parameter. It requires the name of the method parameter
+ * extracted from a path parameter. It requires the name of the path parameter
  * we want to use (ex: @PathName("bookId")).
  * 
  * @author andrea del bene

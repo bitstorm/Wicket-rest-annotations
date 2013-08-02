@@ -16,6 +16,12 @@
  */
 package org.wicketstuff.rest.contenthandling;
 
+/**
+ * Utility class that contains constant values for MIME types.
+ * 
+ * @author andrea del bene
+ *
+ */
 public class RestMimeTypes {
 	public static final String CHARSET_UT8 = "charset=utf-8";
 

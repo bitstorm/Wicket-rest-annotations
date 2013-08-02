@@ -65,7 +65,11 @@ public class TestRestResources {
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/12345");
 		testIfResponseStringIsEqual("12345");
-
+		
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/hjjzj");
+		Assert.assertEquals(400, tester.getLastResponse().getStatus());
+		
 		tester.getRequest().setMethod("POST");
 		tester.executeUrl("./api/monoseg");
 		testIfResponseStringIsEqual("testMethodPostSegFixed");

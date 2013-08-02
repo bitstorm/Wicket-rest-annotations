@@ -54,10 +54,25 @@ public class MultiFormatSerialDeserial implements IObjectSerialDeserial {
 		return null;
 	}
 
+	/**
+	 * Register a new serial/deserial for the given MIME type.
+	 * 
+	 * @param mimeType
+	 * 			the MIME type we want to handle with the given serial/deserial.
+	 * @param serialDeserial
+	 * 			the serial/deserial to use with the given MIME type.
+	 */
 	public void registerSerDeser(String mimeType, IObjectSerialDeserial serialDeserial){
 		serialsDeserials.put(mimeType, serialDeserial);
 	}
 	
+	/**
+	 * Check if a given MIME type is handled.
+	 * 
+	 * @param mimeType
+	 * 			the MIME type we want to check.
+	 * @return true if the MIME type is supported, false otherwise.
+	 */
 	public boolean isMimeTypeSupported(String mimeType){
 		return serialsDeserials.get(mimeType) != null;
 	}

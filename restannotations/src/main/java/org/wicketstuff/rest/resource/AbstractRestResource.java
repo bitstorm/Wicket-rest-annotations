@@ -565,8 +565,13 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 
 			return converter.convertToObject(value, Session.get().getLocale());
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not find a suitable constructor for value '"
-					+ value + "' of type '" + clazz + "'", e);
+			WebResponse response = (WebResponse) RequestCycle.get().getResponse();
+			
+			response.setStatus(400);
+			response.write("Could not find a suitable constructor for value '"
+					+ value + "' of type '" + clazz + "'");
+			
+			return null;
 		}
 	}
 

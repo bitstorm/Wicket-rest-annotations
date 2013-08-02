@@ -23,6 +23,12 @@ import java.io.StringReader;
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.mock.MockHttpServletRequest;
 
+/**
+ * Mock request that allows to use a custom BufferedReader as request body.
+ * 
+ * @author andrea del bene
+ *
+ */
 public class BufferedMockRequest extends MockHttpServletRequest {
 	BufferedReader reader;
 	
