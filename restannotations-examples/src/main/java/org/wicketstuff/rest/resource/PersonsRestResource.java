@@ -29,7 +29,7 @@ public class PersonsRestResource extends GsonRestResource {
 	private final List<PersonPojo> persons = new ArrayList<PersonPojo>();
 	
 	public PersonsRestResource(){
-		persons.add(new PersonPojo("Freddie Mercury", "fmercury@queen.com", "Ehooo!"));
+		persons.add(new PersonPojo("Freddie Mercury", "fmercury@queen.com", "Eeehooo!"));
 		persons.add(new PersonPojo("John Deacon", "jdeacon@queen.com", "bass"));
 		persons.add(new PersonPojo("Brian May", "bmay@queen.com", "guitar"));
 		persons.add(new PersonPojo("Roger Taylor", "rtaylor@queen.com", "drum"));
