@@ -10,7 +10,7 @@ Quick overview
 ---------
 
 The project provides class `AbstractRestResource` as generic abstract class to implement a Wicket resource that handles the request and the response using a particular data format (XML, JSON, etc...). 
-Subclassing `AbstractRestResource` we can create custom resources and map their pubblic methods to a given subpath with annotation `@MethodMapping`. The following snippet is taken from resource `PersonsRestResource` inside example module:
+Subclassing `AbstractRestResource` we can create custom resources and map their pubblic methods to a given subpath with annotation `@MethodMapping`. The following snippet is taken from resource `PersonsRestResource` inside module 'restannotations-examples':
 
 ````java
 	@MethodMapping("/persons")
@@ -32,7 +32,7 @@ Subclassing `AbstractRestResource` we can create custom resources and map their 
 
 `@MethodMapping` requires to specify the subpath we want to map the method to. In addition we can specify also the HTTP method that must be used to invoke the method via REST (GET, POST, DELETE, etc...). This value can be specified with enum class `HttpMethod` and is GET by default. For more details on `@MethodMapping` see the section below.
 To promote the principle of *convetion over configuration*, we don't need to use any annotation to map method parameters to path parameters if they are declared in the same order. If we don't want to use this default behavior we can use annotation `PathParam`. See the section below to know how to use it. If the mapped method returns a value, this last is automatically serialized to the supported data format and written to response object. 
-Annotation `@RequestBody` is used to extract the value of a method parameter from the request body.
+Annotation `@RequestBody` is used to extract the value of a method parameter from the request body. See the section below to know more details about this annnotation.
 
 **Note:** to convert strings to Java type, `AbstractRestResource` uses the standard Wicket mechanism based on the application converter locator:
 ````java
@@ -52,18 +52,26 @@ public interface IObjectSerialDeserial {
 }
 ````
 
-The interfaces defines just the two perations needed to write an object to the response body and to read an object from request body.
-As JSON is de-facto standard format for REST API, the project comes also with a ready-to-use resource (`GsonRestResource`) and a serial/deserial (`GsonSerialDeserial`) that work with JSON format (both inside json project module). These classes use [Gson library](http://code.google.com/p/google-gson/) as Json library.
+The interfaces defines just the two operations needed to write an object to the response body and to read an object from request body.
+As JSON is de-facto standard format for REST API, the project comes also with a ready-to-use resource (`GsonRestResource`) and a serial/deserial (`GsonSerialDeserial`) that work with JSON format (both inside module 'restannotations-json'). These classes use [Gson](http://code.google.com/p/google-gson/) as Json library. Resource `PersonsRestResource` in example module is based on `GsonRestResource`.
 
 
 Advanced mapping and annotations
 ---------
+In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-Authorization
----------
++ **MethodMapping**
++ **RequestBody**
++ **PathParam**
++ **RequestParam**
++ **HeaderParam**
++ **MatrixParam**
++ **CookieParam**
++ **AuthorizeInvocation**
+
 
 Hook methods
 ---------
-
+To customize the configuration and the behavior of our resource, the following hook methods are provided:
 
 **to be continued...**
