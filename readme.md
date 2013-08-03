@@ -60,14 +60,14 @@ Advanced mapping and annotations
 ---------
 In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-+ **MethodMapping**
-+ **RequestBody**
-+ **PathParam**
-+ **RequestParam**
-+ **HeaderParam**
-+ **MatrixParam**
-+ **CookieParam**
-+ **AuthorizeInvocation**
++ **_@MethodMapping_**
++ **_@RequestBody_**
++ **_@PathParam_**
++ **_@RequestParam_**
++ **_@HeaderParam_**
++ **_@MatrixParam_**
++ **_@CookieParam_**
++ **_@AuthorizeInvocation_**
 
 
 Hook methods
