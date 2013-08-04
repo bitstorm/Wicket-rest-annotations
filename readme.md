@@ -55,19 +55,31 @@ public interface IObjectSerialDeserial {
 The interfaces defines just the two operations needed to write an object to the response body and to read an object from request body.
 As JSON is de-facto standard format for REST API, the project comes also with a ready-to-use resource (`GsonRestResource`) and a serial/deserial (`GsonSerialDeserial`) that work with JSON format (both inside module 'restannotations-json'). These classes use [Gson](http://code.google.com/p/google-gson/) as Json library. Resource `PersonsRestResource` in example module is based on `GsonRestResource`.
 
+Use multiple data format
+---------
+Annotation `@MethodMapping` has two optional attributes, _consumes_ and _produces_, that can be used to specify which MIME type must be expected in the request and which one must be used to serialize data to response.
+
+````java
+	@MethodMapping(value = "/person", produces = RestMimeTypes.XML)
+	public Person returnMarshaledObject(){
+		//The instance returned will be marshaled to XML.
+	}
+````
+By default the MIME type used for both request and response is `RestMimeTypes.JSON`.
 
 Advanced mapping and annotations
 ---------
 In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-+ **_@MethodMapping_**
-+ **_@RequestBody_**
-+ **_@PathParam_**
-+ **_@RequestParam_**
-+ **_@HeaderParam_**
-+ **_@MatrixParam_**
-+ **_@CookieParam_**
-+ **_@AuthorizeInvocation_**
++ **_@MethodMapping_** gdfgdfgdf
+uytrurt
++ **_@RequestBody_:**
++ **_@PathParam_:**
++ **_@RequestParam_:**
++ **_@HeaderParam_:**
++ **_@MatrixParam_:**
++ **_@CookieParam_:**
++ **_@AuthorizeInvocation_:**
 
 
 Hook methods
