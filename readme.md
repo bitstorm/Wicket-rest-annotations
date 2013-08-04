@@ -145,4 +145,8 @@ Hook methods
 ---------
 To customize the configuration and the behavior of our resource, the following hook methods are provided:
 
++ **_configureObjSerialDeserial(T objSerialDeserial)_:**
++ **_onBeforeMethodInvoked(MethodMappingInfo mappedMethod,Attributes attribs)_:**
++ **_onAfterMethodInvoked(MethodMappingInfo mappedMethod,Attributes attribs,Object res)_:**
+
 **to be continued...**
