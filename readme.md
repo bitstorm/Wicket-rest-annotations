@@ -65,7 +65,17 @@ Annotation `@MethodMapping` has two optional attributes, _consumes_ and _produce
 		//The instance returned will be marshaled to XML.
 	}
 ````
-By default the MIME type used for both request and response is `RestMimeTypes.JSON`.
+When we use multiple mime types with our REST resource, we must use an implementation of `IObjectSerialDeserial` that supports all the required types. For this special purpose we can use class `MultiFormatSerialDeserial` as base class for our custom `IObjectSerialDeserial`. The class implements a custom version of _Composite pattern_ allowing to register a given `IObjectSerialDeserial` for a specific MIME type. Utility class `RestMimeTypes` contains different MIME types as tring constants. The following is an example of usage of `MultiFormatSerialDeserial` taken from class `WicketApplication` in the main module `restannotations`:
+
+````java
+	MultiFormatSerialDeserial multiFormat = new MultiFormatSerialDeserial();
+	//register one serial/deserial for JSON and another one for XML	
+	multiFormat.registerSerDeser(RestMimeTypes.JSON, new TestJsonDesSer());
+	multiFormat.registerSerDeser(RestMimeTypes.XML, new XmlSerialDeser());
+				
+````
+
+**Note:** by default the MIME type used for both request and response is `RestMimeTypes.JSON`.
 
 Advanced mapping and annotations
 ---------
