@@ -32,7 +32,7 @@ Subclassing `AbstractRestResource` we can create custom resources and map their 
 
 `@MethodMapping` requires to specify the subpath we want to map the method to. In addition we can specify also the HTTP method that must be used to invoke the method via REST (GET, POST, DELETE, etc...). This value can be specified with enum class `HttpMethod` and is GET by default. For more details on `@MethodMapping` see the section below.
 To promote the principle of *convetion over configuration*, we don't need to use any annotation to map method parameters to path parameters if they are declared in the same order. If we don't want to use this default behavior we can use annotation `PathParam`. See the section below to know how to use it. If the mapped method returns a value, this last is automatically serialized to the supported data format and written to response object. 
-Annotation `@RequestBody` is used to extract the value of a method parameter from the request body. See the section below to know more details about this annnotation.
+Annotation `@RequestBody` is used to extract the value of a method parameter from the request body. The value is automatically _deserialized_ from request body.
 
 **Note:** to convert strings to Java type, `AbstractRestResource` uses the standard Wicket mechanism based on the application converter locator:
 ````java
@@ -81,7 +81,15 @@ Annotations and advanced mapping
 ---------
 In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-+ **_@PathParam_:**
++ **_@PathParam_:** This annotation indicates which path parameter must be used as value for a method parameter. Example:
+
+````java
+	@MethodMapping(value = "/variable/{p1}/order/{p2}", produces = RestMimeTypes.PLAIN_TEXT)
+	public String testParamOutOfOrder(@PathParam("p2") String textParam, @PathParam("p1") int intParam) {
+		//method parameter textParam is taken from path param 'p2', while intParam uses 'p1'
+	}
+````
+
 + **_@RequestParam_:** This annotation indicates that the value of a method parameter must be read from a request parameter. Example:
 
 ````java
@@ -109,7 +117,7 @@ In the following list we will explore the annotations we can use to map resource
 		//Matching URL example: ./person/1;height=500
 	}
 ````
-
+The annotation needs to know the name of the matrix parameter and the index (zero-based) of the segment that contains the parameter.
 + **_@CookieParam_:** This annotation indicates that the value of a method parameter must be read from a cookie.
 
 
