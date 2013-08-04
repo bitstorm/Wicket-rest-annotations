@@ -81,33 +81,45 @@ Annotations and advanced mapping
 ---------
 In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-+ **_@RequestBody_:**
 + **_@PathParam_:**
 + **_@RequestParam_:** This annotation indicates that the value of a method parameter must be read from a request parameter. Example:
+
 ````java
 	@MethodMapping(value = "/products/{id}", produces = RestMimeTypes.PLAIN_TEXT)
 	public String testMethodGetParameter(int productId, @RequestParam("price") float prodPrice) {
 		//method parameter prodPrice is taken from the request parameter named 'price'
 	}
 ````
+
 + **_@HeaderParam_:**This annotation indicates that the value of a method parameter must be read from a header parameter. Example:
+
 ````java
 	@MethodMapping(value = "/book/{id}", produces = RestMimeTypes.PLAIN_TEXT)
 	public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice) {
 		//method parameter prodPrice is taken from the header parameter named 'price'
 	}
 ````
-+ **_@MatrixParam_:**This annotation indicates that the value of a method parameter must be read from a (matrix parameter)[http://www.w3.org/DesignIssues/MatrixURIs.html]. Example:
+
++ **_@MatrixParam_:**This annotation indicates that the value of a method parameter must be read from a [matrix parameter](http://www.w3.org/DesignIssues/MatrixURIs.html). Example:
+
 ````java
 	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
-	public String testMethodCookieParameter(@CookieParam("name") String name, int id,
-			@MatrixParam(segmentIndex = 1, parameterName = "height") float height) {
-		//method parameter prodPrice is taken from the matrix parameter of the second URL segment and named 'height'
+	public String testMethodCookieParameter(int id, @MatrixParam(segmentIndex = 1, parameterName = "height") float height) {
+		//method parameter prodPrice is taken from the matrix parameter of the second URL segment and named 'height'.
+		//Matching URL example: ./person/1;height=500
 	}
 ````
 
-+ **_@CookieParam_:** This annotation indicates that the value of a method parameter
-  must be read from a cookie.
++ **_@CookieParam_:** This annotation indicates that the value of a method parameter must be read from a cookie.
+
+
+````java
+	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	public String testMethodCookieParameter(@CookieParam("name") String name, int id) {
+		//method parameter name is taken from cookie parameter named 'name'.
+	}
+````
+
 + **_@AuthorizeInvocation_:**
 
 
