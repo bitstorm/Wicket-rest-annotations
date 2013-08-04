@@ -57,7 +57,7 @@ As JSON is de-facto standard format for REST API, the project comes also with a 
 
 Use multiple data format
 ---------
-Annotation `@MethodMapping` has two optional attributes, _consumes_ and _produces_, that can be used to specify which MIME type must be expected in the request and which one must be used to serialize data to response.
+Annotation `@MethodMapping` has two optional attributes, _consumes_ and _produces_, that can be used to specify which MIME type must be expected in the request and which one must be used to serialize data to response. The following code is taken from class `MultiFormatRestResource` in the main module `restannotations`:
 
 ````java
 	@MethodMapping(value = "/person", produces = RestMimeTypes.XML)
@@ -65,7 +65,7 @@ Annotation `@MethodMapping` has two optional attributes, _consumes_ and _produce
 		//The instance returned will be marshaled to XML.
 	}
 ````
-When we use multiple mime types with our REST resource, we must use an implementation of `IObjectSerialDeserial` that supports all the required types. For this special purpose we can use class `MultiFormatSerialDeserial` as base class for our custom `IObjectSerialDeserial`. The class implements a custom version of _Composite pattern_ allowing to register a given `IObjectSerialDeserial` for a specific MIME type. Utility class `RestMimeTypes` contains different MIME types as tring constants. The following is an example of usage of `MultiFormatSerialDeserial` taken from class `WicketApplication` in the main module `restannotations`:
+If we want to use multiple mime types with our REST resource, we must use an implementation of `IObjectSerialDeserial` that supports all the required types. For this special purpose we can use class `MultiFormatSerialDeserial` as base class for our custom `IObjectSerialDeserial`. The class implements a custom version of _Composite pattern_ allowing to register a given `IObjectSerialDeserial` for a specific MIME type. Utility class `RestMimeTypes` contains different MIME types as tring constants. The following is an example of usage of `MultiFormatSerialDeserial` taken from class `WicketApplication` in the main module `restannotations`:
 
 ````java
 	MultiFormatSerialDeserial multiFormat = new MultiFormatSerialDeserial();
@@ -77,18 +77,37 @@ When we use multiple mime types with our REST resource, we must use an implement
 
 **Note:** by default the MIME type used for both request and response is `RestMimeTypes.JSON`.
 
-Advanced mapping and annotations
+Annotations and advanced mapping
 ---------
 In the following list we will explore the annotations we can use to map resource methods and to create complex mapping rules.
 
-+ **_@MethodMapping_** gdfgdfgdf
-uytrurt
 + **_@RequestBody_:**
 + **_@PathParam_:**
-+ **_@RequestParam_:**
-+ **_@HeaderParam_:**
-+ **_@MatrixParam_:**
-+ **_@CookieParam_:**
++ **_@RequestParam_:** This annotation indicates that the value of a method parameter must be read from a request parameter. Example:
+````java
+	@MethodMapping(value = "/products/{id}", produces = RestMimeTypes.PLAIN_TEXT)
+	public String testMethodGetParameter(int productId, @RequestParam("price") float prodPrice) {
+		//method parameter prodPrice is taken from the request parameter named 'price'
+	}
+````
++ **_@HeaderParam_:**This annotation indicates that the value of a method parameter must be read from a header parameter. Example:
+````java
+	@MethodMapping(value = "/book/{id}", produces = RestMimeTypes.PLAIN_TEXT)
+	public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice) {
+		//method parameter prodPrice is taken from the header parameter named 'price'
+	}
+````
++ **_@MatrixParam_:**This annotation indicates that the value of a method parameter must be read from a (matrix parameter)[http://www.w3.org/DesignIssues/MatrixURIs.html]. Example:
+````java
+	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	public String testMethodCookieParameter(@CookieParam("name") String name, int id,
+			@MatrixParam(segmentIndex = 1, parameterName = "height") float height) {
+		//method parameter prodPrice is taken from the matrix parameter of the second URL segment and named 'height'
+	}
+````
+
++ **_@CookieParam_:** This annotation indicates that the value of a method parameter
+  must be read from a cookie.
 + **_@AuthorizeInvocation_:**
 
 
