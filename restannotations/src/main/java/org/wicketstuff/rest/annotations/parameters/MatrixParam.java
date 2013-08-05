@@ -34,4 +34,6 @@ import java.lang.annotation.Target;
 public @interface MatrixParam {
 	String parameterName();
 	int segmentIndex();
+	boolean required() default true;
+    String defaultValue() default "";
 }

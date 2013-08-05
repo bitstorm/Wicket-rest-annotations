@@ -30,6 +30,7 @@ import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.resource.urlsegments.AbstractURLSegment;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
+// TODO: Auto-generated Javadoc
 /**
  * This class contains the informations of a resource mapped method (i.e. a
  * method annotated with {@link MethodMapping}). These informations are used at
@@ -43,10 +44,8 @@ public class MethodMappingInfo {
 	private final HttpMethod httpMethod;
 	/** Segments that compose the URL we mapped the method on. */
 	private final List<AbstractURLSegment> segments;
-	/**
-	 * Optional roles we used to annotate the method (see
-	 * {@link AuthorizeInvocation}).
-	 */
+	
+	/** Optional roles we used to annotate the method (see. {@link AuthorizeInvocation}). */
 	private final Roles roles;
 	/** The resource method we have mapped. */
 	private final Method method;
@@ -57,14 +56,9 @@ public class MethodMappingInfo {
 
 	/**
 	 * Class constructor.
-	 * 
-	 * @param urlPath
-	 *            the URL used to map a resource's method
-	 * @param httpMethod
-	 *            the request method that must be used to invoke the mapped
-	 *            method (see class {@link HttpMethod}).
-	 * @param method
-	 *            the resource's method mapped.
+	 *
+	 * @param methodMapped the method mapped
+	 * @param method the resource's method mapped.
 	 */
 	public MethodMappingInfo(MethodMapping methodMapped, Method method) {
 		this.httpMethod = methodMapped.httpMethod();
@@ -104,10 +98,10 @@ public class MethodMappingInfo {
 	}
 
 	/**
-	 * Load the optional roles used to annotate the method with
-	 * {@link AuthorizeInvocation}
-	 * 
+	 * Load the optional roles used to annotate the method with.
+	 *
 	 * @return the authorization roles for the method.
+	 * {@link AuthorizeInvocation}
 	 */
 	private Roles loadRoles() {
 		AuthorizeInvocation authorizeInvocation = method.getAnnotation(AuthorizeInvocation.class);
@@ -189,10 +183,20 @@ public class MethodMappingInfo {
 		return roles;
 	}
 
+	/**
+	 * Gets the mime input format.
+	 *
+	 * @return the mime input format
+	 */
 	public String getMimeInputFormat() {
 		return inputFormat;
 	}
 
+	/**
+	 * Gets the mime output format.
+	 *
+	 * @return the mime output format
+	 */
 	public String getMimeOutputFormat() {
 		return outputFormat;
 	}

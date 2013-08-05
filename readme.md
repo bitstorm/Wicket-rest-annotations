@@ -131,10 +131,17 @@ The annotation needs to know the name of the matrix parameter and the index (zer
 + **_@AuthorizeInvocation_:**
 With annotation `@AuthorizeInvocation` we can apply security restrictions to mapped methods specifing which user roles are allowed to execute a specific method. 
 
-to userole-based authorization we must 
-
 ````java
+	@MethodMapping(value = "/admin", httpMethod = HttpMethod.GET)
+	@AuthorizeInvocation("ROLE_ADMIN")
+	public void testMethodAdminAuth() {
+
+	}
 ````
+
+To user ole-based authorization we must specify in the resource construcor an instance of Wicket interface 'IRoleCheckingStrategy'.
+
+
 
 ### Advanced mapping ###
 

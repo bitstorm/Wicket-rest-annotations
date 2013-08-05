@@ -17,6 +17,7 @@
 package org.wicketstuff.rest.utils.reflection;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.wicketstuff.rest.annotations.parameters.AnnotatedParam;
@@ -111,5 +112,24 @@ public class ReflectionUtils {
 		}
 
 		return null;
+	}
+	
+	static public Method findMethod(Class<?> clazz, String name,  Class<?>... parameterTypes){
+		try {
+			Method method = clazz.getMethod(name, parameterTypes);
+			return method;
+		} catch (Exception e) {
+			return null;
+		} 
+	}
+	
+	static public Object invokeMethod(Object target, String name,  Class<?>... parameterTypes){
+		Method method = findMethod(target.getClass(), name, parameterTypes);
+		
+		try {
+			return method.invoke(target, parameterTypes);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }

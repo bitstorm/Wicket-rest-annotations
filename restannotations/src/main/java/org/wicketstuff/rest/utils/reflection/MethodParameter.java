@@ -16,6 +16,9 @@
  */
 package org.wicketstuff.rest.utils.reflection;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 import org.wicketstuff.rest.resource.MethodMappingInfo;
 
 /**
@@ -35,6 +38,13 @@ public class MethodParameter {
 	/** The param index. */
 	final private int paramIndex;
 
+	/** Indicates if the parameter is required or not. */
+	final private boolean required;
+	
+	/** Default value of the method parameter. */
+	final private String deaultValue;
+
+	
 	/**
 	 * Instantiates a new method parameter.
 	 * 
@@ -50,8 +60,28 @@ public class MethodParameter {
 		this.parameterClass = type;
 		this.ownerMethod = ownerMethod;
 		this.paramIndex = paramIndex;
+		
+		this.required = isParameterRequired();
+		this.deaultValue = loadDefaultValue();
 	}
 
+	private boolean isParameterRequired() {
+		Annotation annotation = ReflectionUtils.getAnnotationParam(paramIndex, ownerMethod.getMethod());
+		Object methodResult = null;
+				
+		if(annotation != null)
+			methodResult = ReflectionUtils.invokeMethod(annotation, "required");
+		
+		methodResult = methodResult instanceof Boolean ? methodResult : null;
+		
+		return methodResult == null ? true : (Boolean)methodResult;
+	}
+
+	private String loadDefaultValue() {
+		
+		return null;
+	}
+	
 	/**
 	 * Gets the type of the method parameter.
 	 * 

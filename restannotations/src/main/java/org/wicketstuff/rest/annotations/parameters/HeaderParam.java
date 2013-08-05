@@ -33,4 +33,6 @@ import java.lang.annotation.Target;
 @AnnotatedParam
 public @interface HeaderParam {
 	String value();
+	boolean required() default true;
+    String defaultValue() default "";
 }
