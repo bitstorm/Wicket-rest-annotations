@@ -129,6 +129,14 @@ The annotation needs to know the name of the matrix parameter and the index (zer
 ````
 
 + **_@AuthorizeInvocation_:**
+With annotation `@AuthorizeInvocation` we can apply security restrictions to mapped methods specifing which user roles are allowed to execute a specific method. 
+
+to userole-based authorization we must 
+
+````java
+````
+
+### Advanced mapping ###
 
 Every URL segment can contain multiple path parameters and each of them can specify the regular expression to use to match incoming requests. For example module `restannotations` contains class `RegExpRestResource` which maps the following method:
 
@@ -139,7 +147,7 @@ Every URL segment can contain multiple path parameters and each of them can spec
 	}
 ````
 
-As you can see in the code above, the syntax to use to write a regular expression is _{variableName:regExp}_.
+As you can see in the code above, the syntax to write a regular expression is _{variableName:regExp}_.
 
 Hook methods
 ---------
