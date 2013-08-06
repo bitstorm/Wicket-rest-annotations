@@ -104,6 +104,7 @@ public class TestRestResources {
 		
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/testreqdef");
+		testIfResponseStringIsEqual("testRequiredDefault");
 	}
 
 	@Test
@@ -176,7 +177,7 @@ public class TestRestResources {
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api3/person");
 		
-		assertEquals(RestMimeTypes.XML_UTF8, tester.getLastResponse().getContentType());
+		assertEquals(RestMimeTypes.APPLICATION_XML, tester.getLastResponse().getContentType());
 		
 		StringWriter writer = new StringWriter();  
 	    StreamResult result = new StreamResult(writer);

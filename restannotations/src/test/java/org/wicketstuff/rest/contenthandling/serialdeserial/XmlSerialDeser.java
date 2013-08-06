@@ -42,7 +42,7 @@ public class XmlSerialDeser implements IObjectSerialDeserial {
 
 	@Override
 	public boolean isMimeTypeSupported(String mimeType) {
-		if(mimeType != null && RestMimeTypes.XML_UTF8.startsWith(mimeType))
+		if(mimeType != null && RestMimeTypes.APPLICATION_XML.equals(mimeType))
 			return true;
 		
 		return false;

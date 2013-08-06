@@ -133,7 +133,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 				response.sendError(401, "User is not allowed to invoke method on server.");
 				return;
 			}
-		
+
 			onBeforeMethodInvoked(mappedMethod, attributes);
 			Object result = invokeMappedMethod(mappedMethod, attributes);
 			onAfterMethodInvoked(mappedMethod, attributes, result);
@@ -189,7 +189,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		try {
 			response.setContentType(mimeType);
 
-			if (RestMimeTypes.PLAIN_TEXT_UTF8.equals(mimeType))
+			if (RestMimeTypes.TEXT_PLAIN.equals(mimeType))
 				response.write(result.toString());
 			else
 				objSerialDeserial.objectToResponse(result, response, mimeType);
@@ -309,6 +309,11 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 				HttpMethod httpMethod = methodMapped.httpMethod();
 				MethodMappingInfo urlMappingInfo = new MethodMappingInfo(methodMapped, method);
 
+				if (!isMimeTypesSupported(urlMappingInfo.getMimeInputFormat())
+						|| !isMimeTypesSupported(urlMappingInfo.getMimeOutputFormat()))
+					throw new WicketRuntimeException(
+							"Mapped methods use a MIME type not supported by obj serializer/deserializer!");
+
 				mappedMethods.addValue(
 						urlMappingInfo.getSegmentsCount() + "_" + httpMethod.getMethod(),
 						urlMappingInfo);
@@ -319,6 +324,21 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		if (isUsingAuthAnnot && roleCheckingStrategy == null)
 			throw new WicketRuntimeException(
 					"Annotation AuthorizeInvocation is used but no role-checking strategy has been set for the controller!");
+	}
+
+	/**
+	 * Checks if the given MIME type is supported by the current obj
+	 * serial/deserial.
+	 * 
+	 * @param mimeType
+	 *            the MIME type we want to check.
+	 * @return true if the MIME type is supported, false otherwise.
+	 */
+	private boolean isMimeTypesSupported(String mimeType) {
+		if (RestMimeTypes.TEXT_PLAIN.equals(mimeType))
+			return true;
+
+		return objSerialDeserial.isMimeTypeSupported(mimeType);
 	}
 
 	/***
@@ -351,16 +371,17 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 			MethodParameter methodParameter = new MethodParameter(parameterTypes[i], mappedMethod,
 					i);
 			Annotation annotation = ReflectionUtils.getAnnotationParam(i, method);
-
+			//retrieve parameter value
 			if (annotation != null)
 				paramValue = extractParameterValue(methodParameter, pathParameters, annotation,
 						pageParameters);
 			else
 				paramValue = extractParameterFromUrl(methodParameter, pathParamsIterator);
+			//try to use the default value
+			if (paramValue == null && !methodParameter.getDeaultValue().isEmpty())
+				paramValue = toObject(methodParameter.getParameterClass(),
+						methodParameter.getDeaultValue());
 
-			if(paramValue == null && !methodParameter.getDeaultValue().isEmpty())
-				paramValue = toObject(methodParameter.getParameterClass(), methodParameter.getDeaultValue());
-			
 			if (paramValue == null && methodParameter.isRequired()) {
 				response.sendError(400, "No suitable method found for URL '"
 						+ extractUrlFromRequest() + "' and HTTP method " + httpMethod);
@@ -373,6 +394,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		try {
 			return method.invoke(this, parametersValues.toArray());
 		} catch (Exception e) {
+			response.sendError(500, "General server error.");
 			throw new RuntimeException("Error invoking method '" + method.getName() + "'", e);
 		}
 	}

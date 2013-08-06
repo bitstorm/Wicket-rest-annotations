@@ -19,7 +19,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+<meta charset="UTF-8">
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 <title>Persons archive</title>
 <script type="text/javascript" src="http://knockoutjs.com/downloads/knockout-2.2.1.js"></script>
 <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
@@ -68,7 +69,7 @@
 					 
 					 $.ajax({
 						 type: "POST",
-						 contentType: "application/json; charset=utf-8",
+						 contentType: "application/json",
 						 url: "./personsmanager/persons",
 						 data: JSON.stringify(personPojo),
 						 async: false
@@ -92,13 +93,19 @@
 		loadAllPersons();
 		
 		function loadAllPersons(){
-			$.getJSON("./personsmanager/persons",function(data){
-				var people = model.people;
-				people.removeAll();
-				
-				for(var i = 0; i < data.length; i++)
-					people.push(data[i]);
-				
+			$.ajax({
+				 type: "GET",
+				 contentType: "application/json;charset=utf-8",
+				 url: "./personsmanager/persons",
+				 async: false,
+				 success: function(data){
+						var people = model.people;
+						people.removeAll();
+						
+						for(var i = 0; i < data.length; i++)
+							people.push(data[i]);
+						
+					}
 			});
 		}
 	})

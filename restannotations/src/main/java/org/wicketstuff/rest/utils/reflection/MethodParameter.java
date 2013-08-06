@@ -60,7 +60,7 @@ public class MethodParameter {
 		this.paramIndex = paramIndex;
 		
 		this.required = loadParamAnnotationField("required", true);
-		this.deaultValue = loadParamAnnotationField("default", "");
+		this.deaultValue = loadParamAnnotationField("defaultValue", "");
 	}
 
 	private <T> T loadParamAnnotationField(String fieldName, T defaultValue) {

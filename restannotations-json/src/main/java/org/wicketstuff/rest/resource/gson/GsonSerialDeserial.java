@@ -51,7 +51,7 @@ public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 
 	@Override
 	public boolean isMimeTypeSupported(String mimeType) {
-		if(mimeType != null && RestMimeTypes.JSON_UTF8.startsWith(mimeType))
+		if(mimeType != null && RestMimeTypes.APPLICATION_JSON.equals(mimeType))
 			return true;
 		
 		return false;
