@@ -20,7 +20,7 @@ import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
-import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
+import org.wicketstuff.rest.resource.RestResourceFullAnnotated;
 
 public class TestJsonDesSer implements IObjectSerialDeserial {
 	static public Object getObject(){

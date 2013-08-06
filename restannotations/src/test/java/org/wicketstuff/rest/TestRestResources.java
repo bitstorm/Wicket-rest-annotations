@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
-import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
+import org.wicketstuff.rest.resource.RestResourceFullAnnotated;
 import org.wicketstuff.rest.utils.test.BufferedMockRequest;
 
 /**
@@ -101,6 +101,9 @@ public class TestRestResources {
 		tester.getRequest().setMethod("GET");
 		tester.executeUrl("./api/variable/31/order/segtext");
 		testIfResponseStringIsEqual("testParamOutOfOrder");
+		
+		tester.getRequest().setMethod("GET");
+		tester.executeUrl("./api/testreqdef");
 	}
 
 	@Test

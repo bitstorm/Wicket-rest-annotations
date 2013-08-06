@@ -116,7 +116,8 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	public final void respond(Attributes attributes) {
 		PageParameters pageParameters = attributes.getParameters();
 		WebResponse response = (WebResponse) attributes.getResponse();
-		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get().getRequest());
+		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get()
+				.getRequest());
 		int indexedParamCount = pageParameters.getIndexedCount();
 
 		// mapped method are stored concatenating the number of the segments of
@@ -184,8 +185,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	 *            The object to write to response.
 	 * @param restMimeFormats
 	 */
-	private void serializeObjectToResponse(WebResponse response, Object result,
-			String mimeType) {
+	private void serializeObjectToResponse(WebResponse response, Object result, String mimeType) {
 		try {
 			response.setContentType(mimeType);
 
@@ -275,8 +275,8 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		}
 
 		throw new WicketRuntimeException("Ambiguous methods mapped for the current request: URL '"
-				+ request.getClientUrl() + "', HTTP method " + HttpUtils.getHttpMethod(request) + ". "
-				+ "Mapped methods: " + methodsNames);
+				+ request.getClientUrl() + "', HTTP method " + HttpUtils.getHttpMethod(request)
+				+ ". " + "Mapped methods: " + methodsNames);
 	}
 
 	/**
@@ -338,7 +338,8 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		// Attributes objects
 		PageParameters pageParameters = attributes.getParameters();
 		WebResponse response = (WebResponse) attributes.getResponse();
-		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get().getRequest());
+		HttpMethod httpMethod = HttpUtils.getHttpMethod((WebRequest) RequestCycle.get()
+				.getRequest());
 
 		LinkedHashMap<String, String> pathParameters = mappedMethod
 				.populatePathParameters(pageParameters);
@@ -357,7 +358,10 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 			else
 				paramValue = extractParameterFromUrl(methodParameter, pathParamsIterator);
 
-			if (paramValue == null) {
+			if(paramValue == null && !methodParameter.getDeaultValue().isEmpty())
+				paramValue = toObject(methodParameter.getParameterClass(), methodParameter.getDeaultValue());
+			
+			if (paramValue == null && methodParameter.isRequired()) {
 				response.sendError(400, "No suitable method found for URL '"
 						+ extractUrlFromRequest() + "' and HTTP method " + httpMethod);
 				return null;
@@ -566,11 +570,11 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 			return converter.convertToObject(value, Session.get().getLocale());
 		} catch (Exception e) {
 			WebResponse response = (WebResponse) RequestCycle.get().getResponse();
-			
+
 			response.setStatus(400);
-			response.write("Could not find a suitable constructor for value '"
-					+ value + "' of type '" + clazz + "'");
-			
+			response.write("Could not find a suitable constructor for value '" + value
+					+ "' of type '" + clazz + "'");
+
 			return null;
 		}
 	}

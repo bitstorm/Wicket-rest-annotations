@@ -14,29 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.resource;
 
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
-import org.wicketstuff.rest.Person;
+import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.annotations.MethodMapping;
-import org.wicketstuff.rest.contenthandling.RestMimeTypes;
-import org.wicketstuff.rest.contenthandling.serialdeserial.MultiFormatSerialDeserial;
+import org.wicketstuff.rest.annotations.parameters.CookieParam;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
-import org.wicketstuff.rest.resource.AbstractRestResource;
 
-public class MultiFormatRestResource extends AbstractRestResource<MultiFormatSerialDeserial> {
-
-	public MultiFormatRestResource(MultiFormatSerialDeserial jsonSerialDeserial,
+public class RegExpRestResource extends RestResourceFullAnnotated{
+	public RegExpRestResource(TestJsonDesSer jsonSerialDeserial,
 			IRoleCheckingStrategy roleCheckingStrategy) {
 		super(jsonSerialDeserial, roleCheckingStrategy);
 	}
 
-	public MultiFormatRestResource(MultiFormatSerialDeserial jsonSerialDeserial) {
+	public RegExpRestResource(TestJsonDesSer jsonSerialDeserial) {
 		super(jsonSerialDeserial);
 	}
-	
-	@MethodMapping(value = "/person", produces = RestMimeTypes.XML)
-	public Person returnMarshaledObject(){
-		return RestResourceFullAnnotated.createTestPerson();
+
+	@MethodMapping("recordlog/message/{day:\\d{2}}-{month:\\d{2}}-{year:\\d{4}}_{message}")
+	public void testLogMessage(@CookieParam("credential") String credential, int day, int month, int year, String message){
+		Args.notNull(credential, "credential");
+		Args.notNull(day, "day");
+		Args.notNull(month, "month");
+		Args.notNull(year, "year");
+		Args.notNull(message, "message");
 	}
 }

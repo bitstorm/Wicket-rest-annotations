@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.wicketstuff.rest.testJsonRequest;
+package org.wicketstuff.rest.resource;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,7 +34,6 @@ import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.annotations.parameters.RequestParam;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
-import org.wicketstuff.rest.resource.AbstractRestResource;
 import org.wicketstuff.rest.utils.http.HttpMethod;
 
 public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesSer> {
@@ -151,6 +150,17 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		Args.notNull(intParam, "intParam");
 		
 		return "testParamOutOfOrder";
+	}
+	
+	@MethodMapping(value = "/testreqdef", produces = RestMimeTypes.PLAIN_TEXT)
+	public String testRequiredDefalutl(
+			@RequestParam(value = "fromRequest", required = false) String request,
+			@CookieParam(value = "cookie", defaultValue = "true") boolean cookie) {
+		
+		Args.isTrue(request == null, "must be null!");
+		Args.isTrue(cookie, "must be true!");
+		
+		return "testRequiredDefalutl";
 	}
 	
 	public static Person createTestPerson() {

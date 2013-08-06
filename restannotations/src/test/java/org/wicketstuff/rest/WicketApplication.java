@@ -26,9 +26,9 @@ import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.MultiFormatSerialDeserial;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
 import org.wicketstuff.rest.contenthandling.serialdeserial.XmlSerialDeser;
-import org.wicketstuff.rest.testJsonRequest.MultiFormatRestResource;
-import org.wicketstuff.rest.testJsonRequest.RegExpRestResource;
-import org.wicketstuff.rest.testJsonRequest.RestResourceFullAnnotated;
+import org.wicketstuff.rest.resource.MultiFormatRestResource;
+import org.wicketstuff.rest.resource.RegExpRestResource;
+import org.wicketstuff.rest.resource.RestResourceFullAnnotated;
 
 
 
