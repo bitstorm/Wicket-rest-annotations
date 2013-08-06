@@ -23,21 +23,35 @@ package org.wicketstuff.rest.contenthandling;
  *
  */
 public class RestMimeTypes {
+	public static final String APPLICATION_RSS_XML = "application/rss+xml;";
+
+	public static final String TEXT_CSS = "text/css";
+
+	public static final String TEXT_CSV = "text/csv";
+
+	public static final String TEXT_PLAIN = "text/plain";
+
+	public static final String TEXT_HTML = "text/html";
+
+	public static final String APPLICATION_XML = "application/xml";
+
+	public static final String APPLICATION_JSON = "application/json";
+
 	public static final String CHARSET_UT8 = "charset=utf-8";
 
-	public static final String JSON = "application/json;" + CHARSET_UT8;
+	public static final String JSON_UTF8 = APPLICATION_JSON + ";" + CHARSET_UT8;
 	
-	public static final String XML = "application/xml;" + CHARSET_UT8;
+	public static final String XML_UTF8 = APPLICATION_XML + ";" + CHARSET_UT8;
 	
-	public static final String HTML = "text/html;" + CHARSET_UT8;
+	public static final String HTML_UTF8 = TEXT_HTML + ";" + CHARSET_UT8;
 	
-	public static final String PLAIN_TEXT = "text/plain;" + CHARSET_UT8;
+	public static final String PLAIN_TEXT_UTF8 = TEXT_PLAIN + ";" + CHARSET_UT8;
 	
-	public static final String CSV = "text/csv;" + CHARSET_UT8;
+	public static final String CSV_UTF8 = TEXT_CSV + ";" + CHARSET_UT8;
 	
-	public static final String CSS = "text/css;" + CHARSET_UT8;
+	public static final String CSS_UTF8 = TEXT_CSS + ";" + CHARSET_UT8;
 	
-	public static final String RSS = "application/rss+xml;" + CHARSET_UT8;
+	public static final String RSS_UTF8 = APPLICATION_RSS_XML + ";" + CHARSET_UT8;
 	
 	public static final String IMAGE_GIF = "image/gif";
 	

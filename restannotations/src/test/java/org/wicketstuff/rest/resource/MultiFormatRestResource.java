@@ -35,7 +35,7 @@ public class MultiFormatRestResource extends AbstractRestResource<MultiFormatSer
 		super(jsonSerialDeserial);
 	}
 	
-	@MethodMapping(value = "/person", produces = RestMimeTypes.XML)
+	@MethodMapping(value = "/person", produces = RestMimeTypes.XML_UTF8)
 	public Person returnMarshaledObject(){
 		return RestResourceFullAnnotated.createTestPerson();
 	}

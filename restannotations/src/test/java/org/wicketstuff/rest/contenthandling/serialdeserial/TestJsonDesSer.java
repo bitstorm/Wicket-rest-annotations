@@ -40,4 +40,12 @@ public class TestJsonDesSer implements IObjectSerialDeserial {
 	public <T> T requestToObject(WebRequest request,Class<T> targetClass, String mimeType) {
 		return (T) getObject();
 	}
+
+	@Override
+	public boolean isMimeTypeSupported(String mimeType) {
+		if(mimeType != null && RestMimeTypes.JSON_UTF8.startsWith(mimeType))
+			return true;
+			
+		return false;
+	}
 }

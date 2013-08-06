@@ -21,6 +21,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import junit.framework.Assert;
+
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.util.lang.Args;
 import org.wicketstuff.rest.Person;
@@ -50,7 +52,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 	 * Method for GET requests and URLs like '<resource path>/5'. The id
 	 * parameter is automatically extracted from URL.
 	 */
-	@MethodMapping(value = "/{id}", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/{id}", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public int testMethodInt(int id) {
 		return id;
 	}
@@ -66,17 +68,17 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return person;
 	}
 
-	@MethodMapping(value = "/boolean/{boolean}", httpMethod = HttpMethod.GET, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/boolean/{boolean}", httpMethod = HttpMethod.GET, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodPostBoolean(boolean value) {
 		return "testMethodPostBoolean:" + value;
 	}
 
-	@MethodMapping(value = "/monoseg", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/monoseg", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodPostSegFixed() {
 		return "testMethodPostSegFixed";
 	}
 
-	@MethodMapping(value = "/", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodNoArgs() {
 		return "testMethodNoArgs";
 	}
@@ -93,7 +95,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 
 	}
 
-	@MethodMapping(value = "/products/{id}", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/products/{id}", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodGetParameter(int productId, @RequestParam("price") float prodPrice) {
 		Args.notNull(productId, "productId");
 		Args.notNull(prodPrice, "price");
@@ -101,7 +103,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testMethodGetParameter";
 	}
 
-	@MethodMapping(value = "/book/{id}", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/book/{id}", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodHeaderParameter(int productId, @HeaderParam("price") float prodPrice) {
 		Args.notNull(productId, "productId");
 		Args.notNull(prodPrice, "price");
@@ -109,7 +111,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testMethodHeaderParameter";
 	}
 
-	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/person/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testMethodCookieParameter(@CookieParam("name") String name, int id,
 			@MatrixParam(segmentIndex = 1, parameterName = "height") float height) {
 		Args.notNull(id, "id");
@@ -119,7 +121,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testMethodCookieParameter:" + id + name;
 	}
 
-	@MethodMapping(value = "/book/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/book/{id}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testPostRequestParameter(int productId, @RequestParam("title") String title) {
 		Args.notNull(productId, "productId");
 		Args.notNull(title, "title");
@@ -127,7 +129,7 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testPostRequestParameter";
 	}
 
-	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/param/{id}/annotated/{name}", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testAnnotatedParameters(int id, @TestAnnotation String name,
 			@TestAnnotation @RequestParam("title") String title) {
 		Args.notNull(id, "id");
@@ -137,14 +139,14 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testAnnotatedParameters";
 	}
 
-	@MethodMapping(value = "/test/with/headerparams", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/test/with/headerparams", httpMethod = HttpMethod.POST, produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testHeaderParams(@HeaderParam("credential") String credential) {
 		Args.notNull(credential, "credential");
 		
 		return "testHeaderParams";
 	}
 	
-	@MethodMapping(value = "/variable/{p1}/order/{p2}", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/variable/{p1}/order/{p2}", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testParamOutOfOrder(@PathParam("p2") String textParam, @PathParam("p1") int intParam) {
 		Args.notNull(textParam, "textParam");
 		Args.notNull(intParam, "intParam");
@@ -152,13 +154,15 @@ public class RestResourceFullAnnotated extends AbstractRestResource<TestJsonDesS
 		return "testParamOutOfOrder";
 	}
 	
-	@MethodMapping(value = "/testreqdef", produces = RestMimeTypes.PLAIN_TEXT)
+	@MethodMapping(value = "/testreqdef", produces = RestMimeTypes.PLAIN_TEXT_UTF8)
 	public String testRequiredDefalutl(
 			@RequestParam(value = "fromRequest", required = false) String request,
-			@CookieParam(value = "cookie", defaultValue = "true") boolean cookie) {
+			@CookieParam(value = "cookie", defaultValue = "true") boolean cookie,
+			@HeaderParam(value = "price", defaultValue = "12.6") float price) {
 		
 		Args.isTrue(request == null, "must be null!");
 		Args.isTrue(cookie, "must be true!");
+		Assert.assertEquals(12.6, price);
 		
 		return "testRequiredDefalutl";
 	}

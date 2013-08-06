@@ -87,8 +87,8 @@ public class WicketApplication extends WebApplication implements IRoleCheckingSt
 			public IResource getResource() {
 				MultiFormatSerialDeserial multiFormat = new MultiFormatSerialDeserial();
 				
-				multiFormat.registerSerDeser(RestMimeTypes.JSON, new TestJsonDesSer());
-				multiFormat.registerSerDeser(RestMimeTypes.XML, new XmlSerialDeser());
+				multiFormat.registerSerDeser(RestMimeTypes.JSON_UTF8, new TestJsonDesSer());
+				multiFormat.registerSerDeser(RestMimeTypes.XML_UTF8, new XmlSerialDeser());
 				
 				return new MultiFormatRestResource(multiFormat);
 			}

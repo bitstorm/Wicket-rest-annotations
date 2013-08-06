@@ -16,6 +16,7 @@
  */
 package org.wicketstuff.rest.resource.gson;
 
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TextualObjectSerialDeserial;
 
 import com.google.gson.Gson;
@@ -46,5 +47,13 @@ public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 	@Override
 	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
 		return gson.fromJson(source, targetClass);
+	}
+
+	@Override
+	public boolean isMimeTypeSupported(String mimeType) {
+		if(mimeType != null && RestMimeTypes.JSON_UTF8.startsWith(mimeType))
+			return true;
+		
+		return false;
 	}
 }

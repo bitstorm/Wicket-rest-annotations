@@ -22,7 +22,7 @@ import javax.xml.bind.JAXB;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.http.WebResponse;
 import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
-import org.wicketstuff.rest.utils.http.HttpUtils;
+import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
 public class XmlSerialDeser implements IObjectSerialDeserial {
 
@@ -38,6 +38,14 @@ public class XmlSerialDeser implements IObjectSerialDeserial {
 			throws Exception {
 		HttpServletRequest httpRequest = (HttpServletRequest) request.getContainerRequest();
 		return JAXB.unmarshal(httpRequest.getInputStream(), argClass);
+	}
+
+	@Override
+	public boolean isMimeTypeSupported(String mimeType) {
+		if(mimeType != null && RestMimeTypes.XML_UTF8.startsWith(mimeType))
+			return true;
+		
+		return false;
 	}
 
 }

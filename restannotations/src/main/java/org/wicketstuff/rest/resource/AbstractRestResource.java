@@ -133,7 +133,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 				response.sendError(401, "User is not allowed to invoke method on server.");
 				return;
 			}
-
+		
 			onBeforeMethodInvoked(mappedMethod, attributes);
 			Object result = invokeMappedMethod(mappedMethod, attributes);
 			onAfterMethodInvoked(mappedMethod, attributes, result);
@@ -189,7 +189,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 		try {
 			response.setContentType(mimeType);
 
-			if (RestMimeTypes.PLAIN_TEXT.equals(mimeType))
+			if (RestMimeTypes.PLAIN_TEXT_UTF8.equals(mimeType))
 				response.write(result.toString());
 			else
 				objSerialDeserial.objectToResponse(result, response, mimeType);

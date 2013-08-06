@@ -66,13 +66,7 @@ public class MultiFormatSerialDeserial implements IObjectSerialDeserial {
 		serialsDeserials.put(mimeType, serialDeserial);
 	}
 	
-	/**
-	 * Check if a given MIME type is handled.
-	 * 
-	 * @param mimeType
-	 * 			the MIME type we want to check.
-	 * @return true if the MIME type is supported, false otherwise.
-	 */
+	@Override
 	public boolean isMimeTypeSupported(String mimeType){
 		return serialsDeserials.get(mimeType) != null;
 	}

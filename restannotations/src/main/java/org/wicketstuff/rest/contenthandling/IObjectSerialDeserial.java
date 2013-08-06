@@ -52,4 +52,13 @@ public interface IObjectSerialDeserial {
 	 * @return the object extracted from the request.
 	 */
 	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType) throws Exception;
+	
+	/**
+	 * Check if a given MIME type is handled.
+	 * 
+	 * @param mimeType
+	 * 			the MIME type we want to check.
+	 * @return true if the MIME type is supported, false otherwise.
+	 */
+	public boolean isMimeTypeSupported(String mimeType);
 }
