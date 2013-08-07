@@ -20,6 +20,7 @@ import java.lang.annotation.Annotation;
 
 import org.wicketstuff.rest.resource.MethodMappingInfo;
 
+// TODO: Auto-generated Javadoc
 /**
  * The class contains the informations of a method parameter, like its type or
  * its index in the array of method parameters.
@@ -63,6 +64,14 @@ public class MethodParameter {
 		this.deaultValue = loadParamAnnotationField("defaultValue", "");
 	}
 
+	/**
+	 * Load param annotation field.
+	 *
+	 * @param <T> the generic type
+	 * @param fieldName the field name
+	 * @param defaultValue the default value
+	 * @return the t
+	 */
 	private <T> T loadParamAnnotationField(String fieldName, T defaultValue) {
 		Annotation annotation = ReflectionUtils.getAnnotationParam(paramIndex, ownerMethod.getMethod());
 		T methodResult = null;
@@ -100,10 +109,20 @@ public class MethodParameter {
 		return paramIndex;
 	}
 
+	/**
+	 * Checks if the parameter required.
+	 *
+	 * @return true, if is required
+	 */
 	public boolean isRequired() {
 		return required;
 	}
 
+	/**
+	 * Gets the deault value for the parameter.
+	 *
+	 * @return the deault value
+	 */
 	public String getDeaultValue() {
 		return deaultValue;
 	}

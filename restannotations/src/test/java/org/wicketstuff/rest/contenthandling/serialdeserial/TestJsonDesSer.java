@@ -16,13 +16,14 @@
  */
 package org.wicketstuff.rest.contenthandling.serialdeserial;
 
-import org.apache.wicket.request.http.WebRequest;
-import org.apache.wicket.request.http.WebResponse;
-import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.resource.RestResourceFullAnnotated;
 
-public class TestJsonDesSer implements IObjectSerialDeserial {
+public class TestJsonDesSer extends TextualObjectSerialDeserial {
+	public TestJsonDesSer() {
+		super("UTF-8", RestMimeTypes.APPLICATION_JSON);
+	}
+
 	static public Object getObject(){
 		return RestResourceFullAnnotated.createTestPerson();
 	}
@@ -32,20 +33,12 @@ public class TestJsonDesSer implements IObjectSerialDeserial {
 	}
 
 	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) {
-		response.write(getJSON());
+	public String objectToString(Object targetObject, String mimeType) {
+		return getJSON();
 	}
 
 	@Override
-	public <T> T requestToObject(WebRequest request,Class<T> targetClass, String mimeType) {
+	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
 		return (T) getObject();
-	}
-
-	@Override
-	public boolean isMimeTypeSupported(String mimeType) {
-		if(mimeType != null && RestMimeTypes.APPLICATION_JSON.equals(mimeType))
-			return true;
-			
-		return false;
 	}
 }

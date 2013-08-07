@@ -16,36 +16,31 @@
  */
 package org.wicketstuff.rest.contenthandling.serialdeserial;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.StringWriter;
+
 import javax.xml.bind.JAXB;
 
-import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
-import org.wicketstuff.rest.contenthandling.IObjectSerialDeserial;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 
-public class XmlSerialDeser implements IObjectSerialDeserial {
+public class XmlSerialDeser extends TextualObjectSerialDeserial {
 
-	@Override
-	public void objectToResponse(Object targetObject, WebResponse response, String mimeType)
-			throws Exception {
-		
-		JAXB.marshal(targetObject, response.getOutputStream());
+	public XmlSerialDeser() {
+		super("UTF-8", RestMimeTypes.APPLICATION_XML);
 	}
 
 	@Override
-	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType)
-			throws Exception {
-		HttpServletRequest httpRequest = (HttpServletRequest) request.getContainerRequest();
-		return JAXB.unmarshal(httpRequest.getInputStream(), argClass);
+	public String objectToString(Object targetObject, String mimeType) {
+		 WebResponse response = (WebResponse) RequestCycle.get().getResponse();
+		 StringWriter stringWriter = new StringWriter();
+		 JAXB.marshal(targetObject, stringWriter);
+		 
+		 return stringWriter.toString();
 	}
 
 	@Override
-	public boolean isMimeTypeSupported(String mimeType) {
-		if(mimeType != null && RestMimeTypes.APPLICATION_XML.equals(mimeType))
-			return true;
-		
-		return false;
+	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
+		return JAXB.unmarshal(source, targetClass);
 	}
-
 }

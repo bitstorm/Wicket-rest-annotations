@@ -139,7 +139,7 @@ With annotation `@AuthorizeInvocation` we can apply security restrictions to map
 	}
 ````
 
-To user ole-based authorization we must specify in the resource construcor an instance of Wicket interface 'IRoleCheckingStrategy'.
+To user ole-based authorization we must specify in the resource construcor an instance of Wicket interface `IRoleCheckingStrategy`.
 
 
 

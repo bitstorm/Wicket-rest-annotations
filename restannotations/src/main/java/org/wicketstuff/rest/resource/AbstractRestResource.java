@@ -188,11 +188,7 @@ public abstract class AbstractRestResource<T extends IObjectSerialDeserial> impl
 	private void serializeObjectToResponse(WebResponse response, Object result, String mimeType) {
 		try {
 			response.setContentType(mimeType);
-
-			if (RestMimeTypes.TEXT_PLAIN.equals(mimeType))
-				response.write(result.toString());
-			else
-				objSerialDeserial.objectToResponse(result, response, mimeType);
+			objSerialDeserial.objectToResponse(result, response, mimeType);
 		} catch (Exception e) {
 			throw new RuntimeException("Error writing object to response.", e);
 		}

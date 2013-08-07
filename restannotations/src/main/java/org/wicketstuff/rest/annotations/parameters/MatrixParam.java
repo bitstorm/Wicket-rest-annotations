@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * This annotation indicates that the value of a method parameter
- * must be read from a given segment as matrix parameter.
+ * must be read from a given segment as <a href="http://www.w3.org/DesignIssues/MatrixURIs.html">matrix parameter</a>.
  * 
  * @author andrea del bene
  *

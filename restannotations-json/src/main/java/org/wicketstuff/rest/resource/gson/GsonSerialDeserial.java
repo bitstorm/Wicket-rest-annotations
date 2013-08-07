@@ -36,6 +36,7 @@ public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 	}
 	
 	public GsonSerialDeserial(Gson gson) {
+		super("UTF-8", RestMimeTypes.APPLICATION_JSON);
 		this.gson = gson;
 	}
 
@@ -47,13 +48,5 @@ public class GsonSerialDeserial extends TextualObjectSerialDeserial {
 	@Override
 	public <T> T stringToObject(String source, Class<T> targetClass, String mimeType) {
 		return gson.fromJson(source, targetClass);
-	}
-
-	@Override
-	public boolean isMimeTypeSupported(String mimeType) {
-		if(mimeType != null && RestMimeTypes.APPLICATION_JSON.equals(mimeType))
-			return true;
-		
-		return false;
 	}
 }
