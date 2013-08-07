@@ -24,10 +24,4 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.resource.ResourceReference;
 
 public class Index extends WebPage {
-	
-	@Override
-	public void renderHead(IHeaderResponse response) {
-		ResourceReference jQueryReference = Application.get().getJavaScriptLibrarySettings().getJQueryReference();
-		response.render(new PriorityHeaderItem(JavaScriptHeaderItem.forReference(jQueryReference)));
-	}
 }
