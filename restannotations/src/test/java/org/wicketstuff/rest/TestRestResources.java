@@ -31,6 +31,7 @@ import junit.framework.Assert;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.util.tester.WicketTester;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class TestRestResources {
 	public void setUp() {
 		tester = new WicketTester(new WicketApplication(roles));
 	}
-
+	
 	@Test
 	public void testMethodParametersTypeResolving() {
 		// start and render the test page

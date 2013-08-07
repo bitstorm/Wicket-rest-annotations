@@ -16,10 +16,15 @@
  */
 package org.wicketstuff.rest;
 
+import java.util.Locale;
+
+import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authorization.strategies.role.IRoleCheckingStrategy;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
@@ -94,5 +99,13 @@ public class WicketApplication extends WebApplication implements IRoleCheckingSt
 			}
 			
 		});
+	}
+	
+	@Override
+	public Session newSession(Request request, Response response) {
+		Session session = super.newSession(request, response);
+		session.setLocale(Locale.ENGLISH);
+		
+		return session;
 	}
 }
