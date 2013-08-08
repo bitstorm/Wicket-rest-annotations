@@ -28,6 +28,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import junit.framework.Assert;
 
+import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.util.tester.WicketTester;
@@ -36,6 +37,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.wicketstuff.rest.annotations.parameters.RequestBody;
 import org.wicketstuff.rest.contenthandling.RestMimeTypes;
 import org.wicketstuff.rest.contenthandling.serialdeserial.TestJsonDesSer;
 import org.wicketstuff.rest.resource.RestResourceFullAnnotated;
@@ -54,6 +56,12 @@ public class TestRestResources {
 	@Before
 	public void setUp() {
 		tester = new WicketTester(new WicketApplication(roles));
+	}
+	
+	@After
+	public void tearDown(){
+		//session must remain temporary.
+		Assert.assertTrue(Session.get().isTemporary());
 	}
 	
 	@Test
@@ -110,10 +118,11 @@ public class TestRestResources {
 
 	@Test
 	public void testJsonDeserializedParamRequest() {
-		// test if @JsonBody annotation
-		BufferedMockRequest jsonMockRequest = new BufferedMockRequest(tester.getRequest(), "POST");
+		// test @RequestBody annotation 
+		BufferedMockRequest jsonMockRequest = new BufferedMockRequest(tester.getApplication(), tester.getHttpSession(),
+				tester.getServletContext(), "POST");
 		jsonMockRequest.setReader(new BufferedReader(new StringReader(TestJsonDesSer.getJSON())));
-
+	
 		tester.setRequest(jsonMockRequest);
 		tester.executeUrl("./api/19");
 	}

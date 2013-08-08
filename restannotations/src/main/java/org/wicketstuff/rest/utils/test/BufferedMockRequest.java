@@ -20,6 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+
 import org.apache.wicket.Application;
 import org.apache.wicket.protocol.http.mock.MockHttpServletRequest;
 
@@ -32,9 +35,9 @@ import org.apache.wicket.protocol.http.mock.MockHttpServletRequest;
 public class BufferedMockRequest extends MockHttpServletRequest {
 	BufferedReader reader;
 	
-	public BufferedMockRequest(MockHttpServletRequest mockHttpServletRequest, String method) {
-		super(Application.get(), mockHttpServletRequest.getSession(), mockHttpServletRequest.getServletContext());
-		setMethod(method);
+	public BufferedMockRequest(Application application, HttpSession session, ServletContext context, String httpMethod) {
+		super(application, session, context);
+		setMethod(httpMethod);
 	}
 	
 	@Override

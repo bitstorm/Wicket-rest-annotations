@@ -42,7 +42,8 @@ public class TestPersonResource extends Assert
 	@Test
 	public void testCreatePerson()
 	{
-		BufferedMockRequest mockRequest =new BufferedMockRequest(tester.getRequest(), "POST");
+		BufferedMockRequest mockRequest =new BufferedMockRequest(tester.getApplication(), tester.getHttpSession(),
+				tester.getServletContext(), "POST");
 		String jsonObj = gson.toJson(new PersonPojo("James", "Smith", "changeit"));
 		
 		mockRequest.setTextAsRequestBody(jsonObj);
