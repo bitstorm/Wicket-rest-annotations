@@ -142,6 +142,7 @@ With annotation `@AuthorizeInvocation` we can apply security restrictions to map
 ````
 
 To use annotation `@AuthorizeInvocation` we must specify in the resource construcor an instance of Wicket interface `IRoleCheckingStrategy`.
+
 **Note:** annotations `@HeaderParam`, `@CookieParam`, `@MatrixParam`, `@RequestParam` expose flag `required` to make them optional, and attribute `defaultValue` to specify a default value.
 
 
