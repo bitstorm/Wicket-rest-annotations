@@ -9,7 +9,7 @@ This project provides a special resource class and a set of annotations to imple
 Quick overview
 ---------
 
-The project provides class `AbstractRestResource` as generic abstract class to implement a Wicket resource that handles the request and the response using a particular data format (XML, JSON, etc...). 
+The project provides class `AbstractRestResource` as generic abstract class to implement a Wicket resource that handles the request and the response using a particular data format (XML, JSON, etc...). <br/>
 Subclassing `AbstractRestResource` we can create custom resources and map their pubblic methods to a given subpath with annotation `@MethodMapping`. The following snippet is taken from resource `PersonsRestResource` inside module 'restannotations-examples':
 
 ````java
@@ -30,9 +30,9 @@ Subclassing `AbstractRestResource` we can create custom resources and map their 
 	}
 ````
 
-`@MethodMapping` requires to specify the subpath we want to map the method to. In addition we can specify also the HTTP method that must be used to invoke the method via REST (GET, POST, DELETE, etc...). This value can be specified with enum class `HttpMethod` and is GET by default. For more details on `@MethodMapping` see the section 'Annotations and advanced mapping'.
-To promote the principle of *convetion over configuration*, we don't need to use any annotation to map method parameters to path parameters if they are declared in the same order. If we need to manually bind method parameters to path parameters we can use annotation `PathParam`. See the section below to know how to use it.
-If the mapped method returns a value, this last is automatically serialized to the supported data format and written to response object (we will shortly see how to work with data formats).
+`@MethodMapping` requires to specify the subpath we want to map the method to. In addition we can specify also the HTTP method that must be used to invoke the method via REST (GET, POST, DELETE, etc...). This value can be specified with enum class `HttpMethod` and is GET by default. For more details on `@MethodMapping` see the section 'Annotations and advanced mapping'.<br/>
+To promote the principle of *convetion over configuration*, we don't need to use any annotation to map method parameters to path parameters if they are declared in the same order. If we need to manually bind method parameters to path parameters we can use annotation `PathParam`. See section 'Annotations and advanced mapping' to know how to use it.<br/>
+If the mapped method returns a value, this last is automatically serialized to the supported data format and written to response object (we will shortly see how to work with data formats).<br/>
 Annotation `@RequestBody` is used to extract the value of a method parameter from the request body.
 
 **Note:** to convert strings to Java type, `AbstractRestResource` uses the standard Wicket mechanism based on the application converter locator:
@@ -50,12 +50,12 @@ public interface IObjectSerialDeserial {
 	public void objectToResponse(Object targetObject, WebResponse response, String mimeType) throws Exception;
 
 	public <T> T requestToObject(WebRequest request, Class<T> argClass, String mimeType) throws Exception;
-}
 
 	public boolean isMimeTypeSupported(String mimeType);
+}
 ````
 
-The first two methods are the operations needed to write an object to the response body and to read an object from request body. Methods `isMimeTypeSupported` is used to know if a MIME format is supported by a given object serial/deserial. To work with MIME types we can use string constants from class `RestMimeTypes`. The main module comes with class `TextualObjectSerialDeserial` which can be used as base class to implemnt serial/deserial that work with a textual MIME type and that need to know which charset encoding should be used.
+The first two methods are the operations needed to write an object to the response body and to read an object from request body. Methods `isMimeTypeSupported` is used to know if a MIME format is supported by a given object serial/deserial. To work with MIME types we can use string constants from class `RestMimeTypes`. The main module comes with class `TextualObjectSerialDeserial` which can be used as base class to implement serial/deserial that work with a textual MIME type and that needs to know which charset encoding should be used.<br/>
 As JSON is de-facto standard format for REST API, the project comes also with a ready-to-use resource (`GsonRestResource`) and a serial/deserial (`GsonSerialDeserial`) that work with JSON format (both inside module 'restannotations-json'). These classes use [Gson](http://code.google.com/p/google-gson/) as Json library. Resource `PersonsRestResource` in the example module is based on `GsonRestResource`.
 
 Use multiple data format
@@ -141,7 +141,8 @@ With annotation `@AuthorizeInvocation` we can apply security restrictions to map
 	}
 ````
 
-To user ole-based authorization we must specify in the resource construcor an instance of Wicket interface `IRoleCheckingStrategy`.
+To use annotation `@AuthorizeInvocation` we must specify in the resource construcor an instance of Wicket interface `IRoleCheckingStrategy`.
+**Note:** annotations `@HeaderParam`, `@CookieParam`, `@MatrixParam`, `@RequestParam` expose flag `required` to make them optional, and attribute `defaultValue` to specify a default value.
 
 
 ### Advanced mapping ###
