@@ -74,8 +74,8 @@ If we want to use multiple mime types with our REST resource, we must use an imp
 ````java
 	MultiFormatSerialDeserial multiFormat = new MultiFormatSerialDeserial();
 	//register one serial/deserial for JSON and another one for XML	
-	multiFormat.registerSerDeser(RestMimeTypes.APPLICATION_JSON, new TestJsonDesSer());
-	multiFormat.registerSerDeser(RestMimeTypes.TEXT_XML, new XmlSerialDeser());
+	multiFormat.registerSerDeser(new TestJsonDesSer(), RestMimeTypes.APPLICATION_JSON);
+	multiFormat.registerSerDeser(new XmlSerialDeser(), RestMimeTypes.TEXT_XML);
 				
 ````
 
