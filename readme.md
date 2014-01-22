@@ -163,6 +163,6 @@ Hook methods
 ---------
 To customize the configuration and the behavior of our resource, the following hook methods are provided:
 
-+ **_configureObjSerialDeserial(T objSerialDeserial)_:** called by constructor to configure the object serial/deserial.
++ **_onInitialize(T objSerialDeserial)_:** called by constructor to configure the object serial/deserial.
 + **_onBeforeMethodInvoked(MethodMappingInfo mappedMethod,Attributes attribs)_:** triggered just before the mapped method is invoked to serve the request. The method takes in input `mappedMethod` which contains the details on the method that is going to be invoked, and `attribs` which is the current Attributes object.
 + **_onAfterMethodInvoked(MethodMappingInfo mappedMethod,Attributes attribs,Object res)_:** triggered just after the mapped method is invoked to serve the request. In addition to the parameters exposed by _onBeforeMethodInvoked_, in this method we find also the object returned by the invoked method.
