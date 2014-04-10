@@ -1,6 +1,6 @@
 #Important NOTE!!!
 
-This Wicket module has been imported into [WicketStuff repository](https://github.com/wicketstuff/core). Please refer to its [homepage](https://github.com/wicketstuff/core/wiki/Wicket-REST-annotations) for the last version and features.
+This Wicket module has been imported into [WicketStuff repository](https://github.com/wicketstuff/core). Please refer to its [homepage](https://github.com/wicketstuff/core/wiki/Wicket-REST-annotations) for the last version and the updated documentation.
 
 
 #Wicket rest annotaions
